@@ -1,0 +1,189 @@
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pg_trgm, unaccent]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum SkillVisibility {
+  PRIVATE
+  UNLISTED
+  PUBLIC
+}
+
+model User {
+  id            String      @id @default(uuid()) @db.Uuid
+  name          String
+  email         String      @unique
+  emailVerified Boolean     @default(false)
+  image         String?
+  handle        String      @unique
+  status        UserStatus  @default(ACTIVE)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  skills        Skill[]
+  versions      SkillVersion[]
+  sessions      Session[]
+  accounts      Account[]
+
+  @@index([status])
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String   @db.Uuid
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(uuid()) @db.Uuid
+  accountId             String
+  providerId            String
+  userId                String    @db.Uuid
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(uuid()) @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, value])
+}
+
+model Skill {
+  id                  String          @id @default(uuid()) @db.Uuid
+  ownerId             String          @db.Uuid
+  slug                String
+  name                String
+  description         String
+  tags                String[]
+  visibility          SkillVisibility @default(PRIVATE)
+  shareToken          String?         @unique
+  currentVersionId    String?         @db.Uuid
+  forkedFromId        String?         @db.Uuid
+  forkedFromVersionId String?         @db.Uuid
+  forkedFromSnapshot  Json?
+  sourceUrl           String?
+  sourceCommit        String?
+  searchText          String?         @db.Text
+  deletedAt           DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  owner               User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  forkedFrom          Skill?          @relation("SkillForks", fields: [forkedFromId], references: [id], onDelete: SetNull)
+  forks               Skill[]         @relation("SkillForks")
+  versions            SkillVersion[]
+  currentVersion      SkillVersion?   @relation("CurrentVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+
+  @@unique([ownerId, slug])
+  @@index([ownerId, deletedAt])
+  @@index([visibility, deletedAt])
+  @@index([tags], type: Gin)
+}
+
+model SkillVersion {
+  id          String      @id @default(uuid()) @db.Uuid
+  skillId     String      @db.Uuid
+  number      Int
+  message     String?
+  contentHash String
+  createdById String      @db.Uuid
+  createdAt   DateTime    @default(now())
+
+  skill       Skill       @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  createdBy   User        @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  files       SkillFile[]
+  currentFor  Skill[]     @relation("CurrentVersion")
+
+  @@unique([skillId, number])
+  @@index([skillId])
+  @@index([contentHash])
+}
+
+model SkillFile {
+  id         String       @id @default(uuid()) @db.Uuid
+  versionId  String       @db.Uuid
+  path       String
+  blobSha256 String
+  size       Int
+  mimeType   String
+  isText     Boolean
+
+  version    SkillVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  blob       Blob         @relation(fields: [blobSha256], references: [sha256], onDelete: Restrict)
+
+  @@unique([versionId, path])
+  @@index([versionId])
+  @@index([blobSha256])
+}
+
+model Blob {
+  sha256     String      @id
+  size       Int
+  storageKey String
+  createdAt  DateTime    @default(now())
+
+  files      SkillFile[]
+}
+
+model RateLimitBucket {
+  key         String
+  windowStart DateTime
+  count       Int
+
+  @@id([key, windowStart])
+  @@index([windowStart])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @db.Uuid
+  action     String
+  targetType String
+  targetId   String?
+  ip         String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
