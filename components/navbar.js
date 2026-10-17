@@ -54,12 +54,12 @@ export default function Navbar({ user }) {
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <>
-              <div className="hidden sm:flex items-center gap-2 rounded-full border bg-muted/30 px-3 py-1 text-xs font-medium">
-                <span className="h-2 w-2 rounded-full bg-green-500" />
-                <span>@{user.handle}</span>
+              <div className="flex items-center gap-1.5 rounded-full border bg-muted/30 px-2.5 py-1 text-xs font-medium max-w-[120px] truncate">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-500" />
+                <span className="truncate">@{user.handle}</span>
               </div>
 
               <Link

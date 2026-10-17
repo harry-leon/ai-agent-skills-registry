@@ -60,7 +60,8 @@ test.describe('Milestone M1.2: Authentication End-to-End Browser Flows', () => {
     await expect(page.locator('body')).toContainText('Nếu email tồn tại trong hệ thống');
   });
 
-  test('Guarded layout redirects unauthenticated access', async ({ page }) => {
+  test('Guarded layout redirects unauthenticated access', async ({ page, context }) => {
+    await context.clearCookies();
     await page.goto('/dashboard');
     await page.waitForURL('**/login', { timeout: 10000 });
     await expect(page.locator('h1')).toContainText('Đăng nhập');

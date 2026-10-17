@@ -58,8 +58,11 @@ export const GET = apiRoute({
         status: 200,
         headers: {
           'Content-Type': file.mimeType || 'application/octet-stream',
-          'Content-Disposition': `${disposition}; filename="${encodeURIComponent(filename)}"`,
+          'Content-Disposition': `${disposition}; filename="${encodeURIComponent(filename)}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
           'Content-Length': String(file.size),
+          'X-Content-Type-Options': 'nosniff',
+          'Content-Security-Policy': 'sandbox',
+          'x-trace-id': traceId,
           'Cache-Control': 'private, max-age=3600',
         },
       });

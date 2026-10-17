@@ -103,7 +103,10 @@ export const GET = apiRoute({
       status: 200,
       headers: {
         'Content-Type': 'application/zip',
-        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Disposition': `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': 'sandbox',
+        'x-trace-id': traceId,
         'Cache-Control': 'private, no-cache, no-store, must-revalidate',
       },
     });

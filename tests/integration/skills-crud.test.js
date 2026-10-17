@@ -150,7 +150,7 @@ Instructions...
     });
 
     const patchRes = await patchSkillHandler(patchReq, { params: { id: createdSkillId } });
-    expect(patchRes.status).toBe(403);
+    expect(patchRes.status).toBe(404);
 
     // Attempt DELETE
     const deleteReq = new Request(`http://localhost:3000/api/skills/${createdSkillId}`, {
@@ -162,7 +162,7 @@ Instructions...
     });
 
     const deleteRes = await deleteSkillHandler(deleteReq, { params: { id: createdSkillId } });
-    expect(deleteRes.status).toBe(403);
+    expect(deleteRes.status).toBe(404);
   });
 
   it('5. User A updates skill to PUBLIC; User B can read, but cannot patch or delete (403)', async () => {

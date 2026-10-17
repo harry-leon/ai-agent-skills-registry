@@ -2,7 +2,7 @@
 
 **Phase**: Phase 1 (MVP)  
 **Status**: In Progress  
-**Current Milestone**: M1.7 Completed, Ready for M1.8  
+**Current Milestone**: M1.8 Completed, Ready for M1.9  
 **Updated**: 2026-10-18
 
 ---
@@ -18,7 +18,8 @@ SkillVault is a secure, multi-user web application to store, organize, search, u
 - **Milestone M1.4 (Skills CRUD & Upload)**: Completed & Committed (`129bdbd`).
 - **Milestone M1.5 (Viewer and Editor)**: Completed & Committed (`e1f4a67`).
 - **Milestone M1.6 (Fork and GitHub Import)**: Completed & Committed (`4506cf8`).
-- **Milestone M1.7 (Library and Search)**: Completed & Verified (Vitest 108/108, Playwright 18/18 across 375px/768px/1440px, build ✔).
+- **Milestone M1.7 (Library and Search)**: Completed & Committed (`8f727fe`).
+- **Milestone M1.8 (Hardening, Docs, Production Build)**: Completed & Verified (Vitest 146/146, Playwright 18/18 across 375px/768px/1440px, build ✔, audit ✔).
 
 ---
 
@@ -36,7 +37,9 @@ SkillVault is a secure, multi-user web application to store, organize, search, u
 - **Forking**: Clones skill with `PRIVATE` visibility, points `SkillFile` rows at existing blob SHA-256 hashes (zero blob duplication), records attribution snapshot (`forkedFromSnapshot`), assigns unique slug suffix.
 - **GitHub Import**: SSRF-defended parser (`lib/skills/github.js`), manual redirect checks (strict `api.github.com` and `codeload.github.com` allowlist), token never forwarded to non-API hosts, 100MB download abort guard, subpath re-rooting into S6 pipeline.
 - **Search & Discovery**: Weighted full-text search vector + `immutable_unaccent` + `websearch_to_tsquery('simple', ...)` with `pg_trgm` fallback in `lib/dal/search.js`. Keyset cursor pagination with deterministic tie-breaking on `(updatedAt, id)`. Public `/explore` discovery and caller `/dashboard` library filtering.
-- **Testing**: Vitest 5.0.3 (unit + integration on real PostgreSQL), Playwright 1.63.0 (e2e across 375px, 768px, 1440px).
+- **Security Matrix & Response Hardening**: Full automated authorization matrix in `tests/integration/security-matrix.test.js` (38 tests) verifying unauthenticated 401s, IDOR hidden existence (404 for private/unlisted, 403 for public mutations), mass assignment rejection (422), and response security headers (`X-Content-Type-Options: nosniff`, `Content-Security-Policy: sandbox`, `Content-Disposition`, `x-trace-id`).
+- **Documentation & Deployment**: Complete `README.md`, `docs/ARCHITECTURE.md`, `docs/SECURITY.md`, `docs/DECISIONS.md`, production `Dockerfile` (standalone runner), `docker-compose.yml`, GitHub Actions CI workflow, and Dependabot config.
+- **Testing**: Vitest 5.0.3 (146/146 unit + integration on real PostgreSQL), Playwright 1.63.0 (18/18 e2e across 375px, 768px, 1440px).
 - **Lint/format**: ESLint (+ eslint-config-next), Prettier.
 
 ---
@@ -61,8 +64,8 @@ SkillVault is a secure, multi-user web application to store, organize, search, u
 | **M1.5**    | Viewer and Editor (CodeMirror, Markdown preview, Archiver zip)     | 🟢 Complete | lint ✔ \| tests 66/66 \| e2e 12/12 (375/768/1440) \| build ✔          |
 | **M1.6**    | Fork and GitHub Import (SSRF defense, Attribution, Badges)         | 🟢 Complete | lint ✔ \| tests 93/93 \| e2e 15/15 (375/768/1440) \| build ✔          |
 | **M1.7**    | Library and Search (Full-text tsquery, unaccent, Filters, Explore) | 🟢 Complete | lint ✔ \| tests 108/108 \| e2e 18/18 (375/768/1440) \| build ✔        |
-| **M1.8**    | Hardening, Docs, Production Build (Matrix tests, Docker, CI)       | 🟡 Next     | Pending                                                               |
-| **M1.9**    | Final Verification & Walkthrough (Full suite, Playwright, Audit)   | ⚪ Planned  | -                                                                     |
+| **M1.8**    | Hardening, Docs, Production Build (Matrix tests, Docker, CI)       | 🟢 Complete | lint ✔ \| tests 146/146 \| e2e 18/18 \| build ✔ \| audit ✔             |
+| **M1.9**    | Final Verification & Walkthrough (Definition of Done, Walkthrough) | 🟡 Next     | Pending                                                               |
 
 ---
 
@@ -74,8 +77,7 @@ SkillVault is a secure, multi-user web application to store, organize, search, u
 
 ## 6. Next Actions
 
-1. Begin Milestone M1.8: Hardening, Docs, Production Build:
-   - Security audit: Review 10 security review questions from Section 14 of Master Prompt.
-   - Docs: Update `README.md`, `docs/ARCHITECTURE.md`, `docs/SECURITY.md`, `docs/DECISIONS.md`.
-   - Production Dockerfile and docker-compose configurations.
-   - Run full matrix tests, verify seed script, production build check.
+1. Proceed to Milestone M1.9: Final Verification & Walkthrough:
+   - Produce Walkthrough Artifact covering Section 14 Definition of Done checklist, 10 security review questions, and multi-viewport verification.
+   - Present final Phase 1 MVP status and request explicit approval (`APPROVED PHASE 1`).
+
