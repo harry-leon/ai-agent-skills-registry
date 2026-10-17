@@ -37,7 +37,7 @@ export default [
     },
   },
   {
-    files: ['lib/dal/**/*.js', 'lib/auth/**/*.js'],
+    files: ['lib/dal/**/*.js', 'lib/auth/**/*.js', 'tests/**/*.js'],
     rules: {
       'no-restricted-imports': 'off',
     },
