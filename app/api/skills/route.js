@@ -4,7 +4,8 @@ import { successResponse, errorResponse } from '@/lib/api/responses.js';
 import { ERROR_CODES, AppError } from '@/lib/api/errors.js';
 import { RATE_LIMIT_CONFIGS } from '@/lib/rate-limit/config.js';
 import { ingestSkill } from '@/lib/skills/ingest.js';
-import { createSkillWithVersion, listOwnerSkills } from '@/lib/dal/skills.js';
+import { createSkillWithVersion } from '@/lib/dal/skills.js';
+import { searchPublicSkills } from '@/lib/dal/search.js';
 import { getClientIp } from '@/lib/rate-limit/index.js';
 
 const FORBIDDEN_FIELDS = [
@@ -192,14 +193,18 @@ export const POST = route(
 
 export const GET = route(
   {
-    access: 'user',
+    access: 'public',
   },
-  async ({ actor, request }) => {
+  async ({ request }) => {
     const url = new URL(request.url);
+    const q = url.searchParams.get('q') || '';
+    const tag = url.searchParams.get('tag') || '';
+    const sort = url.searchParams.get('sort') || 'updated';
+    const order = url.searchParams.get('order') || 'desc';
+    const cursor = url.searchParams.get('cursor') || null;
     const limit = parseInt(url.searchParams.get('limit') || '20', 10);
-    const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
-    const data = await listOwnerSkills(actor.id, { limit, offset });
-    return successResponse(data);
+    const result = await searchPublicSkills({ q, tag, sort, order, cursor, limit });
+    return successResponse(result);
   },
 );
