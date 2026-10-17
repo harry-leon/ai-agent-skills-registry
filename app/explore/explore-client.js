@@ -40,7 +40,12 @@ export function ExploreClient({ initialSkills = [], initialTotal = 0, initialCur
     ),
   ).slice(0, 15);
 
-  const fetchSkills = async ({ q = searchQuery, tag = selectedTag, sort = sortBy, nextCursor = null } = {}) => {
+  const fetchSkills = async ({
+    q = searchQuery,
+    tag = selectedTag,
+    sort = sortBy,
+    nextCursor = null,
+  } = {}) => {
     const params = new URLSearchParams();
     if (q) params.set('q', q);
     if (tag) params.set('tag', tag);
@@ -169,7 +174,9 @@ export function ExploreClient({ initialSkills = [], initialTotal = 0, initialCur
                 type="button"
                 onClick={() => setViewMode('grid')}
                 className={`p-2 transition-colors ${
-                  viewMode === 'grid' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  viewMode === 'grid'
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
                 title="Dạng lưới"
               >
@@ -179,7 +186,9 @@ export function ExploreClient({ initialSkills = [], initialTotal = 0, initialCur
                 type="button"
                 onClick={() => setViewMode('list')}
                 className={`p-2 transition-colors ${
-                  viewMode === 'list' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  viewMode === 'list'
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
                 title="Dạng danh sách"
               >
@@ -359,9 +368,7 @@ export function ExploreClient({ initialSkills = [], initialTotal = 0, initialCur
                   <span className="text-[11px] font-mono bg-muted text-muted-foreground px-2 py-0.5 rounded">
                     v{skill.currentVersion?.number || 1}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    @{skill.owner.handle}
-                  </span>
+                  <span className="text-xs text-muted-foreground">@{skill.owner.handle}</span>
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-1">
                   {skill.description || 'Không có mô tả chi tiết.'}

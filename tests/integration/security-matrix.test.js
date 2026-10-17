@@ -4,12 +4,19 @@ import { db } from '@/lib/db.js';
 import { storage } from '@/lib/storage/index.js';
 import { createSkillWithVersion, softDeleteSkill, manageShareToken } from '@/lib/dal/skills.js';
 import { POST as createSkillHandler } from '@/app/api/skills/route.js';
-import { GET as getSkillHandler, PATCH as patchSkillHandler, DELETE as deleteSkillHandler } from '@/app/api/skills/[id]/route.js';
+import {
+  GET as getSkillHandler,
+  PATCH as patchSkillHandler,
+  DELETE as deleteSkillHandler,
+} from '@/app/api/skills/[id]/route.js';
 import { POST as createVersionHandler } from '@/app/api/skills/[id]/versions/route.js';
 import { GET as getFileHandler } from '@/app/api/skills/[id]/files/[fileId]/route.js';
 import { GET as downloadSkillHandler } from '@/app/api/skills/[id]/download/route.js';
 import { POST as forkHandler } from '@/app/api/skills/[id]/fork/route.js';
-import { POST as enableShareTokenHandler, DELETE as disableShareTokenHandler } from '@/app/api/skills/[id]/share-token/route.js';
+import {
+  POST as enableShareTokenHandler,
+  DELETE as disableShareTokenHandler,
+} from '@/app/api/skills/[id]/share-token/route.js';
 import { GET as getSharedSkillHandler } from '@/app/api/shared/[token]/route.js';
 import { POST as importGithubHandler } from '@/app/api/imports/github/route.js';
 import { GET as getOwnerSkillsHandler } from '@/app/api/me/skills/route.js';
@@ -150,15 +157,98 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
 
   describe('1. Unauthenticated Endpoint Guards (Rule R3, S1: Default Deny -> 401)', () => {
     const unauthEndpoints = [
-      { name: 'POST /api/skills', fn: () => createSkillHandler(new Request('http://localhost:3000/api/skills', { method: 'POST', body: JSON.stringify({}), headers: { 'content-type': 'application/json' } })) },
-      { name: 'GET /api/me/skills', fn: () => getOwnerSkillsHandler(new Request('http://localhost:3000/api/me/skills', { method: 'GET' })) },
-      { name: 'PATCH /api/skills/[id]', fn: () => patchSkillHandler(new Request('http://localhost:3000/api/skills/123', { method: 'PATCH', body: JSON.stringify({}), headers: { 'content-type': 'application/json' } }), { params: Promise.resolve({ id: '123' }) }) },
-      { name: 'DELETE /api/skills/[id]', fn: () => deleteSkillHandler(new Request('http://localhost:3000/api/skills/123', { method: 'DELETE' }), { params: Promise.resolve({ id: '123' }) }) },
-      { name: 'POST /api/skills/[id]/versions', fn: () => createVersionHandler(new Request('http://localhost:3000/api/skills/123/versions', { method: 'POST', body: JSON.stringify({}), headers: { 'content-type': 'application/json' } }), { params: Promise.resolve({ id: '123' }) }) },
-      { name: 'POST /api/skills/[id]/fork', fn: () => forkHandler(new Request('http://localhost:3000/api/skills/123/fork', { method: 'POST' }), { params: Promise.resolve({ id: '123' }) }) },
-      { name: 'POST /api/skills/[id]/share-token', fn: () => enableShareTokenHandler(new Request('http://localhost:3000/api/skills/123/share-token', { method: 'POST', body: JSON.stringify({ action: 'enable' }), headers: { 'content-type': 'application/json' } }), { params: Promise.resolve({ id: '123' }) }) },
-      { name: 'POST /api/imports/github', fn: () => importGithubHandler(new Request('http://localhost:3000/api/imports/github', { method: 'POST', body: JSON.stringify({ url: 'https://github.com/a/b' }), headers: { 'content-type': 'application/json' } })) },
-      { name: 'POST /api/me/delete-account', fn: () => deleteAccountHandler(new Request('http://localhost:3000/api/me/delete-account', { method: 'POST', body: JSON.stringify({ password: 'Password123!' }), headers: { 'content-type': 'application/json' } })) },
+      {
+        name: 'POST /api/skills',
+        fn: () =>
+          createSkillHandler(
+            new Request('http://localhost:3000/api/skills', {
+              method: 'POST',
+              body: JSON.stringify({}),
+              headers: { 'content-type': 'application/json' },
+            }),
+          ),
+      },
+      {
+        name: 'GET /api/me/skills',
+        fn: () =>
+          getOwnerSkillsHandler(
+            new Request('http://localhost:3000/api/me/skills', { method: 'GET' }),
+          ),
+      },
+      {
+        name: 'PATCH /api/skills/[id]',
+        fn: () =>
+          patchSkillHandler(
+            new Request('http://localhost:3000/api/skills/123', {
+              method: 'PATCH',
+              body: JSON.stringify({}),
+              headers: { 'content-type': 'application/json' },
+            }),
+            { params: Promise.resolve({ id: '123' }) },
+          ),
+      },
+      {
+        name: 'DELETE /api/skills/[id]',
+        fn: () =>
+          deleteSkillHandler(
+            new Request('http://localhost:3000/api/skills/123', { method: 'DELETE' }),
+            { params: Promise.resolve({ id: '123' }) },
+          ),
+      },
+      {
+        name: 'POST /api/skills/[id]/versions',
+        fn: () =>
+          createVersionHandler(
+            new Request('http://localhost:3000/api/skills/123/versions', {
+              method: 'POST',
+              body: JSON.stringify({}),
+              headers: { 'content-type': 'application/json' },
+            }),
+            { params: Promise.resolve({ id: '123' }) },
+          ),
+      },
+      {
+        name: 'POST /api/skills/[id]/fork',
+        fn: () =>
+          forkHandler(
+            new Request('http://localhost:3000/api/skills/123/fork', { method: 'POST' }),
+            { params: Promise.resolve({ id: '123' }) },
+          ),
+      },
+      {
+        name: 'POST /api/skills/[id]/share-token',
+        fn: () =>
+          enableShareTokenHandler(
+            new Request('http://localhost:3000/api/skills/123/share-token', {
+              method: 'POST',
+              body: JSON.stringify({ action: 'enable' }),
+              headers: { 'content-type': 'application/json' },
+            }),
+            { params: Promise.resolve({ id: '123' }) },
+          ),
+      },
+      {
+        name: 'POST /api/imports/github',
+        fn: () =>
+          importGithubHandler(
+            new Request('http://localhost:3000/api/imports/github', {
+              method: 'POST',
+              body: JSON.stringify({ url: 'https://github.com/a/b' }),
+              headers: { 'content-type': 'application/json' },
+            }),
+          ),
+      },
+      {
+        name: 'POST /api/me/delete-account',
+        fn: () =>
+          deleteAccountHandler(
+            new Request('http://localhost:3000/api/me/delete-account', {
+              method: 'POST',
+              body: JSON.stringify({ password: 'Password123!' }),
+              headers: { 'content-type': 'application/json' },
+            }),
+          ),
+      },
     ];
 
     for (const ep of unauthEndpoints) {
@@ -174,13 +264,15 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
   });
 
   describe('2. Cross-User Authorization Matrix (Rule S2: IDOR Prevention)', () => {
-    describe('User B on User A\'s PRIVATE skill -> 404 (Hidden existence)', () => {
+    describe("User B on User A's PRIVATE skill -> 404 (Hidden existence)", () => {
       it('GET /api/skills/[id] returns 404', async () => {
         const req = new Request(`http://localhost:3000/api/skills/${privateSkillA.id}`, {
           method: 'GET',
           headers: { cookie: sessionCookieB },
         });
-        const res = await getSkillHandler(req, { params: Promise.resolve({ id: privateSkillA.id }) });
+        const res = await getSkillHandler(req, {
+          params: Promise.resolve({ id: privateSkillA.id }),
+        });
         expect(res.status).toBe(404);
         const json = await res.json();
         expect(['NOT_FOUND', 'SKILL_NOT_FOUND']).toContain(json.error.code);
@@ -189,10 +281,16 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
       it('PATCH /api/skills/[id] returns 404', async () => {
         const req = new Request(`http://localhost:3000/api/skills/${privateSkillA.id}`, {
           method: 'PATCH',
-          headers: { cookie: sessionCookieB, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+          headers: {
+            cookie: sessionCookieB,
+            'content-type': 'application/json',
+            origin: 'http://localhost:3000',
+          },
           body: JSON.stringify({ tags: ['hacked'] }),
         });
-        const res = await patchSkillHandler(req, { params: Promise.resolve({ id: privateSkillA.id }) });
+        const res = await patchSkillHandler(req, {
+          params: Promise.resolve({ id: privateSkillA.id }),
+        });
         expect(res.status).toBe(404);
       });
 
@@ -201,26 +299,39 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
           method: 'DELETE',
           headers: { cookie: sessionCookieB, origin: 'http://localhost:3000' },
         });
-        const res = await deleteSkillHandler(req, { params: Promise.resolve({ id: privateSkillA.id }) });
+        const res = await deleteSkillHandler(req, {
+          params: Promise.resolve({ id: privateSkillA.id }),
+        });
         expect(res.status).toBe(404);
       });
 
       it('POST /api/skills/[id]/versions returns 404', async () => {
         const req = new Request(`http://localhost:3000/api/skills/${privateSkillA.id}/versions`, {
           method: 'POST',
-          headers: { cookie: sessionCookieB, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+          headers: {
+            cookie: sessionCookieB,
+            'content-type': 'application/json',
+            origin: 'http://localhost:3000',
+          },
           body: JSON.stringify({ message: 'hacked version', files: [] }),
         });
-        const res = await createVersionHandler(req, { params: Promise.resolve({ id: privateSkillA.id }) });
+        const res = await createVersionHandler(req, {
+          params: Promise.resolve({ id: privateSkillA.id }),
+        });
         expect(res.status).toBe(404);
       });
 
       it('GET /api/skills/[id]/files/[fileId] returns 404', async () => {
-        const req = new Request(`http://localhost:3000/api/skills/${privateSkillA.id}/files/${privateFileId}`, {
-          method: 'GET',
-          headers: { cookie: sessionCookieB },
+        const req = new Request(
+          `http://localhost:3000/api/skills/${privateSkillA.id}/files/${privateFileId}`,
+          {
+            method: 'GET',
+            headers: { cookie: sessionCookieB },
+          },
+        );
+        const res = await getFileHandler(req, {
+          params: Promise.resolve({ id: privateSkillA.id, fileId: privateFileId }),
         });
-        const res = await getFileHandler(req, { params: Promise.resolve({ id: privateSkillA.id, fileId: privateFileId }) });
         expect(res.status).toBe(404);
       });
 
@@ -229,7 +340,9 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
           method: 'GET',
           headers: { cookie: sessionCookieB },
         });
-        const res = await downloadSkillHandler(req, { params: Promise.resolve({ id: privateSkillA.id }) });
+        const res = await downloadSkillHandler(req, {
+          params: Promise.resolve({ id: privateSkillA.id }),
+        });
         expect(res.status).toBe(404);
       });
 
@@ -243,32 +356,48 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
       });
 
       it('POST /api/skills/[id]/share-token returns 404', async () => {
-        const req = new Request(`http://localhost:3000/api/skills/${privateSkillA.id}/share-token`, {
-          method: 'POST',
-          headers: { cookie: sessionCookieB, 'content-type': 'application/json', origin: 'http://localhost:3000' },
-          body: JSON.stringify({ action: 'enable' }),
+        const req = new Request(
+          `http://localhost:3000/api/skills/${privateSkillA.id}/share-token`,
+          {
+            method: 'POST',
+            headers: {
+              cookie: sessionCookieB,
+              'content-type': 'application/json',
+              origin: 'http://localhost:3000',
+            },
+            body: JSON.stringify({ action: 'enable' }),
+          },
+        );
+        const res = await enableShareTokenHandler(req, {
+          params: Promise.resolve({ id: privateSkillA.id }),
         });
-        const res = await enableShareTokenHandler(req, { params: Promise.resolve({ id: privateSkillA.id }) });
         expect(res.status).toBe(404);
       });
     });
 
-    describe('User B on User A\'s PUBLIC skill (Read/Fork OK, Mutation FORBIDDEN -> 403)', () => {
+    describe("User B on User A's PUBLIC skill (Read/Fork OK, Mutation FORBIDDEN -> 403)", () => {
       it('GET /api/skills/[id] returns 200', async () => {
         const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}`, {
           method: 'GET',
           headers: { cookie: sessionCookieB },
         });
-        const res = await getSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+        const res = await getSkillHandler(req, {
+          params: Promise.resolve({ id: publicSkillA.id }),
+        });
         expect(res.status).toBe(200);
       });
 
       it('GET /api/skills/[id]/files/[fileId] returns 200', async () => {
-        const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}/files/${publicFileId}`, {
-          method: 'GET',
-          headers: { cookie: sessionCookieB },
+        const req = new Request(
+          `http://localhost:3000/api/skills/${publicSkillA.id}/files/${publicFileId}`,
+          {
+            method: 'GET',
+            headers: { cookie: sessionCookieB },
+          },
+        );
+        const res = await getFileHandler(req, {
+          params: Promise.resolve({ id: publicSkillA.id, fileId: publicFileId }),
         });
-        const res = await getFileHandler(req, { params: Promise.resolve({ id: publicSkillA.id, fileId: publicFileId }) });
         expect(res.status).toBe(200);
       });
 
@@ -277,7 +406,9 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
           method: 'GET',
           headers: { cookie: sessionCookieB },
         });
-        const res = await downloadSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+        const res = await downloadSkillHandler(req, {
+          params: Promise.resolve({ id: publicSkillA.id }),
+        });
         expect(res.status).toBe(200);
       });
 
@@ -290,44 +421,64 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
         expect(res.status).toBe(201);
       });
 
-      it('PATCH /api/skills/[id] returns 403 (cannot modify other user\'s public skill)', async () => {
+      it("PATCH /api/skills/[id] returns 403 (cannot modify other user's public skill)", async () => {
         const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}`, {
           method: 'PATCH',
-          headers: { cookie: sessionCookieB, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+          headers: {
+            cookie: sessionCookieB,
+            'content-type': 'application/json',
+            origin: 'http://localhost:3000',
+          },
           body: JSON.stringify({ tags: ['hacked'] }),
         });
-        const res = await patchSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+        const res = await patchSkillHandler(req, {
+          params: Promise.resolve({ id: publicSkillA.id }),
+        });
         expect(res.status).toBe(403);
         const json = await res.json();
         expect(json.error.code).toBe('FORBIDDEN');
       });
 
-      it('DELETE /api/skills/[id] returns 403 (cannot delete other user\'s public skill)', async () => {
+      it("DELETE /api/skills/[id] returns 403 (cannot delete other user's public skill)", async () => {
         const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}`, {
           method: 'DELETE',
           headers: { cookie: sessionCookieB, origin: 'http://localhost:3000' },
         });
-        const res = await deleteSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+        const res = await deleteSkillHandler(req, {
+          params: Promise.resolve({ id: publicSkillA.id }),
+        });
         expect(res.status).toBe(403);
       });
 
-      it('POST /api/skills/[id]/versions returns 403 (cannot create new version on other user\'s public skill)', async () => {
+      it("POST /api/skills/[id]/versions returns 403 (cannot create new version on other user's public skill)", async () => {
         const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}/versions`, {
           method: 'POST',
-          headers: { cookie: sessionCookieB, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+          headers: {
+            cookie: sessionCookieB,
+            'content-type': 'application/json',
+            origin: 'http://localhost:3000',
+          },
           body: JSON.stringify({ message: 'unauthorized version', files: [] }),
         });
-        const res = await createVersionHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+        const res = await createVersionHandler(req, {
+          params: Promise.resolve({ id: publicSkillA.id }),
+        });
         expect(res.status).toBe(403);
       });
 
-      it('POST /api/skills/[id]/share-token returns 403 (cannot manage share token on other user\'s public skill)', async () => {
+      it("POST /api/skills/[id]/share-token returns 403 (cannot manage share token on other user's public skill)", async () => {
         const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}/share-token`, {
           method: 'POST',
-          headers: { cookie: sessionCookieB, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+          headers: {
+            cookie: sessionCookieB,
+            'content-type': 'application/json',
+            origin: 'http://localhost:3000',
+          },
           body: JSON.stringify({ action: 'enable' }),
         });
-        const res = await enableShareTokenHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+        const res = await enableShareTokenHandler(req, {
+          params: Promise.resolve({ id: publicSkillA.id }),
+        });
         expect(res.status).toBe(403);
       });
     });
@@ -338,7 +489,9 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
           method: 'GET',
           headers: { cookie: sessionCookieB },
         });
-        const res = await getSkillHandler(req, { params: Promise.resolve({ id: unlistedSkillA.id }) });
+        const res = await getSkillHandler(req, {
+          params: Promise.resolve({ id: unlistedSkillA.id }),
+        });
         expect(res.status).toBe(404);
       });
 
@@ -346,7 +499,9 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
         const req = new Request(`http://localhost:3000/api/shared/${unlistedShareToken}`, {
           method: 'GET',
         });
-        const res = await getSharedSkillHandler(req, { params: Promise.resolve({ token: unlistedShareToken }) });
+        const res = await getSharedSkillHandler(req, {
+          params: Promise.resolve({ token: unlistedShareToken }),
+        });
         expect(res.status).toBe(200);
         const json = await res.json();
         expect(json.data.skill.id).toBe(unlistedSkillA.id);
@@ -356,7 +511,9 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
         const req = new Request('http://localhost:3000/api/shared/invalid-token-12345678', {
           method: 'GET',
         });
-        const res = await getSharedSkillHandler(req, { params: Promise.resolve({ token: 'invalid-token-12345678' }) });
+        const res = await getSharedSkillHandler(req, {
+          params: Promise.resolve({ token: 'invalid-token-12345678' }),
+        });
         expect(res.status).toBe(404);
       });
 
@@ -365,7 +522,9 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
           method: 'GET',
           headers: { cookie: sessionCookieA },
         });
-        const res = await getSkillHandler(req, { params: Promise.resolve({ id: deletedSkillA.id }) });
+        const res = await getSkillHandler(req, {
+          params: Promise.resolve({ id: deletedSkillA.id }),
+        });
         expect(res.status).toBe(404);
       });
     });
@@ -375,10 +534,16 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
     it('rejects PATCH /api/skills/[id] with forbidden ownerId', async () => {
       const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}`, {
         method: 'PATCH',
-        headers: { cookie: sessionCookieA, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+        headers: {
+          cookie: sessionCookieA,
+          'content-type': 'application/json',
+          origin: 'http://localhost:3000',
+        },
         body: JSON.stringify({ ownerId: userB.id, tags: ['safe'] }),
       });
-      const res = await patchSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+      const res = await patchSkillHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id }),
+      });
       expect(res.status).toBe(422);
       const json = await res.json();
       expect(json.error.code).toBe('VALIDATION_FAILED');
@@ -387,20 +552,32 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
     it('rejects PATCH /api/skills/[id] with forbidden deletedAt', async () => {
       const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}`, {
         method: 'PATCH',
-        headers: { cookie: sessionCookieA, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+        headers: {
+          cookie: sessionCookieA,
+          'content-type': 'application/json',
+          origin: 'http://localhost:3000',
+        },
         body: JSON.stringify({ deletedAt: new Date().toISOString() }),
       });
-      const res = await patchSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+      const res = await patchSkillHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id }),
+      });
       expect(res.status).toBe(422);
     });
 
     it('rejects PATCH /api/skills/[id] with forbidden shareToken', async () => {
       const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}`, {
         method: 'PATCH',
-        headers: { cookie: sessionCookieA, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+        headers: {
+          cookie: sessionCookieA,
+          'content-type': 'application/json',
+          origin: 'http://localhost:3000',
+        },
         body: JSON.stringify({ shareToken: 'forged_token' }),
       });
-      const res = await patchSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+      const res = await patchSkillHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id }),
+      });
       expect(res.status).toBe(422);
     });
   });
@@ -422,10 +599,16 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
     it('malformed JSON returns 400 INVALID_JSON', async () => {
       const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}`, {
         method: 'PATCH',
-        headers: { cookie: sessionCookieA, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+        headers: {
+          cookie: sessionCookieA,
+          'content-type': 'application/json',
+          origin: 'http://localhost:3000',
+        },
         body: '{"invalid json: true',
       });
-      const res = await patchSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+      const res = await patchSkillHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id }),
+      });
       expect(res.status).toBe(400);
       const json = await res.json();
       expect(json.error.code).toBe('INVALID_JSON');
@@ -434,10 +617,16 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
     it('CSRF Origin mismatch on mutating requests returns 403', async () => {
       const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}`, {
         method: 'PATCH',
-        headers: { cookie: sessionCookieA, 'content-type': 'application/json', origin: 'https://evil-attacker.com' },
+        headers: {
+          cookie: sessionCookieA,
+          'content-type': 'application/json',
+          origin: 'https://evil-attacker.com',
+        },
         body: JSON.stringify({ tags: ['test'] }),
       });
-      const res = await patchSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+      const res = await patchSkillHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id }),
+      });
       expect(res.status).toBe(403);
       const json = await res.json();
       expect(json.error.code).toBe('CSRF_ORIGIN_MISMATCH');
@@ -446,10 +635,16 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
     it('error responses contain no stack traces, SQL syntax, or internal file paths', async () => {
       const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}`, {
         method: 'PATCH',
-        headers: { cookie: sessionCookieA, 'content-type': 'application/json', origin: 'http://localhost:3000' },
+        headers: {
+          cookie: sessionCookieA,
+          'content-type': 'application/json',
+          origin: 'http://localhost:3000',
+        },
         body: JSON.stringify({ tags: ['a'.repeat(100)] }), // invalid tag length
       });
-      const res = await patchSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+      const res = await patchSkillHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id }),
+      });
       const text = await res.text();
       expect(text).not.toContain('node_modules');
       expect(text).not.toContain('SELECT ');
@@ -460,11 +655,16 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
 
   describe('5. Security Headers Assertions (Rule S5, S8)', () => {
     it('file download response includes Content-Security-Policy: sandbox and nosniff', async () => {
-      const req = new Request(`http://localhost:3000/api/skills/${publicSkillA.id}/files/${publicFileId}?raw=true`, {
-        method: 'GET',
-        headers: { cookie: sessionCookieA },
+      const req = new Request(
+        `http://localhost:3000/api/skills/${publicSkillA.id}/files/${publicFileId}?raw=true`,
+        {
+          method: 'GET',
+          headers: { cookie: sessionCookieA },
+        },
+      );
+      const res = await getFileHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id, fileId: publicFileId }),
       });
-      const res = await getFileHandler(req, { params: Promise.resolve({ id: publicSkillA.id, fileId: publicFileId }) });
       expect(res.status).toBe(200);
       expect(res.headers.get('x-content-type-options')).toBe('nosniff');
       expect(res.headers.get('content-security-policy')).toContain('sandbox');
@@ -475,7 +675,9 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
         method: 'GET',
         headers: { cookie: sessionCookieA },
       });
-      const res = await downloadSkillHandler(req, { params: Promise.resolve({ id: publicSkillA.id }) });
+      const res = await downloadSkillHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id }),
+      });
       expect(res.status).toBe(200);
       expect(res.headers.get('content-disposition')).toContain('attachment');
       expect(res.headers.get('content-disposition')).toContain('.zip');

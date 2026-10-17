@@ -79,6 +79,7 @@ docker compose up --build -d
 ```
 
 This brings up:
+
 1. `skillvault-db`: PostgreSQL 18 with persistent volume
 2. `skillvault-minio`: MinIO S3-compatible object storage
 3. `skillvault-minio-init`: One-off bucket provisioning
@@ -96,43 +97,43 @@ npx prisma migrate deploy
 
 ## Environment Variables Reference
 
-| Variable | Required | Default | Purpose |
-|---|---|---|---|
-| `NODE_ENV` | Yes | `development` | Runtime environment (`development`, `production`, `test`) |
-| `APP_URL` | Yes | `http://localhost:3000` | Canonical application URL (used for CORS/CSRF origin checks) |
-| `DATABASE_URL` | Yes | - | PostgreSQL connection string |
-| `BETTER_AUTH_SECRET` | Yes | - | 32+ character secret for session token hashing |
-| `STORAGE_DRIVER` | Yes | `local` | `local` (dev only) or `s3` (production/MinIO/R2) |
-| `S3_ENDPOINT` | If s3 | - | Custom S3 endpoint URL (e.g. MinIO or Cloudflare R2) |
-| `S3_REGION` | If s3 | `us-east-1` | S3 region |
-| `S3_BUCKET` | If s3 | - | Target blob bucket name |
-| `S3_ACCESS_KEY_ID` | If s3 | - | AWS/S3 access key ID |
-| `S3_SECRET_ACCESS_KEY` | If s3 | - | AWS/S3 secret access key |
-| `S3_FORCE_PATH_STYLE` | No | `false` | Set to `true` for MinIO path-style bucket URLs |
-| `SMTP_HOST` | No | - | SMTP server hostname for transactional emails |
-| `SMTP_PORT` | No | `587` | SMTP server port |
-| `SMTP_USER` | No | - | SMTP username |
-| `SMTP_PASSWORD` | No | - | SMTP password |
-| `MAIL_FROM` | No | `noreply@skillvault.local` | Sender address for transactional emails |
-| `REQUIRE_EMAIL_VERIFICATION` | No | `false` (dev) / `true` (prod) | Enforce email verification before login |
-| `TRUSTED_PROXY_HEADER` | No | - | Header containing real client IP (e.g. `cf-connecting-ip`) |
-| `GITHUB_TOKEN` | No | - | Optional GitHub Personal Access Token to raise rate limits |
-| `LOG_LEVEL` | No | `info` | Pino logging level (`trace`, `debug`, `info`, `warn`, `error`) |
+| Variable                     | Required | Default                       | Purpose                                                        |
+| ---------------------------- | -------- | ----------------------------- | -------------------------------------------------------------- |
+| `NODE_ENV`                   | Yes      | `development`                 | Runtime environment (`development`, `production`, `test`)      |
+| `APP_URL`                    | Yes      | `http://localhost:3000`       | Canonical application URL (used for CORS/CSRF origin checks)   |
+| `DATABASE_URL`               | Yes      | -                             | PostgreSQL connection string                                   |
+| `BETTER_AUTH_SECRET`         | Yes      | -                             | 32+ character secret for session token hashing                 |
+| `STORAGE_DRIVER`             | Yes      | `local`                       | `local` (dev only) or `s3` (production/MinIO/R2)               |
+| `S3_ENDPOINT`                | If s3    | -                             | Custom S3 endpoint URL (e.g. MinIO or Cloudflare R2)           |
+| `S3_REGION`                  | If s3    | `us-east-1`                   | S3 region                                                      |
+| `S3_BUCKET`                  | If s3    | -                             | Target blob bucket name                                        |
+| `S3_ACCESS_KEY_ID`           | If s3    | -                             | AWS/S3 access key ID                                           |
+| `S3_SECRET_ACCESS_KEY`       | If s3    | -                             | AWS/S3 secret access key                                       |
+| `S3_FORCE_PATH_STYLE`        | No       | `false`                       | Set to `true` for MinIO path-style bucket URLs                 |
+| `SMTP_HOST`                  | No       | -                             | SMTP server hostname for transactional emails                  |
+| `SMTP_PORT`                  | No       | `587`                         | SMTP server port                                               |
+| `SMTP_USER`                  | No       | -                             | SMTP username                                                  |
+| `SMTP_PASSWORD`              | No       | -                             | SMTP password                                                  |
+| `MAIL_FROM`                  | No       | `noreply@skillvault.local`    | Sender address for transactional emails                        |
+| `REQUIRE_EMAIL_VERIFICATION` | No       | `false` (dev) / `true` (prod) | Enforce email verification before login                        |
+| `TRUSTED_PROXY_HEADER`       | No       | -                             | Header containing real client IP (e.g. `cf-connecting-ip`)     |
+| `GITHUB_TOKEN`               | No       | -                             | Optional GitHub Personal Access Token to raise rate limits     |
+| `LOG_LEVEL`                  | No       | `info`                        | Pino logging level (`trace`, `debug`, `info`, `warn`, `error`) |
 
 ---
 
 ## Available Scripts
 
-| Script | Command | Purpose |
-|---|---|---|
-| `npm run dev` | `next dev` | Start development server with hot-reload |
-| `npm run build` | `next build` | Create optimized production standalone build |
-| `npm start` | `next start` | Run production server |
-| `npm run lint` | `eslint .` | Lint codebase with ESLint layering rules |
-| `npm run format:check` | `prettier --check .` | Check code formatting |
-| `npm run format:write` | `prettier --write .` | Format all source files |
-| `npm test` | `vitest run` | Run full unit and integration test suite on real PostgreSQL |
-| `npm run test:e2e` | `playwright test` | Run Playwright browser test suite across 375px, 768px, 1440px |
+| Script                 | Command              | Purpose                                                       |
+| ---------------------- | -------------------- | ------------------------------------------------------------- |
+| `npm run dev`          | `next dev`           | Start development server with hot-reload                      |
+| `npm run build`        | `next build`         | Create optimized production standalone build                  |
+| `npm start`            | `next start`         | Run production server                                         |
+| `npm run lint`         | `eslint .`           | Lint codebase with ESLint layering rules                      |
+| `npm run format:check` | `prettier --check .` | Check code formatting                                         |
+| `npm run format:write` | `prettier --write .` | Format all source files                                       |
+| `npm test`             | `vitest run`         | Run full unit and integration test suite on real PostgreSQL   |
+| `npm run test:e2e`     | `playwright test`    | Run Playwright browser test suite across 375px, 768px, 1440px |
 
 ---
 

@@ -20,15 +20,12 @@ export default async function ExplorePage() {
             Khám phá Agent Skills
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Thư viện kỹ năng AI công khai từ cộng đồng. Tìm kiếm, tham khảo, tải về hoặc sao chép vào thư viện cá nhân.
+            Thư viện kỹ năng AI công khai từ cộng đồng. Tìm kiếm, tham khảo, tải về hoặc sao chép
+            vào thư viện cá nhân.
           </p>
         </div>
 
-        <ExploreClient
-          initialSkills={skills}
-          initialTotal={total}
-          initialCursor={nextCursor}
-        />
+        <ExploreClient initialSkills={skills} initialTotal={total} initialCursor={nextCursor} />
       </main>
     </div>
   );

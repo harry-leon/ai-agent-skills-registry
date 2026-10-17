@@ -6,24 +6,24 @@ SkillVault is designed from the ground up with a **security-first, default-deny*
 
 ## 1. Threat Model & Verification Matrix
 
-| Asset | Threat | Mitigation Control | Proving Test Suite |
-|---|---|---|---|
-| **User Accounts & Sessions** | Credential stuffing & brute-force | PostgreSQL-backed rate limiting (10 attempts/15min) + generic error message | `tests/integration/auth.test.js` |
-| **User Sessions** | Stale session persistence after password change | Session invalidation across all devices on password update | `tests/integration/auth.test.js` |
-| **Disabled Accounts** | Continued access by disabled users | `lib/auth/session.js` validates `status === ACTIVE` against database on every request | `tests/integration/auth.test.js` |
-| **Private Skill Contents** | Insecure Direct Object Reference (IDOR) | DAL queries scoped by `ownerId`; unauthorized requests return `404` to prevent leaking existence | `tests/integration/security-matrix.test.js` |
-| **Public Skills** | Unauthorized modification or deletion | Route wrapper enforces `can(actor, SKILL_WRITE, skill)` returning `403 FORBIDDEN` | `tests/integration/security-matrix.test.js` |
-| **Unlisted Skills** | Discovery via handle/slug or search | Unlisted skills excluded from search and `/s/[handle]/[slug]`; accessible strictly via high-entropy `shareToken` | `tests/integration/security-matrix.test.js` |
-| **Skill Metadata** | Mass assignment / privilege escalation | Zod `.strict()` schemas reject `ownerId`, `deletedAt`, `shareToken`, and `forkedFromId` with `422` | `tests/integration/security-matrix.test.js` |
-| **File Storage** | Path traversal (`../`, absolute paths, control chars) | `lib/skills/paths.js` normalizes Unicode NFC, strips `..`, blocks absolute paths & NUL bytes | `tests/unit/ingest.test.js` |
-| **Server Resources** | ZIP bomb / decompression bomb | Streaming byte-count monitor aborts if uncompressed size > 200MB or compression ratio > 100:1 | `tests/unit/ingest.test.js` |
-| **Server Security** | Malicious executable / script storage | Extension allowlist (`lib/skills/file-types.js`) rejects `.exe`, `.so`, `.sh` binaries and checks magic bytes | `tests/unit/ingest.test.js` |
-| **Credentials** | Accidental commit of secrets in skills | Ingestion pipeline rejects `.env`, `.env.*`, `*.pem`, `*.key`, `id_rsa*`, `.npmrc` | `tests/unit/ingest.test.js` |
-| **Local Infrastructure** | SSRF via GitHub Import | Hostname restricted to `api.github.com` & `codeload.github.com`; manual redirect validation; token isolation | `tests/integration/fork-import.test.js` |
-| **Internal Secrets** | Secret leakage in logs or error messages | Universal error envelope `{ error: { code, message, traceId } }`; zero stack traces; Pino redaction | `tests/integration/security-matrix.test.js` |
-| **Browser Execution** | Stored XSS via uploaded HTML/SVG files | Files served with `Content-Security-Policy: sandbox` and `X-Content-Type-Options: nosniff`; SVG download-only | `tests/integration/security-matrix.test.js` |
-| **Browser Execution** | Stored XSS via Markdown preview | Rendered via `react-markdown` + `remark-gfm` + `rehype-sanitize`; `rehype-raw` strictly prohibited | `tests/integration/viewer-editor.test.js` |
-| **State Mutations** | Cross-Site Request Forgery (CSRF) | All mutating Route Handlers require matching `Origin` header | `tests/integration/security-matrix.test.js` |
+| Asset                        | Threat                                                | Mitigation Control                                                                                               | Proving Test Suite                          |
+| ---------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| **User Accounts & Sessions** | Credential stuffing & brute-force                     | PostgreSQL-backed rate limiting (10 attempts/15min) + generic error message                                      | `tests/integration/auth.test.js`            |
+| **User Sessions**            | Stale session persistence after password change       | Session invalidation across all devices on password update                                                       | `tests/integration/auth.test.js`            |
+| **Disabled Accounts**        | Continued access by disabled users                    | `lib/auth/session.js` validates `status === ACTIVE` against database on every request                            | `tests/integration/auth.test.js`            |
+| **Private Skill Contents**   | Insecure Direct Object Reference (IDOR)               | DAL queries scoped by `ownerId`; unauthorized requests return `404` to prevent leaking existence                 | `tests/integration/security-matrix.test.js` |
+| **Public Skills**            | Unauthorized modification or deletion                 | Route wrapper enforces `can(actor, SKILL_WRITE, skill)` returning `403 FORBIDDEN`                                | `tests/integration/security-matrix.test.js` |
+| **Unlisted Skills**          | Discovery via handle/slug or search                   | Unlisted skills excluded from search and `/s/[handle]/[slug]`; accessible strictly via high-entropy `shareToken` | `tests/integration/security-matrix.test.js` |
+| **Skill Metadata**           | Mass assignment / privilege escalation                | Zod `.strict()` schemas reject `ownerId`, `deletedAt`, `shareToken`, and `forkedFromId` with `422`               | `tests/integration/security-matrix.test.js` |
+| **File Storage**             | Path traversal (`../`, absolute paths, control chars) | `lib/skills/paths.js` normalizes Unicode NFC, strips `..`, blocks absolute paths & NUL bytes                     | `tests/unit/ingest.test.js`                 |
+| **Server Resources**         | ZIP bomb / decompression bomb                         | Streaming byte-count monitor aborts if uncompressed size > 200MB or compression ratio > 100:1                    | `tests/unit/ingest.test.js`                 |
+| **Server Security**          | Malicious executable / script storage                 | Extension allowlist (`lib/skills/file-types.js`) rejects `.exe`, `.so`, `.sh` binaries and checks magic bytes    | `tests/unit/ingest.test.js`                 |
+| **Credentials**              | Accidental commit of secrets in skills                | Ingestion pipeline rejects `.env`, `.env.*`, `*.pem`, `*.key`, `id_rsa*`, `.npmrc`                               | `tests/unit/ingest.test.js`                 |
+| **Local Infrastructure**     | SSRF via GitHub Import                                | Hostname restricted to `api.github.com` & `codeload.github.com`; manual redirect validation; token isolation     | `tests/integration/fork-import.test.js`     |
+| **Internal Secrets**         | Secret leakage in logs or error messages              | Universal error envelope `{ error: { code, message, traceId } }`; zero stack traces; Pino redaction              | `tests/integration/security-matrix.test.js` |
+| **Browser Execution**        | Stored XSS via uploaded HTML/SVG files                | Files served with `Content-Security-Policy: sandbox` and `X-Content-Type-Options: nosniff`; SVG download-only    | `tests/integration/security-matrix.test.js` |
+| **Browser Execution**        | Stored XSS via Markdown preview                       | Rendered via `react-markdown` + `remark-gfm` + `rehype-sanitize`; `rehype-raw` strictly prohibited               | `tests/integration/viewer-editor.test.js`   |
+| **State Mutations**          | Cross-Site Request Forgery (CSRF)                     | All mutating Route Handlers require matching `Origin` header                                                     | `tests/integration/security-matrix.test.js` |
 
 ---
 

@@ -1,8 +1,8 @@
 # SkillVault — Project State
 
 **Phase**: Phase 1 (MVP)  
-**Status**: In Progress  
-**Current Milestone**: M1.8 Completed, Ready for M1.9  
+**Status**: 🟢 Complete — Awaiting Approval  
+**Current Milestone**: M1.9 Completed  
 **Updated**: 2026-10-18
 
 ---
@@ -54,18 +54,18 @@ SkillVault is a secure, multi-user web application to store, organize, search, u
 
 ## 4. Milestone Progress Tracker
 
-| Milestone   | Description                                                        | Status      | Checks                                                                |
-| ----------- | ------------------------------------------------------------------ | ----------- | --------------------------------------------------------------------- |
-| **Phase 0** | Plan, Task List, Threat Model                                      | 🟢 Approved | Done                                                                  |
-| **M1.1**    | Foundation (Scaffold, Env, Logging, Error model, DB, Health)       | 🟢 Complete | lint ✔ \| tests 9/9 \| build ✔                                        |
-| **M1.2**    | Authentication and Account (Better Auth, Sessions, Policy, UI)     | 🟢 Complete | lint ✔ \| tests 24/24 \| e2e 6/6 (375/768/1440) \| build ✔            |
-| **M1.3**    | Storage and Ingestion Core (S3/local, Zip streaming, S6 limits)    | 🟢 Complete | lint ✔ \| tests 48/48 (24 adversarial) \| build ✔                     |
-| **M1.4**    | Skills CRUD & Upload (Tags, Visibility, Share token, Upload UI)    | 🟢 Complete | lint ✔ \| tests 55/55 \| e2e 9/9 (375/768/1440) \| build ✔            |
-| **M1.5**    | Viewer and Editor (CodeMirror, Markdown preview, Archiver zip)     | 🟢 Complete | lint ✔ \| tests 66/66 \| e2e 12/12 (375/768/1440) \| build ✔          |
-| **M1.6**    | Fork and GitHub Import (SSRF defense, Attribution, Badges)         | 🟢 Complete | lint ✔ \| tests 93/93 \| e2e 15/15 (375/768/1440) \| build ✔          |
-| **M1.7**    | Library and Search (Full-text tsquery, unaccent, Filters, Explore) | 🟢 Complete | lint ✔ \| tests 108/108 \| e2e 18/18 (375/768/1440) \| build ✔        |
-| **M1.8**    | Hardening, Docs, Production Build (Matrix tests, Docker, CI)       | 🟢 Complete | lint ✔ \| tests 146/146 \| e2e 18/18 \| build ✔ \| audit ✔             |
-| **M1.9**    | Final Verification & Walkthrough (Definition of Done, Walkthrough) | 🟡 Next     | Pending                                                               |
+| Milestone   | Description                                                        | Status      | Checks                                                         |
+| ----------- | ------------------------------------------------------------------ | ----------- | -------------------------------------------------------------- |
+| **Phase 0** | Plan, Task List, Threat Model                                      | 🟢 Approved | Done                                                           |
+| **M1.1**    | Foundation (Scaffold, Env, Logging, Error model, DB, Health)       | 🟢 Complete | lint ✔ \| tests 9/9 \| build ✔                                 |
+| **M1.2**    | Authentication and Account (Better Auth, Sessions, Policy, UI)     | 🟢 Complete | lint ✔ \| tests 24/24 \| e2e 6/6 (375/768/1440) \| build ✔     |
+| **M1.3**    | Storage and Ingestion Core (S3/local, Zip streaming, S6 limits)    | 🟢 Complete | lint ✔ \| tests 48/48 (24 adversarial) \| build ✔              |
+| **M1.4**    | Skills CRUD & Upload (Tags, Visibility, Share token, Upload UI)    | 🟢 Complete | lint ✔ \| tests 55/55 \| e2e 9/9 (375/768/1440) \| build ✔     |
+| **M1.5**    | Viewer and Editor (CodeMirror, Markdown preview, Archiver zip)     | 🟢 Complete | lint ✔ \| tests 66/66 \| e2e 12/12 (375/768/1440) \| build ✔   |
+| **M1.6**    | Fork and GitHub Import (SSRF defense, Attribution, Badges)         | 🟢 Complete | lint ✔ \| tests 93/93 \| e2e 15/15 (375/768/1440) \| build ✔   |
+| **M1.7**    | Library and Search (Full-text tsquery, unaccent, Filters, Explore) | 🟢 Complete | lint ✔ \| tests 108/108 \| e2e 18/18 (375/768/1440) \| build ✔ |
+| **M1.8**    | Hardening, Docs, Production Build (Matrix tests, Docker, CI)       | 🟢 Complete | lint ✔ \| tests 146/146 \| e2e 18/18 \| build ✔ \| audit ✔     |
+| **M1.9**    | Final Verification & Walkthrough (Definition of Done, Walkthrough) | 🟢 Complete | lint ✔ \| tests 146/146 \| e2e 18/18 \| build ✔ \| audit ✔     |
 
 ---
 
@@ -77,7 +77,5 @@ SkillVault is a secure, multi-user web application to store, organize, search, u
 
 ## 6. Next Actions
 
-1. Proceed to Milestone M1.9: Final Verification & Walkthrough:
-   - Produce Walkthrough Artifact covering Section 14 Definition of Done checklist, 10 security review questions, and multi-viewport verification.
-   - Present final Phase 1 MVP status and request explicit approval (`APPROVED PHASE 1`).
+1. Await user command: `APPROVED PHASE 1` before proceeding to Phase 2 (specified in Section 12).
 

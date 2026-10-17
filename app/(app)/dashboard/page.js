@@ -37,11 +37,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <DashboardClient
-        initialSkills={skills}
-        initialTotal={total}
-        initialCursor={nextCursor}
-      />
+      <DashboardClient initialSkills={skills} initialTotal={total} initialCursor={nextCursor} />
     </div>
   );
 }

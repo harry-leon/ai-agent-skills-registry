@@ -84,7 +84,7 @@ sequenceDiagram
     User->>Wrapper: HTTP Request (Cookie: session_token)
     Wrapper->>Auth: Resolve Session from DB
     Auth-->>Wrapper: Actor Object (id, handle, role, status)
-    
+
     alt Status is DISABLED
         Wrapper-->>User: 401 UNAUTHENTICATED
     end
@@ -92,7 +92,7 @@ sequenceDiagram
     Wrapper->>DAL: Call DAL Function(actor, resourceId, input)
     DAL->>DB: Query Resource (scoped by actor & visibility)
     DAL->>Policy: can(actor, ACTION, resource)
-    
+
     alt Unauthorized & Resource is PRIVATE/UNLISTED
         DAL-->>Wrapper: Throw 404 NOT_FOUND (IDOR Protection)
         Wrapper-->>User: 404 Standard Error Shape

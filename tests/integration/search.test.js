@@ -232,7 +232,9 @@ describe('Milestone M1.7: Search & Library Integration Tests', () => {
 
       const desc = await searchPublicSkills({ sort: 'name', order: 'desc', limit: 50 });
       for (let i = 0; i < desc.skills.length - 1; i++) {
-        expect(desc.skills[i].name.localeCompare(desc.skills[i + 1].name)).toBeGreaterThanOrEqual(0);
+        expect(desc.skills[i].name.localeCompare(desc.skills[i + 1].name)).toBeGreaterThanOrEqual(
+          0,
+        );
       }
     });
 
@@ -251,7 +253,7 @@ describe('Milestone M1.7: Search & Library Integration Tests', () => {
     it('safely handles injection payloads in search query', async () => {
       const maliciousQueries = [
         "' OR 1=1; --",
-        "'; DROP TABLE \"Skill\"; --",
+        '\'; DROP TABLE "Skill"; --',
         '\\" OR 1=1 --',
         '"><script>alert(1)</script>',
         '*()&|!~',

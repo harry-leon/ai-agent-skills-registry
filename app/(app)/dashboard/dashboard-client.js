@@ -227,7 +227,9 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
                 type="button"
                 onClick={() => setViewMode('grid')}
                 className={`p-2 transition-colors ${
-                  viewMode === 'grid' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  viewMode === 'grid'
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
                 title="Dạng lưới"
               >
@@ -237,7 +239,9 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
                 type="button"
                 onClick={() => setViewMode('list')}
                 className={`p-2 transition-colors ${
-                  viewMode === 'list' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  viewMode === 'list'
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
                 title="Dạng danh sách"
               >
@@ -413,7 +417,8 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
                 <span className="flex items-center space-x-1">
                   <FileCode className="w-3 h-3" />
                   <span>
-                    v{skill.currentVersion?.number || 1} · {skill.currentVersion?._count?.files || 0} tệp
+                    v{skill.currentVersion?.number || 1} ·{' '}
+                    {skill.currentVersion?._count?.files || 0} tệp
                   </span>
                 </span>
                 <span className="flex items-center space-x-1">
