@@ -35,6 +35,7 @@ export default async function SkillViewerPage({ params }) {
   }
 
   const canWrite = can(actor, ACTIONS.SKILL_WRITE, skill);
+  const canFork = Boolean(actor && can(actor, ACTIONS.SKILL_FORK, skill));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -43,6 +44,7 @@ export default async function SkillViewerPage({ params }) {
         files={files}
         initialContent={initialContent}
         canWrite={canWrite}
+        canFork={canFork}
         shareToken={skill.shareToken}
       />
     </div>

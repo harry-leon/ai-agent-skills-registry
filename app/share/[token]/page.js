@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { getServerSession } from '@/lib/auth/session.js';
 import { getSkillByShareToken } from '@/lib/dal/skills.js';
 import { getVersionFiles } from '@/lib/dal/files.js';
 import { can, ACTIONS } from '@/lib/auth/policy.js';
@@ -9,6 +10,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function ShareViewerPage({ params }) {
   const { token } = await params;
+  const session = await getServerSession();
+  const actor = session?.id ? session : session?.user || null;
 
   // 1. Fetch unlisted skill strictly by active shareToken
   const skill = await getSkillByShareToken(token);
@@ -43,6 +46,7 @@ export default async function ShareViewerPage({ params }) {
         files={files}
         initialContent={initialContent}
         canWrite={false}
+        canFork={Boolean(actor && can(actor, ACTIONS.SKILL_FORK, skill))}
         shareToken={token}
       />
     </div>

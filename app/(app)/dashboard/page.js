@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { GitFork } from 'lucide-react';
+import { Github } from '@/components/icons/github.js';
 import { getServerSession } from '@/lib/auth/session.js';
 import { listOwnerSkills } from '@/lib/dal/skills.js';
 
@@ -96,6 +98,25 @@ export default async function DashboardPage() {
                         #{t}
                       </span>
                     ))}
+                  </div>
+                )}
+
+                {(skill.forkedFromSnapshot || skill.sourceUrl) && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {skill.forkedFromSnapshot && (
+                      <span className="inline-flex items-center space-x-1 text-[11px] text-muted-foreground bg-muted/60 px-2 py-0.5 rounded border">
+                        <GitFork className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <span className="truncate max-w-[200px]">
+                          Từ @{skill.forkedFromSnapshot.ownerHandle}/{skill.forkedFromSnapshot.slug}
+                        </span>
+                      </span>
+                    )}
+                    {skill.sourceUrl && (
+                      <span className="inline-flex items-center space-x-1 text-[11px] text-muted-foreground bg-muted/60 px-2 py-0.5 rounded border">
+                        <Github className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <span>GitHub</span>
+                      </span>
+                    )}
                   </div>
                 )}
               </div>

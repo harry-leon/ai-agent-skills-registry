@@ -17,7 +17,9 @@ import {
   AlertCircle,
   Tag,
   Clock,
+  GitFork,
 } from 'lucide-react';
+import { Github } from '@/components/icons/github.js';
 import { FileTree } from '@/components/file-tree.js';
 import { MarkdownPreview } from '@/components/markdown-preview.js';
 import { CodeMirrorEditor } from '@/components/code-mirror-editor.js';
@@ -28,6 +30,7 @@ export function SkillViewerClient({
   files = [],
   initialContent = '',
   canWrite = false,
+  canFork = false,
   shareToken = null,
 }) {
   const router = useRouter();
@@ -40,6 +43,7 @@ export function SkillViewerClient({
   const [showShareModal, setShowShareModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [forking, setForking] = useState(false);
   const [rotatingToken, setRotatingToken] = useState(false);
   const [currentShareToken, setCurrentShareToken] = useState(skill.shareToken || shareToken);
 
@@ -126,6 +130,29 @@ export function SkillViewerClient({
     } catch {
       toast.error('Đã xảy ra lỗi khi xoá kỹ năng.');
       setDeleting(false);
+    }
+  };
+
+  const handleForkSkill = async () => {
+    setForking(true);
+    try {
+      const res = await fetch(`/api/skills/${skill.id}/fork`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentShareToken ? { shareToken: currentShareToken } : {}),
+      });
+      const json = await res.json();
+      if (res.ok && json.data?.skill) {
+        toast.success('Đã sao chép kỹ năng vào thư viện cá nhân!');
+        const newSkill = json.data.skill;
+        router.push(`/s/${newSkill.owner.handle}/${newSkill.slug}`);
+      } else {
+        toast.error(json.error?.message || 'Không thể sao chép kỹ năng.');
+        setForking(false);
+      }
+    } catch {
+      toast.error('Đã xảy ra lỗi khi sao chép kỹ năng.');
+      setForking(false);
     }
   };
 
@@ -257,6 +284,48 @@ export function SkillViewerClient({
                 <span>Cập nhật: {new Date(skill.updatedAt).toLocaleDateString('vi-VN')}</span>
               </span>
             </div>
+
+            {/* Attribution Badges */}
+            {(skill.forkedFromSnapshot || skill.sourceUrl) && (
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {skill.forkedFromSnapshot && (
+                  <div className="flex items-center space-x-1.5 text-xs text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-md border">
+                    <GitFork className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>Nhân bản từ</span>
+                    <Link
+                      href={`/s/${skill.forkedFromSnapshot.ownerHandle}/${skill.forkedFromSnapshot.slug}`}
+                      className="font-medium text-foreground hover:underline"
+                    >
+                      @{skill.forkedFromSnapshot.ownerHandle}/{skill.forkedFromSnapshot.slug}
+                    </Link>
+                    <span className="font-mono text-[11px] text-muted-foreground">
+                      (v{skill.forkedFromSnapshot.versionNumber})
+                    </span>
+                  </div>
+                )}
+
+                {skill.sourceUrl && (
+                  <div className="flex items-center space-x-1.5 text-xs text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-md border">
+                    <Github className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>Nhập từ</span>
+                    <a
+                      href={skill.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                      className="font-medium text-foreground hover:underline flex items-center space-x-1"
+                    >
+                      <span>GitHub</span>
+                      {skill.sourceCommit && (
+                        <span className="font-mono text-[11px] text-muted-foreground">
+                          ({skill.sourceCommit.slice(0, 7)})
+                        </span>
+                      )}
+                      <ExternalLink className="w-3 h-3 ml-0.5" />
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
@@ -281,6 +350,19 @@ export function SkillViewerClient({
               <Download className="w-3.5 h-3.5" />
               <span>Tải ZIP</span>
             </a>
+
+            {canFork && (
+              <button
+                type="button"
+                onClick={handleForkSkill}
+                disabled={forking}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium border border-primary/30 text-primary hover:bg-primary/5 rounded-md transition-colors disabled:opacity-50"
+                title="Nhân bản kỹ năng vào thư viện cá nhân"
+              >
+                <GitFork className="w-3.5 h-3.5" />
+                <span>{forking ? 'Đang sao chép...' : 'Sao chép (Fork)'}</span>
+              </button>
+            )}
 
             {canWrite && (
               <>
