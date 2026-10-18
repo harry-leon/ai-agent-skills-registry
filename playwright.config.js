@@ -2,25 +2,29 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 90000,
+  timeout: 120000,
   workers: 1,
   fullyParallel: false,
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:3001',
+    screenshot: 'only-on-failure',
     trace: 'on-first-retry',
     extraHTTPHeaders: {
       'x-test-bypass-rate-limit': 'true',
     },
   },
   webServer: {
-    command: 'npm run dev -- -p 3001',
+    command: 'node ./node_modules/next/dist/bin/next dev -p 3001',
     url: 'http://localhost:3001/api/health',
     reuseExistingServer: true,
-    timeout: 90000,
+    timeout: 120000,
+    stdout: 'pipe',
+    stderr: 'pipe',
     env: {
       PORT: '3001',
       APP_URL: 'http://localhost:3001',
+      NODE_ENV: 'test',
     },
   },
   projects: [

@@ -22,7 +22,7 @@ export const GET = apiRoute({
     if (!skill || !can(actor, ACTIONS.SKILL_READ, skill)) {
       return errorResponse({
         code: ERROR_CODES.NOT_FOUND,
-        message: 'Không tìm thấy kỹ năng hoặc tệp yêu cầu.',
+        message: 'The requested skill or file was not found.',
         traceId,
         status: 404,
       });
@@ -34,7 +34,7 @@ export const GET = apiRoute({
     if (!file) {
       return errorResponse({
         code: ERROR_CODES.NOT_FOUND,
-        message: 'Không tìm thấy tệp yêu cầu trong kỹ năng này.',
+        message: 'The requested file was not found in this skill.',
         traceId,
         status: 404,
       });
@@ -46,7 +46,7 @@ export const GET = apiRoute({
       if (!blobStream) {
         throw new AppError(
           ERROR_CODES.INTERNAL_ERROR,
-          'Dữ liệu tệp không tồn tại trong kho lưu trữ.',
+          'File data not found in storage.',
           500,
         );
       }

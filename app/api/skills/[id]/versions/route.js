@@ -20,7 +20,7 @@ export const GET = apiRoute({
     if (!skill || !can(actor, ACTIONS.SKILL_READ, skill)) {
       return errorResponse({
         code: ERROR_CODES.NOT_FOUND,
-        message: 'Không tìm thấy kỹ năng yêu cầu.',
+        message: 'The requested skill was not found.',
         traceId,
         status: 404,
       });
@@ -45,7 +45,7 @@ export const POST = apiRoute({
     if (!existingSkill) {
       return errorResponse({
         code: ERROR_CODES.NOT_FOUND,
-        message: 'Không tìm thấy kỹ năng yêu cầu.',
+        message: 'The requested skill was not found.',
         traceId,
         status: 404,
       });
@@ -54,13 +54,13 @@ export const POST = apiRoute({
     if (!can(actor, ACTIONS.SKILL_WRITE, existingSkill)) {
       return errorResponse({
         code: ERROR_CODES.FORBIDDEN,
-        message: 'Bạn không có quyền cập nhật kỹ năng này.',
+        message: 'You do not have permission to update this skill.',
         traceId,
         status: 403,
       });
     }
 
-    let message = 'Cập nhật phiên bản';
+    let message = 'Version update';
     let rawEntries = [];
     let zipBuffer = null;
 
@@ -69,7 +69,7 @@ export const POST = apiRoute({
       const formData = await request.formData();
       message = formData.get('message')
         ? String(formData.get('message')).trim()
-        : 'Cập nhật phiên bản';
+        : 'Version update';
 
       const fileField = formData.get('file');
       if (
@@ -78,13 +78,25 @@ export const POST = apiRoute({
         typeof fileField.arrayBuffer === 'function'
       ) {
         const buf = Buffer.from(await fileField.arrayBuffer());
-        const fileName = fileField.name || '';
+        const fileName = (fileField.name || '').toLowerCase();
         if (fileName.endsWith('.zip') || fileName.endsWith('.skill')) {
           zipBuffer = buf;
-        } else {
+        } else if (
+          fileName.endsWith('.md') ||
+          fileName.endsWith('.markdown') ||
+          fileName.endsWith('.txt')
+        ) {
           rawEntries.push({
-            rawPath: fileName,
+            rawPath: fileField.name || fileName,
             buffer: buf,
+          });
+        } else {
+          return errorResponse({
+            code: ERROR_CODES.VALIDATION_ERROR,
+            message:
+              'Only compressed archives (.zip, .skill) or markdown/text files (.md, .txt) can be uploaded directly.',
+            traceId,
+            status: 422,
           });
         }
       }
@@ -102,13 +114,23 @@ export const POST = apiRoute({
         }
       }
     } else if (contentType.includes('application/json')) {
-      const jsonBody = await request.json();
-      message = jsonBody.message ? String(jsonBody.message).trim() : 'Cập nhật phiên bản';
+      let jsonBody;
+      try {
+        jsonBody = await request.json();
+      } catch {
+        return errorResponse({
+          code: ERROR_CODES.VALIDATION_ERROR,
+          message: 'Invalid JSON payload.',
+          traceId,
+          status: 400,
+        });
+      }
+      message = jsonBody.message ? String(jsonBody.message).trim() : 'Version update';
 
       if (!Array.isArray(jsonBody.files) || jsonBody.files.length === 0) {
         return errorResponse({
           code: ERROR_CODES.VALIDATION_ERROR,
-          message: 'Danh sách tệp cập nhật không được để trống.',
+          message: 'File list cannot be empty.',
           traceId,
           status: 422,
         });
@@ -118,7 +140,7 @@ export const POST = apiRoute({
         if (!file.path || typeof file.path !== 'string') {
           return errorResponse({
             code: ERROR_CODES.VALIDATION_ERROR,
-            message: 'Đường dẫn tệp không hợp lệ.',
+            message: 'Invalid file path.',
             traceId,
             status: 422,
           });
@@ -134,7 +156,7 @@ export const POST = apiRoute({
     } else {
       return errorResponse({
         code: ERROR_CODES.INVALID_INPUT,
-        message: 'Định dạng yêu cầu không được hỗ trợ. Vui lòng gửi JSON hoặc multipart/form-data.',
+        message: 'Unsupported content type. Please send JSON or multipart/form-data.',
         traceId,
         status: 415,
       });

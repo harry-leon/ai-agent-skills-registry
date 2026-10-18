@@ -26,7 +26,7 @@ export const GET = apiRoute({
     if (!skill || !can(actor, ACTIONS.SKILL_READ, skill)) {
       return errorResponse({
         code: ERROR_CODES.NOT_FOUND,
-        message: 'Không tìm thấy kỹ năng yêu cầu hoặc kỹ năng không khả dụng.',
+        message: 'The requested skill was not found or is unavailable.',
         traceId,
         status: 404,
       });
@@ -39,7 +39,7 @@ export const GET = apiRoute({
       if (isNaN(parsedNum) || parsedNum <= 0) {
         return errorResponse({
           code: ERROR_CODES.VALIDATION_ERROR,
-          message: 'Số hiệu phiên bản không hợp lệ.',
+          message: 'Invalid version number.',
           traceId,
           status: 422,
         });
@@ -52,7 +52,7 @@ export const GET = apiRoute({
     if (!version) {
       return errorResponse({
         code: ERROR_CODES.NOT_FOUND,
-        message: 'Không tìm thấy phiên bản kỹ năng yêu cầu.',
+        message: 'The requested skill version was not found.',
         traceId,
         status: 404,
       });
@@ -61,18 +61,18 @@ export const GET = apiRoute({
     // 3. Fetch all files for this version
     const files = await getVersionFiles(version.id);
     if (!files || files.length === 0) {
-      throw new AppError(ERROR_CODES.INTERNAL_ERROR, 'Phiên bản kỹ năng không có tệp nào.', 500);
+      throw new AppError(ERROR_CODES.INTERNAL_ERROR, 'Skill version contains no files.', 500);
     }
 
     // 4. Create ZIP stream preserving relative folder paths
-    const zip = new ZipArchive({ zlib: { level: 9 } });
+    const zip = new ZipArchive({ zlib: { level: 6 } });
 
     for (const file of files) {
       const blobStream = await storage.getBlobStream(file.blobSha256);
       if (!blobStream) {
         throw new AppError(
           ERROR_CODES.INTERNAL_ERROR,
-          `Không tìm thấy dữ liệu tệp lưu trữ: ${file.path}`,
+          `Storage blob not found for: ${file.path}`,
           500,
         );
       }

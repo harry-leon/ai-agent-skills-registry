@@ -65,7 +65,7 @@ export const POST = route(
         if (formData.has(field)) {
           return errorResponse({
             code: ERROR_CODES.VALIDATION_FAILED,
-            message: `Trường '${field}' không được phép gửi từ phía máy khách.`,
+            message: `Field '${field}' is not allowed in client request.`,
             traceId,
             status: 422,
             details: [{ field, message: 'Mass assignment forbidden' }],
@@ -92,7 +92,7 @@ export const POST = route(
         if (!['PRIVATE', 'UNLISTED', 'PUBLIC'].includes(visibility)) {
           return errorResponse({
             code: ERROR_CODES.VALIDATION_FAILED,
-            message: 'Quyền hiển thị không hợp lệ.',
+            message: 'Invalid visibility option.',
             traceId,
             status: 422,
           });
@@ -110,14 +110,27 @@ export const POST = route(
       if (file && typeof file === 'object' && 'arrayBuffer' in file) {
         const buffer = Buffer.from(await file.arrayBuffer());
         const filename = file.name || '';
+        const lowerName = filename.toLowerCase();
 
-        if (filename.toLowerCase().endsWith('.zip') || filename.toLowerCase().endsWith('.skill')) {
+        if (lowerName.endsWith('.zip') || lowerName.endsWith('.skill')) {
           ingestResult = await ingestSkill({ zipBuffer: buffer, persistBlobs: true });
-        } else {
-          // Single file upload
+        } else if (
+          lowerName.endsWith('.md') ||
+          lowerName.endsWith('.markdown') ||
+          lowerName.endsWith('.txt')
+        ) {
+          // Single text or markdown file upload
           ingestResult = await ingestSkill({
             entries: [{ rawPath: filename, buffer }],
             persistBlobs: true,
+          });
+        } else {
+          return errorResponse({
+            code: ERROR_CODES.VALIDATION_FAILED,
+            message:
+              'Only compressed archives (.zip, .skill) or markdown/text files (.md, .txt) can be uploaded directly.',
+            traceId,
+            status: 422,
           });
         }
       } else if (files && files.length > 0) {
@@ -135,7 +148,7 @@ export const POST = route(
       } else {
         return errorResponse({
           code: ERROR_CODES.VALIDATION_FAILED,
-          message: 'Vui lòng cung cấp tệp ZIP hoặc các tệp nguồn để tạo kỹ năng.',
+          message: 'Please provide a ZIP archive or source files to create a skill.',
           traceId,
           status: 422,
         });
@@ -157,7 +170,7 @@ export const POST = route(
       } else {
         return errorResponse({
           code: ERROR_CODES.VALIDATION_FAILED,
-          message: 'Dữ liệu kỹ năng thiếu tệp ZIP hoặc danh sách tệp nguồn.',
+          message: 'Skill payload must contain either a ZIP archive or file entries.',
           traceId,
           status: 422,
         });
@@ -165,7 +178,7 @@ export const POST = route(
     }
 
     if (!ingestResult) {
-      throw new AppError(ERROR_CODES.INTERNAL, 'Không thể xử lý nội dung kỹ năng.', 500);
+      throw new AppError(ERROR_CODES.INTERNAL, 'Failed to process skill contents.', 500);
     }
 
     // Create skill and initial version in DAL transaction
@@ -195,7 +208,7 @@ export const GET = route(
   {
     access: 'public',
   },
-  async ({ request }) => {
+  async ({ request, actor }) => {
     const url = new URL(request.url);
     const q = url.searchParams.get('q') || '';
     const tag = url.searchParams.get('tag') || '';
@@ -204,7 +217,15 @@ export const GET = route(
     const cursor = url.searchParams.get('cursor') || null;
     const limit = parseInt(url.searchParams.get('limit') || '20', 10);
 
-    const result = await searchPublicSkills({ q, tag, sort, order, cursor, limit });
+    const result = await searchPublicSkills({
+      q,
+      tag,
+      sort,
+      order,
+      cursor,
+      limit,
+      userId: actor?.id || null,
+    });
     return successResponse(result);
   },
 );

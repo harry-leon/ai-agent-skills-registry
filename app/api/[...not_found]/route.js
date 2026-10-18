@@ -6,7 +6,7 @@ export async function GET() {
   const traceId = crypto.randomUUID();
   return errorResponse({
     code: ERROR_CODES.ROUTE_NOT_FOUND,
-    message: 'Đường dẫn API không tồn tại.',
+    message: 'API route not found.',
     traceId,
     status: 404,
   });

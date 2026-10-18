@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { POST as authHandler } from '@/app/api/auth/[...all]/route.js';
+import { PATCH as updateProfileHandler } from '@/app/api/me/profile/route.js';
 import { db } from '@/lib/db.js';
 import { getSessionFromRequest } from '@/lib/auth/session.js';
 import { deleteUserAccount } from '@/lib/dal/users.js';
@@ -198,5 +199,49 @@ describe('Milestone M1.2: Authentication & Account Security Tests', () => {
     });
     expect(audit).toBeDefined();
     expect(audit.actorId).toBe(victim.id);
+  });
+
+  it('6. User can update their profile name and handle', async () => {
+    const { auth } = await import('@/lib/auth/config.js');
+    const email = `profile-test-${Date.now()}@skillvault.local`;
+    const initialHandle = `h-${Date.now()}`.slice(0, 20);
+
+    const signupRes = await auth.api.signUpEmail({
+      body: {
+        email,
+        password: 'Password123!',
+        name: 'Initial Name',
+        handle: initialHandle,
+      },
+      asResponse: true,
+    });
+    const sessionCookie = signupRes.headers.get('set-cookie').split(';')[0];
+    const data = await signupRes.json();
+    const user = data.user;
+
+    const newHandle = `new-${Date.now()}`.slice(0, 20);
+
+    const req = new Request('http://localhost:3000/api/me/profile', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        cookie: sessionCookie,
+      },
+      body: JSON.stringify({
+        name: 'Updated Name',
+        handle: newHandle,
+      }),
+    });
+
+    const res = await updateProfileHandler(req);
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+    expect(body.user.name).toBe('Updated Name');
+    expect(body.user.handle).toBe(newHandle);
+
+    const updated = await db.user.findUnique({ where: { id: user.id } });
+    expect(updated.name).toBe('Updated Name');
+    expect(updated.handle).toBe(newHandle);
   });
 });

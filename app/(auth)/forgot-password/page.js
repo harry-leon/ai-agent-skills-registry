@@ -29,9 +29,9 @@ export default function ForgotPasswordPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">Khôi phục mật khẩu</h1>
-        <p className="text-sm text-muted-foreground">
-          Nhập địa chỉ email tài khoản của bạn để nhận liên kết đặt lại mật khẩu
+        <h1 className="text-2xl font-bold tracking-tight text-slate-100">Reset Password</h1>
+        <p className="text-sm text-slate-400">
+          Enter your account email to receive a password reset link
         </p>
       </div>
 
@@ -39,23 +39,22 @@ export default function ForgotPasswordPage() {
         <div className="space-y-4 text-center">
           <div
             role="status"
-            className="rounded-lg bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-400 font-medium border border-green-500/20"
+            className="rounded-lg bg-emerald-500/10 p-4 text-sm text-emerald-400 font-medium border border-emerald-500/20"
           >
-            Nếu email tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi đến hộp thư của
-            bạn. Vui lòng kiểm tra email (kể cả thư rác/spam).
+            If that email exists in our system, password reset instructions have been sent to your inbox. Please check your email (including spam/junk folder).
           </div>
           <Link
             href="/login"
-            className="inline-flex min-h-[44px] items-center justify-center text-sm font-semibold text-blue-600 hover:underline"
+            className="inline-flex min-h-[40px] items-center justify-center text-sm font-semibold text-blue-400 hover:underline"
           >
-            Quay lại trang Đăng nhập
+            Return to Sign In
           </Link>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email tài khoản
+          <div>
+            <label htmlFor="email" className="sr-only">
+              Email or mobile number
             </label>
             <input
               id="email"
@@ -63,24 +62,25 @@ export default function ForgotPasswordPage() {
               type="email"
               autoComplete="email"
               required
+              aria-label="Email or mobile number"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ban@example.com"
-              className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              placeholder="Email or mobile number"
+              className="flex min-h-[50px] w-full rounded-2xl border border-slate-700/60 bg-[#0b0f17] px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 cursor-pointer"
+            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-xs transition-all hover:bg-blue-500 disabled:opacity-50 cursor-pointer active:scale-[0.99]"
           >
-            {loading ? 'Đang gửi...' : 'Gửi liên kết khôi phục'}
+            {loading ? 'Sending link...' : 'Send Reset Link'}
           </button>
 
-          <div className="text-center text-sm text-muted-foreground pt-2">
-            <Link href="/login" className="font-semibold text-blue-600 hover:underline">
-              Quay lại đăng nhập
+          <div className="text-center text-sm text-slate-400 pt-2">
+            <Link href="/login" className="font-semibold text-blue-400 hover:underline">
+              Back to Sign In
             </Link>
           </div>
         </form>

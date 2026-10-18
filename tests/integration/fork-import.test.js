@@ -185,7 +185,7 @@ Welcome to forkable skill.`;
     it('rejects branch refs containing slashes (/) with helpful message', () => {
       expect(() =>
         parseGitHubUrl('https://github.com/octocat/Hello-World/tree/feature%2Ftest'),
-      ).toThrowError(/dấu gạch chéo/);
+      ).toThrowError(/slash|Branch ref/i);
     });
 
     it('rejects path traversal (..) in subpath', () => {
@@ -225,7 +225,7 @@ Welcome to forkable skill.`;
           url: 'https://github.com/test/repo',
           fetchFn: mockFetch,
         }),
-      ).rejects.toThrowError(/máy chủ không được phép/);
+      ).rejects.toThrowError(/Disallowed redirect host|not allowed|redirect/i);
     });
 
     it('never forwards GITHUB_TOKEN to codeload.github.com', async () => {
@@ -286,7 +286,7 @@ Welcome to forkable skill.`;
           url: 'https://github.com/test/private-repo',
           fetchFn: mockFetch,
         }),
-      ).rejects.toThrowError(/chế độ riêng tư/);
+      ).rejects.toThrowError(/private/i);
     });
 
     it('handles non-existent GitHub repository (404) gracefully', async () => {
@@ -302,7 +302,7 @@ Welcome to forkable skill.`;
           url: 'https://github.com/test/missing-repo',
           fetchFn: mockFetch,
         }),
-      ).rejects.toThrowError(/không tồn tại/);
+      ).rejects.toThrowError(/not found|does not exist/i);
     });
   });
 

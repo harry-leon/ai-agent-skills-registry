@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, AlertCircle, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, AlertCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { Github } from '@/components/icons/github.js';
+import { VisibilitySelector } from '@/components/visibility-selector.js';
 import { toast } from 'sonner';
 
 export default function ImportGithubPage() {
@@ -59,9 +60,9 @@ export default function ImportGithubPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        setErrorMessage(json.error?.message || 'Không thể nhập kỹ năng từ GitHub.');
+        setErrorMessage(json.error?.message || 'Failed to import skill from GitHub.');
         setErrorDetails(json.error?.details || []);
-        toast.error(json.error?.message || 'Nhập từ GitHub thất bại.');
+        toast.error(json.error?.message || 'GitHub import failed.');
         return;
       }
 
@@ -69,7 +70,7 @@ export default function ImportGithubPage() {
         setWarnings(json.data.validation.warnings);
       }
 
-      toast.success('Nhập kỹ năng từ GitHub thành công!');
+      toast.success('Successfully imported skill from GitHub!');
 
       const createdSkill = json.data.skill;
       if (createdSkill && createdSkill.owner && createdSkill.slug) {
@@ -78,62 +79,60 @@ export default function ImportGithubPage() {
         router.push('/dashboard');
       }
     } catch {
-      setErrorMessage('Đã xảy ra lỗi kết nối khi nhập kỹ năng.');
-      toast.error('Lỗi kết nối máy chủ.');
+      setErrorMessage('Connection error occurred while importing skill.');
+      toast.error('Server connection error.');
     } finally {
       setImporting(false);
     }
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 py-6">
+    <div className="w-full space-y-6 pb-12">
       <div className="flex items-center space-x-3">
         <Link
           href="/dashboard"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border bg-card text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-          title="Quay lại Thư viện"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#1c2536] bg-[#111624] text-slate-400 hover:bg-slate-800/60 hover:text-white transition-colors"
+          title="Back to library"
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center space-x-2">
-            <Github className="h-6 w-6 text-foreground" />
-            <span>Nhập kỹ năng từ GitHub</span>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-100 flex items-center space-x-2">
+            <Github className="h-6 w-6 text-slate-200" />
+            <span>Import Skill from GitHub</span>
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Sao chép mã nguồn Agent Skill trực tiếp từ kho lưu trữ GitHub công khai vào thư viện cá
-            nhân.
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Import an AI agent skill directory directly from any public GitHub repository into your library.
           </p>
         </div>
       </div>
 
       {/* Info Callout */}
-      <div className="rounded-xl border border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/20 p-4 text-sm text-blue-900 dark:text-blue-200 space-y-1.5">
-        <div className="font-semibold flex items-center space-x-1.5">
-          <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <span>Yêu cầu kho lưu trữ:</span>
+      <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-4 text-sm text-blue-300 space-y-1.5">
+        <div className="font-semibold flex items-center space-x-1.5 text-blue-200">
+          <AlertCircle className="w-4 h-4 text-blue-400" />
+          <span>Repository requirements:</span>
         </div>
-        <ul className="list-disc list-inside space-y-1 text-xs text-blue-800 dark:text-blue-300 ml-1">
-          <li>Chỉ hỗ trợ kho lưu trữ công khai (Public Repository).</li>
+        <ul className="list-disc list-inside space-y-1 text-xs text-blue-300 ml-1">
+          <li>Only public GitHub repositories are supported.</li>
           <li>
-            Thư mục gốc hoặc thư mục con chỉ định bắt buộc phải có tệp <code>SKILL.md</code>.
+            The root directory or specified subpath must contain a valid <code>SKILL.md</code> file.
           </li>
           <li>
-            Tên nhánh chứa dấu <code>/</code> chưa được hỗ trợ trong phiên bản này (vui lòng sử dụng
-            Commit SHA hoặc Git Tag).
+            Branch names containing slashes (<code>/</code>) are not supported (please use Commit SHA or Tag).
           </li>
         </ul>
       </div>
 
       {/* Error Alert */}
       {errorMessage && (
-        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-destructive">
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-red-400">
           <div className="flex items-center space-x-2 font-medium text-sm">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{errorMessage}</span>
           </div>
           {errorDetails.length > 0 && (
-            <ul className="mt-2 list-disc list-inside space-y-1 text-xs text-destructive/90">
+            <ul className="mt-2 list-disc list-inside space-y-1 text-xs text-red-400/90">
               {errorDetails.map((detail, idx) => (
                 <li key={idx}>
                   {detail.field ? <span className="font-mono">{detail.field}: </span> : null}
@@ -147,10 +146,10 @@ export default function ImportGithubPage() {
 
       {/* Warnings List */}
       {warnings.length > 0 && (
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-amber-800 dark:text-amber-300">
+        <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-amber-400">
           <div className="flex items-center space-x-2 font-medium text-sm">
             <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>Cảnh báo định dạng kỹ năng:</span>
+            <span>Skill validation warnings:</span>
           </div>
           <ul className="mt-2 list-disc list-inside space-y-1 text-xs">
             {warnings.map((w, idx) => (
@@ -162,49 +161,48 @@ export default function ImportGithubPage() {
 
       {/* Import Form */}
       <form onSubmit={handleImport} className="space-y-6">
-        <div className="space-y-4 rounded-xl border bg-card p-6 shadow-xs">
-          <h2 className="text-base font-semibold text-foreground">Thông tin kho lưu trữ GitHub</h2>
+        <div className="space-y-4 rounded-xl border border-[#1c2536] bg-[#111624] p-6 shadow-xs">
+          <h2 className="text-base font-semibold text-slate-100">GitHub Repository Source</h2>
 
           <div className="space-y-2">
-            <label htmlFor="githubUrl" className="text-sm font-medium text-foreground">
-              Địa chỉ GitHub URL <span className="text-destructive">*</span>
+            <label htmlFor="githubUrl" className="text-sm font-medium text-slate-200">
+              GitHub URL <span className="text-red-400">*</span>
             </label>
             <input
               id="githubUrl"
               type="url"
               required
-              placeholder="https://github.com/owner/repo hoặc https://github.com/owner/repo/tree/main/skills/agent"
+              placeholder="https://github.com/owner/repo or https://github.com/owner/repo/tree/main/skills/agent"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex min-h-[40px] w-full rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
             />
-            <p className="text-xs text-muted-foreground">
-              Hỗ trợ đường dẫn dạng repository hoặc trực tiếp đến thư mục con{' '}
-              <code>/tree/ref/subpath</code>.
+            <p className="text-xs text-slate-400">
+              Repository root URLs or deep subpath URLs (e.g. <code>/tree/ref/subpath</code>) are supported.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="ref" className="text-sm font-medium text-foreground">
-                Nhánh / Tag / Commit SHA (Tùy chọn)
+              <label htmlFor="ref" className="text-sm font-medium text-slate-200">
+                Branch / Tag / Commit SHA (Optional)
               </label>
               <input
                 id="ref"
                 type="text"
-                placeholder="main, v1.0.0, hoặc 7fd1a60"
+                placeholder="main, v1.0.0, or 7fd1a60"
                 value={ref}
                 onChange={(e) => setRef(e.target.value)}
-                className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex min-h-[40px] w-full rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
               />
-              <p className="text-xs text-muted-foreground">
-                Mặc định sử dụng nhánh mặc định của repo.
+              <p className="text-xs text-slate-400">
+                Defaults to the default repository branch.
               </p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="subpath" className="text-sm font-medium text-foreground">
-                Thư mục con (Subpath, Tùy chọn)
+              <label htmlFor="subpath" className="text-sm font-medium text-slate-200">
+                Subpath (Optional)
               </label>
               <input
                 id="subpath"
@@ -212,39 +210,37 @@ export default function ImportGithubPage() {
                 placeholder="skills/my-agent-skill"
                 value={subpath}
                 onChange={(e) => setSubpath(e.target.value)}
-                className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex min-h-[40px] w-full rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
               />
-              <p className="text-xs text-muted-foreground">
-                Áp dụng nếu SKILL.md nằm trong thư mục con.
+              <p className="text-xs text-slate-400">
+                Used if SKILL.md is inside a subfolder.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-4 rounded-xl border bg-card p-6 shadow-xs">
-          <h2 className="text-base font-semibold text-foreground">
-            Cài đặt kỹ năng trong thư viện
+        <div className="space-y-4 rounded-xl border border-[#1c2536] bg-[#111624] p-6 shadow-xs">
+          <h2 className="text-base font-semibold text-slate-100">
+            Library Settings
           </h2>
 
           <div className="space-y-2">
-            <label htmlFor="visibility" className="text-sm font-medium text-foreground">
-              Chế độ hiển thị
-            </label>
-            <select
+            <div className="flex items-center justify-between">
+              <label htmlFor="visibility" className="text-sm font-medium text-slate-200">
+                Visibility
+              </label>
+              <span className="text-xs text-slate-400">Hover (i) icon for permissions breakdown</span>
+            </div>
+            <VisibilitySelector
               id="visibility"
               value={visibility}
-              onChange={(e) => setVisibility(e.target.value)}
-              className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="PRIVATE">Riêng tư (Chỉ mình bạn truy cập)</option>
-              <option value="UNLISTED">Không công khai (Truy cập qua liên kết bí mật)</option>
-              <option value="PUBLIC">Công khai (Mọi người có thể tìm kiếm và xem)</option>
-            </select>
+              onChange={setVisibility}
+            />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="tags" className="text-sm font-medium text-foreground">
-              Thẻ phân loại (Tags)
+            <label htmlFor="tags" className="text-sm font-medium text-slate-200">
+              Tags
             </label>
             <input
               id="tags"
@@ -252,10 +248,10 @@ export default function ImportGithubPage() {
               placeholder="agent, github, coding"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
-              className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex min-h-[40px] w-full rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
             />
-            <p className="text-xs text-muted-foreground">
-              Phân tách các thẻ bằng dấu phẩy (chữ thường, số, gạch ngang).
+            <p className="text-xs text-slate-400">
+              Comma-separated tags (lowercase letters, numbers, hyphens).
             </p>
           </div>
         </div>
@@ -264,17 +260,17 @@ export default function ImportGithubPage() {
           <button
             type="submit"
             disabled={importing || !url.trim()}
-            className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-primary px-6 py-2 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
+            className="inline-flex min-h-[40px] items-center justify-center rounded-md bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-2xs hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer active:scale-[0.98]"
           >
             {importing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                <span>Đang tải và xử lý từ GitHub...</span>
+                <span>Downloading and parsing from GitHub...</span>
               </>
             ) : (
               <>
                 <Github className="mr-2 h-4 w-4" />
-                <span>Bắt đầu nhập kỹ năng</span>
+                <span>Import Skill</span>
               </>
             )}
           </button>
@@ -282,9 +278,9 @@ export default function ImportGithubPage() {
             type="button"
             disabled={importing}
             onClick={() => router.back()}
-            className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent transition-colors cursor-pointer"
+            className="inline-flex min-h-[40px] items-center justify-center rounded-md border border-[#1c2536] bg-[#111624] px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
           >
-            Hủy
+            Cancel
           </button>
         </div>
       </form>

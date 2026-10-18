@@ -1,15 +1,38 @@
 import './globals.css';
+import { ThemeProvider } from '@/components/theme-provider.js';
+import { Toaster } from 'sonner';
 
 export const metadata = {
-  title: 'SkillVault — Thư viện kỹ năng cho AI Agent',
+  title: 'SkillVault — AI Agent Skills Registry & Package Manager',
   description:
-    'Lưu trữ, tổ chức, tìm kiếm và nhân bản Agent Skills cho AI Agent an toàn và có phiên bản.',
+    'Store, discover, install, and fork versioned AI Agent skills securely.',
+};
+
+export const viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#090d16' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="vi" suppressHydrationWarning>
-      <body className="min-h-screen bg-background font-sans antialiased">{children}</body>
+    <html lang="en" className="overflow-x-clip" suppressHydrationWarning>
+      <body className="min-h-screen bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary overflow-x-clip">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          forcedTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster position="top-right" richColors closeButton />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

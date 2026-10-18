@@ -21,17 +21,17 @@ test.describe('Milestone M1.4: Skills Creation & Dashboard Browser Flows', () =>
     await page.click('button[type="submit"]');
 
     await page.waitForURL('**/dashboard', { timeout: 30000 });
-    await expect(page.locator('h1')).toContainText('Thư viện của tôi');
+    await expect(page.locator('h1')).toContainText('My Skills');
 
     // 2. Navigate to /skills/new
     await page.goto('/skills/new');
-    await expect(page.locator('h1')).toContainText('Thêm Agent Skill mới');
+    await expect(page.locator('h1')).toContainText('Create New Agent Skill');
 
-    // 3. Select 'Tạo từ mẫu trống' tab
-    await page.click('button:has-text("Tạo từ mẫu trống")');
+    // 3. Select 'Blank Template' tab
+    await page.click('button:has-text("Blank Template")');
 
     const skillName = `agent-skill-${rand}`;
-    const skillDesc = `Mô tả kỹ năng kiểm tra tự động cho ${testInfo.project.name}`;
+    const skillDesc = `Automated test skill description for ${testInfo.project.name}`;
 
     await page.fill('#templateName', skillName);
     await page.fill('#templateDescription', skillDesc);
@@ -39,13 +39,13 @@ test.describe('Milestone M1.4: Skills Creation & Dashboard Browser Flows', () =>
     await page.selectOption('#visibility', 'PUBLIC');
 
     // 4. Submit form
-    await page.click('button[type="submit"]:has-text("Tạo kỹ năng")');
+    await page.click('button[type="submit"]:has-text("Create Skill")');
 
     // 5. Verify redirect to /dashboard and presence of the created skill card
     await page.waitForURL('**/dashboard', { timeout: 30000 });
-    await expect(page.locator('h1')).toContainText('Thư viện của tôi');
+    await expect(page.locator('h1')).toContainText('My Skills');
     await expect(page.locator('body')).toContainText(skillName);
-    await expect(page.locator('body')).toContainText('Công khai');
+    await expect(page.locator('body')).toContainText('PUBLIC');
     await expect(page.locator('body')).toContainText('#e2e');
   });
 });

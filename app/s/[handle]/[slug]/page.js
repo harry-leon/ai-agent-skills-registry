@@ -2,11 +2,21 @@ import { notFound } from 'next/navigation';
 import { getServerSession } from '@/lib/auth/session.js';
 import { getSkillByHandleAndSlug } from '@/lib/dal/skills.js';
 import { getVersionFiles } from '@/lib/dal/files.js';
+import { isSkillFavorited, getSkillFavoriteCount } from '@/lib/dal/favorites.js';
 import { can, ACTIONS } from '@/lib/auth/policy.js';
 import { storage } from '@/lib/storage/index.js';
+import { AppShell } from '@/components/app-shell.js';
 import { SkillViewerClient } from './viewer-client.js';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  const { handle, slug } = await params;
+  return {
+    title: `@${handle}/${slug} - SkillVault`,
+    description: `Inspect, install, and download @${handle}/${slug} AI agent skill.`,
+  };
+}
 
 export default async function SkillViewerPage({ params }) {
   const { handle, slug } = await params;
@@ -36,17 +46,22 @@ export default async function SkillViewerPage({ params }) {
 
   const canWrite = can(actor, ACTIONS.SKILL_WRITE, skill);
   const canFork = Boolean(actor && can(actor, ACTIONS.SKILL_FORK, skill));
+  const isFavorited = actor ? await isSkillFavorited(actor.id, skill.id) : false;
+  const favoritesCount = await getSkillFavoriteCount(skill.id);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell user={actor}>
       <SkillViewerClient
         skill={skill}
         files={files}
         initialContent={initialContent}
         canWrite={canWrite}
         canFork={canFork}
+        user={actor}
+        initialIsFavorited={isFavorited}
+        initialFavoritesCount={favoritesCount}
         shareToken={skill.shareToken}
       />
-    </div>
+    </AppShell>
   );
 }

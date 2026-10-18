@@ -30,12 +30,12 @@ export default function RegisterPage() {
 
     // Password length validation (Rule S1: min 10, max 128)
     if (password.length < 10 || password.length > 128) {
-      setError('Mật khẩu phải có độ dài từ 10 đến 128 ký tự.');
+      setError('Password must be between 10 and 128 characters.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp.');
+      setError('Passwords do not match.');
       return;
     }
 
@@ -50,18 +50,16 @@ export default function RegisterPage() {
       });
 
       if (res?.error) {
-        setError(res.error.message || 'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.');
+        setError(res.error.message || 'Registration failed. Please review your information.');
         setLoading(false);
         return;
       }
 
       setRegistered(true);
-      setTimeout(() => {
-        router.push('/dashboard');
-        router.refresh();
-      }, 1500);
+      router.push('/dashboard');
+      router.refresh();
     } catch (err) {
-      setError(err?.message || 'Đã xảy ra lỗi trong quá trình đăng ký.');
+      setError(err?.message || 'An error occurred during registration.');
       setLoading(false);
     }
   }
@@ -69,12 +67,12 @@ export default function RegisterPage() {
   if (registered) {
     return (
       <div className="space-y-4 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
           ✓
         </div>
-        <h2 className="text-xl font-bold">Tạo tài khoản thành công!</h2>
-        <p className="text-sm text-muted-foreground">
-          Đang chuyển hướng bạn tới thư viện kỹ năng...
+        <h2 className="text-xl font-bold text-slate-100">Account Created Successfully!</h2>
+        <p className="text-sm text-slate-400">
+          Redirecting to your skill library...
         </p>
       </div>
     );
@@ -83,9 +81,9 @@ export default function RegisterPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">Tạo tài khoản</h1>
-        <p className="text-sm text-muted-foreground">
-          Đăng ký để tạo thư viện và bắt đầu lưu trữ Agent Skills
+        <h1 className="text-2xl font-bold tracking-tight text-slate-100">Create Account</h1>
+        <p className="text-sm text-slate-400">
+          Register to build, publish, and manage your AI agent skills
         </p>
       </div>
 
@@ -93,35 +91,36 @@ export default function RegisterPage() {
         <div
           role="alert"
           aria-live="polite"
-          className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive font-medium border border-destructive/20"
+          className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400 font-medium border border-red-500/20"
         >
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium">
-            Họ và tên
+        <div>
+          <label htmlFor="name" className="sr-only">
+            Full name
           </label>
           <input
             id="name"
             name="name"
             type="text"
             required
+            aria-label="Full name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Nguyễn Văn A"
-            className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            placeholder="Full name"
+            className="flex min-h-[50px] w-full rounded-2xl border border-slate-700/60 bg-[#0b0f17] px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="handle" className="text-sm font-medium">
-            Tên định danh (Handle)
+        <div className="space-y-1.5">
+          <label htmlFor="handle" className="sr-only">
+            Handle
           </label>
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground text-sm">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 text-sm font-medium">
               @
             </span>
             <input
@@ -129,20 +128,21 @@ export default function RegisterPage() {
               name="handle"
               type="text"
               required
+              aria-label="Handle"
               value={handle}
               onChange={(e) => setHandle(e.target.value.toLowerCase())}
-              placeholder="alex-dev"
-              className="flex min-h-[44px] w-full rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              placeholder="Handle (e.g. alex-dev)"
+              className="flex min-h-[50px] w-full rounded-2xl border border-slate-700/60 bg-[#0b0f17] pl-9 pr-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
             />
           </div>
-          <p className="text-xs text-muted-foreground">
-            3-30 ký tự thường, số và dấu gạch ngang (ví dụ: my-skills)
+          <p className="text-xs text-slate-400 px-1">
+            3-30 lowercase letters, numbers, and hyphens (e.g. alex-dev)
           </p>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
+        <div>
+          <label htmlFor="email" className="sr-only">
+            Email or mobile number
           </label>
           <input
             id="email"
@@ -150,16 +150,17 @@ export default function RegisterPage() {
             type="email"
             autoComplete="email"
             required
+            aria-label="Email or mobile number"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="ban@example.com"
-            className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            placeholder="Email or mobile number"
+            className="flex min-h-[50px] w-full rounded-2xl border border-slate-700/60 bg-[#0b0f17] px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium">
-            Mật khẩu (tối thiểu 10 ký tự)
+        <div>
+          <label htmlFor="password" className="sr-only">
+            Password (min 10 characters)
           </label>
           <input
             id="password"
@@ -169,16 +170,17 @@ export default function RegisterPage() {
             required
             minLength={10}
             maxLength={128}
+            aria-label="Password (min 10 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••••"
-            className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            placeholder="Password (min 10 characters)"
+            className="flex min-h-[50px] w-full rounded-2xl border border-slate-700/60 bg-[#0b0f17] px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="confirmPassword" className="text-sm font-medium">
-            Xác nhận mật khẩu
+        <div>
+          <label htmlFor="confirmPassword" className="sr-only">
+            Confirm password
           </label>
           <input
             id="confirmPassword"
@@ -188,26 +190,27 @@ export default function RegisterPage() {
             required
             minLength={10}
             maxLength={128}
+            aria-label="Confirm password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="••••••••••"
-            className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            placeholder="Confirm password"
+            className="flex min-h-[50px] w-full rounded-2xl border border-slate-700/60 bg-[#0b0f17] px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex min-h-[44px] w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 cursor-pointer"
+          className="inline-flex min-h-[48px] w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-xs transition-all hover:bg-blue-500 disabled:opacity-50 cursor-pointer active:scale-[0.99]"
         >
-          {loading ? 'Đang đăng ký...' : 'Tạo tài khoản'}
+          {loading ? 'Creating account...' : 'Create Account'}
         </button>
       </form>
 
-      <div className="text-center text-sm text-muted-foreground">
-        Đã có tài khoản?{' '}
-        <Link href="/login" className="font-semibold text-blue-600 hover:underline">
-          Đăng nhập
+      <div className="text-center text-sm text-slate-400">
+        Already have an account?{' '}
+        <Link href="/login" className="font-semibold text-blue-400 hover:underline">
+          Sign In
         </Link>
       </div>
     </div>

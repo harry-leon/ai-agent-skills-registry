@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authClient } from '@/lib/auth/client.js';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from') || '/dashboard';
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,16 +27,16 @@ export default function LoginPage() {
       });
 
       if (res?.error) {
-        // Generic error response per S1: "Email hoặc mật khẩu không đúng"
-        setError('Email hoặc mật khẩu không đúng.');
+        // Generic error response per S1: "Invalid email or password"
+        setError('Invalid email or password.');
         setLoading(false);
         return;
       }
 
-      router.push('/dashboard');
+      router.push(from);
       router.refresh();
     } catch {
-      setError('Email hoặc mật khẩu không đúng.');
+      setError('Invalid email or password.');
       setLoading(false);
     }
   }
@@ -41,9 +44,9 @@ export default function LoginPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">Đăng nhập</h1>
-        <p className="text-sm text-muted-foreground">
-          Nhập thông tin tài khoản để truy cập thư viện kỹ năng của bạn
+        <h1 className="text-2xl font-bold tracking-tight text-slate-100">Sign In</h1>
+        <p className="text-sm text-slate-400">
+          Enter your credentials to access your SkillVault library
         </p>
       </div>
 
@@ -51,19 +54,16 @@ export default function LoginPage() {
         <div
           role="alert"
           aria-live="polite"
-          className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive font-medium border border-destructive/20"
+          className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400 font-medium border border-red-500/20"
         >
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label
-            htmlFor="email"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Email
+        <div>
+          <label htmlFor="email" className="sr-only">
+            Email or mobile number
           </label>
           <input
             id="email"
@@ -71,56 +71,63 @@ export default function LoginPage() {
             type="email"
             autoComplete="email"
             required
+            aria-label="Email or mobile number"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="ban@example.com"
-            className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="Email or mobile number"
+            className="flex min-h-[50px] w-full rounded-2xl border border-slate-700/60 bg-[#0b0f17] px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
           />
         </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Mật khẩu
-            </label>
-            <Link
-              href="/forgot-password"
-              className="text-xs text-blue-600 hover:underline underline-offset-4"
-            >
-              Quên mật khẩu?
-            </Link>
-          </div>
+        <div>
+          <label htmlFor="password" className="sr-only">
+            Password
+          </label>
           <input
             id="password"
             name="password"
             type="password"
             autoComplete="current-password"
             required
+            aria-label="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••••"
-            className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="Password"
+            className="flex min-h-[50px] w-full rounded-2xl border border-slate-700/60 bg-[#0b0f17] px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
           />
+          <div className="flex justify-end pt-2">
+            <Link
+              href="/forgot-password"
+              className="text-xs text-blue-400 hover:underline underline-offset-4"
+            >
+              Forgot password?
+            </Link>
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex min-h-[44px] w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer"
+          className="inline-flex min-h-[48px] w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-xs transition-all hover:bg-blue-500 disabled:opacity-50 cursor-pointer active:scale-[0.99]"
         >
-          {loading ? 'Đang xử lý...' : 'Đăng nhập'}
+          {loading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
 
-      <div className="text-center text-sm text-muted-foreground">
-        Chưa có tài khoản?{' '}
-        <Link href="/register" className="font-semibold text-blue-600 hover:underline">
-          Đăng ký ngay
+      <div className="text-center text-sm text-slate-400">
+        Don&apos;t have an account?{' '}
+        <Link href="/register" className="font-semibold text-blue-400 hover:underline">
+          Create account
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-8 text-slate-500">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

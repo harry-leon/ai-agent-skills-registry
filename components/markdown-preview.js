@@ -17,7 +17,7 @@ export function MarkdownPreview({ content, className = '' }) {
   if (!content) {
     return (
       <div className="text-muted-foreground italic text-sm py-4">
-        Không có nội dung để hiển thị.
+        No content to display.
       </div>
     );
   }
@@ -30,6 +30,21 @@ export function MarkdownPreview({ content, className = '' }) {
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSanitize]}
         components={{
+          h1: ({ node, ...props }) => {
+            const text = String(props.children || '');
+            const id = text.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
+            return <h1 id={id} {...props} className="scroll-mt-20 text-2xl font-bold tracking-tight text-foreground mt-8 mb-4 border-b border-border/40 pb-2" />;
+          },
+          h2: ({ node, ...props }) => {
+            const text = String(props.children || '');
+            const id = text.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
+            return <h2 id={id} {...props} className="scroll-mt-20 text-xl font-semibold tracking-tight text-foreground mt-6 mb-3" />;
+          },
+          h3: ({ node, ...props }) => {
+            const text = String(props.children || '');
+            const id = text.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
+            return <h3 id={id} {...props} className="scroll-mt-20 text-lg font-medium text-foreground mt-5 mb-2" />;
+          },
           a: ({ node, ...props }) => (
             <a
               {...props}

@@ -3,18 +3,17 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Save,
-  ArrowLeft,
-  AlertTriangle,
-  Plus,
-  Trash2,
-  Edit2,
-  FileText,
-  CheckCircle,
-} from 'lucide-react';
+import { Save, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { FileTree } from '@/components/file-tree.js';
 import { CodeMirrorEditor } from '@/components/code-mirror-editor.js';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog.js';
 import { toast } from 'sonner';
 
 export function SkillEditorClient({ skill, initialFiles = [], initialContents = {} }) {
@@ -50,7 +49,7 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
           }));
         }
       } catch {
-        toast.error('Không thể tải nội dung tệp.');
+        toast.error('Failed to load file contents.');
       }
     }
   };
@@ -69,17 +68,17 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
     const cleanPath = newFilePath.trim().replace(/^\/+/, '');
 
     if (!cleanPath) {
-      toast.error('Vui lòng nhập đường dẫn tệp.');
+      toast.error('Please enter a file path.');
       return;
     }
 
     if (cleanPath.includes('..') || cleanPath.includes('\\')) {
-      toast.error('Đường dẫn tệp không được chứa ký tự .. hoặc dấu gạch chéo ngược.');
+      toast.error('File path cannot contain .. or backslashes.');
       return;
     }
 
     if (files.some((f) => f.path.toLowerCase() === cleanPath.toLowerCase())) {
-      toast.error('Đã tồn tại tệp có đường dẫn này.');
+      toast.error('A file with this path already exists.');
       return;
     }
 
@@ -98,7 +97,7 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
     setSelectedPath(cleanPath);
     setNewFilePath('');
     setShowAddModal(false);
-    toast.success(`Đã thêm tệp ${cleanPath}`);
+    toast.success(`Added file ${cleanPath}`);
   };
 
   // Rename file
@@ -107,7 +106,7 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
     const cleanNewPath = renamedPath.trim().replace(/^\/+/, '');
 
     if (!cleanNewPath) {
-      toast.error('Vui lòng nhập tên tệp mới.');
+      toast.error('Please enter a new file name.');
       return;
     }
 
@@ -117,12 +116,12 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
     }
 
     if (cleanNewPath.includes('..') || cleanNewPath.includes('\\')) {
-      toast.error('Đường dẫn không hợp lệ.');
+      toast.error('Invalid file path.');
       return;
     }
 
     if (files.some((f) => f.path.toLowerCase() === cleanNewPath.toLowerCase())) {
-      toast.error('Tên tệp đã tồn tại trong kỹ năng.');
+      toast.error('File path already exists in this skill.');
       return;
     }
 
@@ -142,17 +141,17 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
     }
 
     setShowRenameModal(false);
-    toast.success('Đã đổi tên tệp thành công.');
+    toast.success('File renamed successfully.');
   };
 
   // Delete file
   const handleDeleteFile = (pathToDelete) => {
     if (pathToDelete === 'SKILL.md') {
-      toast.error('Không thể xoá tệp SKILL.md bắt buộc!');
+      toast.error('Cannot delete required SKILL.md file!');
       return;
     }
 
-    if (!confirm(`Bạn có chắc chắn muốn xoá tệp "${pathToDelete}" khỏi kỹ năng?`)) {
+    if (!confirm(`Are you sure you want to delete "${pathToDelete}" from this skill?`)) {
       return;
     }
 
@@ -167,14 +166,14 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
       setSelectedPath('SKILL.md');
     }
 
-    toast.success(`Đã xoá tệp ${pathToDelete}`);
+    toast.success(`Deleted file ${pathToDelete}`);
   };
 
   // Save new version
   const handleSaveVersion = async () => {
     // 1. Validate SKILL.md exists
     if (!files.some((f) => f.path === 'SKILL.md')) {
-      toast.error('Kỹ năng bắt buộc phải chứa tệp SKILL.md');
+      toast.error('Skill must contain a SKILL.md file');
       return;
     }
 
@@ -191,7 +190,7 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: message.trim() || 'Cập nhật phiên bản mới',
+          message: message.trim() || 'New version update',
           files: payloadFiles,
         }),
       });
@@ -202,16 +201,16 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
         if (json.error?.details && Array.isArray(json.error.details)) {
           setValidationErrors(json.error.details);
         }
-        toast.error(json.error?.message || 'Không thể lưu phiên bản mới.');
+        toast.error(json.error?.message || 'Failed to save new version.');
         setSaving(false);
         return;
       }
 
-      toast.success(`Đã tạo thành công phiên bản v${json.data.number}!`);
+      toast.success(`Successfully published version v${json.data.number}!`);
       router.push(`/s/${skill.owner.handle}/${skill.slug}`);
       router.refresh();
     } catch {
-      toast.error('Đã xảy ra lỗi kết nối khi lưu phiên bản.');
+      toast.error('Network error while saving version.');
       setSaving(false);
     }
   };
@@ -219,53 +218,54 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
   return (
     <div className="space-y-6">
       {/* Editor Header */}
-      <div className="bg-card border rounded-lg p-5 shadow-xs space-y-4">
+      <div className="bg-[#111624] border border-[#1c2536] rounded-xl p-5 sm:p-6 shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <div className="flex items-center space-x-2">
               <Link
                 href={`/s/${skill.owner.handle}/${skill.slug}`}
-                className="text-xs text-muted-foreground hover:text-foreground flex items-center space-x-1"
+                className="text-xs text-slate-400 hover:text-slate-200 flex items-center space-x-1 font-medium transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Quay lại xem</span>
+                <span>Back to viewer</span>
               </Link>
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center space-x-2">
-              <span>Chỉnh sửa kỹ năng: {skill.name}</span>
-              <span className="text-xs bg-muted text-muted-foreground font-mono px-2 py-0.5 rounded-full border">
-                v{(skill.currentVersion?.number || 1) + 1} (dự kiến)
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-100 flex items-center flex-wrap gap-2">
+              <span>Edit Skill: {skill.name}</span>
+              <span className="text-xs bg-[#0b0f17] text-slate-400 font-mono px-2.5 py-0.5 rounded-full border border-[#1c2536]">
+                v{(skill.currentVersion?.number || 1) + 1} (upcoming)
               </span>
             </h1>
           </div>
 
           {/* Action Bar */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center flex-wrap gap-2.5">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ghi chú phiên bản (ví dụ: Sửa hướng dẫn...)"
-              className="px-3 py-1.5 text-xs bg-background border rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-primary"
+              placeholder="Version change message (e.g., Update instructions...)"
+              className="px-3.5 py-2 min-h-[40px] text-xs bg-[#0b0f17] border border-[#1c2536] rounded-lg w-full sm:w-80 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-blue-500/60 transition-colors"
             />
+
             <button
               type="button"
               disabled={saving}
               onClick={handleSaveVersion}
-              className="inline-flex items-center space-x-1.5 px-4 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors shadow-xs disabled:opacity-50"
+              className="inline-flex min-h-[40px] items-center space-x-1.5 px-5 py-2 text-xs font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer active:scale-[0.98]"
             >
               <Save className="w-3.5 h-3.5" />
-              <span>{saving ? 'Đang lưu...' : 'Lưu phiên bản'}</span>
+              <span>{saving ? 'Publishing...' : 'Publish Version'}</span>
             </button>
           </div>
         </div>
 
         {/* Validation Errors Notice */}
         {validationErrors.length > 0 && (
-          <div className="bg-destructive/10 border border-destructive/20 text-destructive p-3.5 rounded-md text-xs space-y-1.5">
-            <div className="flex items-center space-x-1.5 font-semibold">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-xs space-y-1.5">
+            <div className="flex items-center space-x-2 font-semibold">
               <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span>Phát hiện lỗi định dạng khi kiểm tra tệp:</span>
+              <span>Validation errors detected:</span>
             </div>
             <ul className="list-disc list-inside space-y-0.5 pl-2 opacity-90">
               {validationErrors.map((err, idx) => (
@@ -291,7 +291,7 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
             onAddFile={() => setShowAddModal(true)}
             onRenameFile={(path) => {
               if (path === 'SKILL.md') {
-                toast.error('Không thể đổi tên tệp SKILL.md');
+                toast.error('Cannot rename SKILL.md file');
                 return;
               }
               setTargetRenamePath(path);
@@ -303,20 +303,20 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
         </div>
 
         {/* Right Column: CodeMirror Editor */}
-        <div className="lg:col-span-8 flex flex-col border rounded-md bg-card overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
+        <div className="lg:col-span-8 flex flex-col border border-[#1c2536] rounded-xl bg-[#111624] overflow-hidden shadow-xs">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#1c2536] bg-[#0b0f17]">
             <div className="flex items-center space-x-2 truncate">
-              <span className="font-mono text-xs font-semibold text-foreground truncate">
+              <span className="font-mono text-xs font-semibold text-slate-200 truncate">
                 {activeFile?.path || 'SKILL.md'}
               </span>
               {activeFile?.path === 'SKILL.md' && (
-                <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded font-medium">
-                  Bắt buộc frontmatter name & description
+                <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                  Frontmatter name & description required
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-muted-foreground">
-              {activeFile ? `${(fileContents[activeFile.path] || '').length} ký tự` : ''}
+            <span className="text-[11px] font-mono text-slate-500">
+              {activeFile ? `${(fileContents[activeFile.path] || '').length} characters` : ''}
             </span>
           </div>
 
@@ -330,8 +330,8 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
                 className="h-full min-h-[500px] border-0 rounded-none"
               />
             ) : (
-              <div className="p-12 text-center text-xs text-muted-foreground">
-                Tệp nhị phân không thể chỉnh sửa trực tiếp dưới dạng văn bản.
+              <div className="p-12 text-center text-xs text-slate-500">
+                Binary files cannot be edited directly in the code editor.
               </div>
             )}
           </div>
@@ -339,82 +339,84 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
       </div>
 
       {/* Add File Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <form
-            onSubmit={handleAddFileSubmit}
-            className="bg-card border rounded-lg max-w-sm w-full p-5 space-y-4 shadow-lg"
-          >
-            <h3 className="text-sm font-semibold">Thêm tệp mới vào kỹ năng</h3>
-            <p className="text-xs text-muted-foreground">
-              Nhập đường dẫn tương đối (ví dụ:{' '}
-              <code className="bg-muted px-1 rounded">scripts/run.py</code> hoặc{' '}
-              <code className="bg-muted px-1 rounded">docs/api.md</code>):
-            </p>
+      <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
+        <DialogContent className="max-w-sm bg-[#111624] border-[#1c2536] text-slate-200">
+          <form onSubmit={handleAddFileSubmit} className="space-y-4">
+            <DialogHeader>
+              <DialogTitle className="text-slate-100">Add New File</DialogTitle>
+              <DialogDescription className="text-slate-400">
+                Enter relative path (e.g.{' '}
+                <code className="bg-[#0b0f17] text-slate-300 px-1 py-0.5 rounded font-mono">scripts/run.py</code> or{' '}
+                <code className="bg-[#0b0f17] text-slate-300 px-1 py-0.5 rounded font-mono">docs/api.md</code>):
+              </DialogDescription>
+            </DialogHeader>
+
             <input
               type="text"
               autoFocus
               value={newFilePath}
               onChange={(e) => setNewFilePath(e.target.value)}
               placeholder="scripts/main.py"
-              className="w-full text-xs font-mono bg-background border px-3 py-2 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full text-xs font-mono bg-[#0b0f17] border border-[#1c2536] px-3.5 py-2.5 rounded-lg text-slate-200 focus:outline-none focus:border-blue-500/60 transition-colors"
             />
-            <div className="flex items-center justify-end space-x-2 pt-2">
+
+            <DialogFooter className="pt-2 border-t border-[#1c2536]">
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="px-3 py-1.5 border rounded text-xs hover:bg-muted"
+                className="px-4 py-2 border border-[#1c2536] bg-[#0b0f17] rounded-lg text-xs font-semibold hover:bg-[#1c2536] cursor-pointer text-slate-300"
               >
-                Huỷ
+                Cancel
               </button>
               <button
                 type="submit"
-                className="px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-medium hover:bg-primary/90"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors cursor-pointer shadow-2xs"
               >
-                Tạo tệp
+                Create File
               </button>
-            </div>
+            </DialogFooter>
           </form>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* Rename File Modal */}
-      {showRenameModal && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <form
-            onSubmit={handleRenameSubmit}
-            className="bg-card border rounded-lg max-w-sm w-full p-5 space-y-4 shadow-lg"
-          >
-            <h3 className="text-sm font-semibold">Đổi tên tệp</h3>
-            <p className="text-xs text-muted-foreground">
-              Đổi tên cho tệp{' '}
-              <strong className="font-mono text-foreground">{targetRenamePath}</strong>:
-            </p>
+      <Dialog open={showRenameModal} onOpenChange={setShowRenameModal}>
+        <DialogContent className="max-w-sm bg-[#111624] border-[#1c2536] text-slate-200">
+          <form onSubmit={handleRenameSubmit} className="space-y-4">
+            <DialogHeader>
+              <DialogTitle className="text-slate-100">Rename File</DialogTitle>
+              <DialogDescription className="text-slate-400">
+                Enter new path for{' '}
+                <strong className="font-mono text-slate-200">{targetRenamePath}</strong>:
+              </DialogDescription>
+            </DialogHeader>
+
             <input
               type="text"
               autoFocus
               value={renamedPath}
               onChange={(e) => setRenamedPath(e.target.value)}
-              className="w-full text-xs font-mono bg-background border px-3 py-2 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full text-xs font-mono bg-[#0b0f17] border border-[#1c2536] px-3.5 py-2.5 rounded-lg text-slate-200 focus:outline-none focus:border-blue-500/60 transition-colors"
             />
-            <div className="flex items-center justify-end space-x-2 pt-2">
+
+            <DialogFooter className="pt-2 border-t border-[#1c2536]">
               <button
                 type="button"
                 onClick={() => setShowRenameModal(false)}
-                className="px-3 py-1.5 border rounded text-xs hover:bg-muted"
+                className="px-4 py-2 border border-[#1c2536] bg-[#0b0f17] rounded-lg text-xs font-semibold hover:bg-[#1c2536] cursor-pointer text-slate-300"
               >
-                Huỷ
+                Cancel
               </button>
               <button
                 type="submit"
-                className="px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-medium hover:bg-primary/90"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors cursor-pointer shadow-2xs"
               >
-                Đổi tên
+                Rename
               </button>
-            </div>
+            </DialogFooter>
           </form>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

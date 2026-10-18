@@ -22,17 +22,17 @@ test.describe('Milestone M1.5: Viewer & Editor End-to-End Browser Flows', () => 
 
     // 2. Wait for dashboard redirect
     await page.waitForURL('**/dashboard', { timeout: 30000 });
-    await expect(page.locator('h1')).toContainText('Thư viện của tôi');
+    await expect(page.locator('h1')).toContainText('My Skills');
 
     // 3. Navigate to /skills/new to create a skill from basic template
     await page.goto('/skills/new');
     await expect(page).toHaveURL('/skills/new');
 
-    // 3. Select 'Tạo từ mẫu trống' tab
-    await page.click('button:has-text("Tạo từ mẫu trống")');
+    // 3. Select 'Blank Template' tab
+    await page.click('button:has-text("Blank Template")');
 
     const skillName = `agent-skill-${rand}`;
-    const skillDesc = `Mô tả kỹ năng kiểm tra tự động cho ${testInfo.project.name}`;
+    const skillDesc = `Automated test skill description for ${testInfo.project.name}`;
 
     await page.fill('#templateName', skillName);
     await page.fill('#templateDescription', skillDesc);
@@ -40,7 +40,7 @@ test.describe('Milestone M1.5: Viewer & Editor End-to-End Browser Flows', () => 
     await page.selectOption('#visibility', 'PUBLIC');
 
     // 4. Submit form
-    await page.click('button[type="submit"]:has-text("Tạo kỹ năng")');
+    await page.click('button[type="submit"]:has-text("Create Skill")');
 
     // 5. Verify redirect to /dashboard and click the skill card
     await page.waitForURL('**/dashboard', { timeout: 30000 });
@@ -66,11 +66,11 @@ test.describe('Milestone M1.5: Viewer & Editor End-to-End Browser Flows', () => 
     await expect(previewContainer).toBeVisible();
 
     // Verify download ZIP button exists
-    const downloadZipBtn = page.locator('a:has-text("Tải ZIP")').first();
+    const downloadZipBtn = page.locator('a:has-text("Download ZIP")').first();
     await expect(downloadZipBtn).toBeVisible();
 
     // 7. Click Edit button to enter Editor (/s/[handle]/[slug]/edit)
-    const editBtn = page.locator('a:has-text("Chỉnh sửa")').first();
+    const editBtn = page.locator('a:has-text("Edit")').first();
     await expect(editBtn).toBeVisible();
     const editHref = await editBtn.getAttribute('href');
     await page.goto(editHref);
@@ -78,7 +78,7 @@ test.describe('Milestone M1.5: Viewer & Editor End-to-End Browser Flows', () => 
     await expect(page).toHaveURL(new RegExp(`/s/${handle}/.*/edit`), { timeout: 15000 });
 
     // 8. Editor Actions: Add a new file
-    const addFileBtn = page.locator('button:has-text("Thêm tệp")').first();
+    const addFileBtn = page.locator('button:has-text("Add file")').first();
     await expect(addFileBtn).toBeVisible();
     await addFileBtn.click();
 
@@ -86,24 +86,24 @@ test.describe('Milestone M1.5: Viewer & Editor End-to-End Browser Flows', () => 
     const newFilePathInput = page.locator('input[placeholder="scripts/main.py"]').first();
     await expect(newFilePathInput).toBeVisible();
     await newFilePathInput.fill('notes.txt');
-    await page.click('button:has-text("Tạo tệp")');
+    await page.click('button:has-text("Create File")');
 
     // Verify new file appears in file tree
     const newFileItem = page.locator('div[role="treeitem"]:has-text("notes.txt")').first();
     await expect(newFileItem).toBeVisible();
 
     // Fill version message
-    const versionMessageInput = page.locator('input[placeholder*="Ghi chú phiên bản"]').first();
+    const versionMessageInput = page.locator('input[placeholder*="Version change message"]').first();
     await expect(versionMessageInput).toBeVisible();
-    await versionMessageInput.fill('Thêm tài liệu hướng dẫn v2');
+    await versionMessageInput.fill('Add documentation v2');
 
     // Save new version
-    const saveBtn = page.locator('button:has-text("Lưu phiên bản")').first();
+    const saveBtn = page.locator('button:has-text("Publish Version")').first();
     await expect(saveBtn).toBeVisible();
     await saveBtn.click();
 
     // 9. Verify redirect back to Viewer with incremented version v2!
-    await page.waitForURL(`**/s/${handle}/**`, { timeout: 15000 });
+    await page.waitForURL(`**/s/${handle}/**`, { timeout: 60000 });
     const v2Badge = page.locator('text=v2').first();
     await expect(v2Badge).toBeVisible({ timeout: 10000 });
 

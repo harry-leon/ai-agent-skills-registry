@@ -226,7 +226,7 @@ export function FileTree({
               {onRenameFile && (
                 <button
                   type="button"
-                  title="Đổi tên tệp"
+                  title="Rename file"
                   onClick={(e) => {
                     e.stopPropagation();
                     onRenameFile(node.path);
@@ -239,7 +239,7 @@ export function FileTree({
               {onDeleteFile && !isSkillMd && (
                 <button
                   type="button"
-                  title="Xoá tệp"
+                  title="Delete file"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDeleteFile(node.path);
@@ -261,31 +261,31 @@ export function FileTree({
   };
 
   return (
-    <div className="border rounded-md bg-card p-2 flex flex-col h-full overflow-hidden">
-      <div className="flex items-center justify-between px-2 py-1.5 border-b mb-2">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Cây thư mục ({files.length} tệp)
+    <div className="border border-[#1e293b] rounded-xl bg-[#111624] p-3 flex flex-col h-full overflow-hidden shadow-xs">
+      <div className="flex items-center justify-between px-2 py-2 border-b border-[#1c2536] mb-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          Files ({files.length})
         </span>
         {isEditable && onAddFile && (
           <button
             type="button"
             onClick={onAddFile}
-            className="flex items-center space-x-1 text-xs text-primary hover:underline font-medium"
-            title="Thêm tệp mới"
+            className="flex items-center space-x-1 text-xs text-blue-400 hover:text-blue-300 font-semibold"
+            title="Add new file"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Thêm tệp</span>
+            <span>Add file</span>
           </button>
         )}
       </div>
 
       <div
         role="tree"
-        aria-label="Cây thư mục kỹ năng"
+        aria-label="Skill file tree"
         className="overflow-y-auto space-y-0.5 flex-1 pr-1"
       >
         {tree.length === 0 ? (
-          <div className="text-xs text-muted-foreground p-3 text-center">Không có tệp nào.</div>
+          <div className="text-xs text-muted-foreground p-3 text-center">No files found.</div>
         ) : (
           tree.map((node) => renderNode(node, 0))
         )}
