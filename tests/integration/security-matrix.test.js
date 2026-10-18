@@ -28,7 +28,7 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
   let sessionCookieA, sessionCookieB;
   let privateSkillA, publicSkillA, unlistedSkillA, deletedSkillA;
   let unlistedShareToken;
-  let privateFileId, publicFileId;
+  let privateFileId, publicFileId, publicSvgFileId, publicPngFileId;
 
   beforeAll(async () => {
     const { auth } = await import('@/lib/auth/config.js');
@@ -95,6 +95,19 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
     const fileContentB = Buffer.from('---\nname: Public Security Skill\n---\n# Open Content');
     await storage.putBlob(fileHashB, fileContentB);
 
+    const svgHash = crypto.randomBytes(32).toString('hex');
+    const svgContent = Buffer.from(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><circle cx="5" cy="5" r="5"/></svg>',
+    );
+    await storage.putBlob(svgHash, svgContent);
+
+    const pngHash = crypto.randomBytes(32).toString('hex');
+    const pngContent = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44,
+      0x52,
+    ]);
+    await storage.putBlob(pngHash, pngContent);
+
     publicSkillA = await createSkillWithVersion({
       ownerId: userA.id,
       name: 'Public Security Skill',
@@ -111,13 +124,33 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
           sha256: fileHashB,
           content: fileContentB.toString('utf-8'),
         },
+        {
+          path: 'assets/icon.svg',
+          size: svgContent.length,
+          isText: false,
+          sha256: svgHash,
+          content: svgContent.toString('utf-8'),
+        },
+        {
+          path: 'assets/logo.png',
+          size: pngContent.length,
+          isText: false,
+          sha256: pngHash,
+          content: pngContent.toString('binary'),
+        },
       ],
     });
     const pubSkillWithFiles = await db.skill.findUnique({
       where: { id: publicSkillA.id },
       include: { currentVersion: { include: { files: true } } },
     });
-    publicFileId = pubSkillWithFiles.currentVersion.files[0].id;
+    publicFileId = pubSkillWithFiles.currentVersion.files.find((f) => f.path === 'SKILL.md').id;
+    publicSvgFileId = pubSkillWithFiles.currentVersion.files.find(
+      (f) => f.path === 'assets/icon.svg',
+    ).id;
+    publicPngFileId = pubSkillWithFiles.currentVersion.files.find(
+      (f) => f.path === 'assets/logo.png',
+    ).id;
 
     // 3. Create Unlisted Skill for User A
     unlistedSkillA = await createSkillWithVersion({
@@ -683,6 +716,58 @@ describe('Milestone M1.8: Security Hardening & Authorization Matrix Tests', () =
       expect(res.headers.get('content-disposition')).toContain('.zip');
       expect(res.headers.get('x-trace-id')).toBeTruthy();
       expect(res.headers.get('x-content-type-options')).toBe('nosniff');
+    });
+
+    it('Rule S8 & Threat 14: SVG files are strictly download-only (Content-Disposition: attachment) even with raw=true', async () => {
+      const req = new Request(
+        `http://localhost:3000/api/skills/${publicSkillA.id}/files/${publicSvgFileId}?raw=true`,
+        {
+          method: 'GET',
+          headers: { cookie: sessionCookieA },
+        },
+      );
+      const res = await getFileHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id, fileId: publicSvgFileId }),
+      });
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-disposition')).toContain('attachment');
+      expect(res.headers.get('content-security-policy')).toContain('sandbox');
+      expect(res.headers.get('x-content-type-options')).toBe('nosniff');
+    });
+
+    it('Rule S8: Raster images (PNG) are served inline with correct MIME type', async () => {
+      const req = new Request(
+        `http://localhost:3000/api/skills/${publicSkillA.id}/files/${publicPngFileId}?raw=true`,
+        {
+          method: 'GET',
+          headers: { cookie: sessionCookieA },
+        },
+      );
+      const res = await getFileHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id, fileId: publicPngFileId }),
+      });
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-disposition')).toContain('inline');
+      expect(res.headers.get('content-type')).toBe('image/png');
+      expect(res.headers.get('content-security-policy')).toContain('sandbox');
+      expect(res.headers.get('x-content-type-options')).toBe('nosniff');
+    });
+
+    it('Rule S8: Text files are served inline with text/plain; charset=utf-8', async () => {
+      const req = new Request(
+        `http://localhost:3000/api/skills/${publicSkillA.id}/files/${publicFileId}?raw=true`,
+        {
+          method: 'GET',
+          headers: { cookie: sessionCookieA },
+        },
+      );
+      const res = await getFileHandler(req, {
+        params: Promise.resolve({ id: publicSkillA.id, fileId: publicFileId }),
+      });
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-disposition')).toContain('inline');
+      expect(res.headers.get('content-type')).toBe('text/plain; charset=utf-8');
+      expect(res.headers.get('content-security-policy')).toContain('sandbox');
     });
   });
 });

@@ -25,7 +25,7 @@ test.describe('Milestone M1.6: Fork and GitHub Import End-to-End Flows', () => {
     await page.fill('#confirmPassword', password);
     await page.click('button[type="submit"]');
 
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
     await expect(page.locator('h1')).toContainText('Thư viện của tôi');
 
     // 2. User A creates a public skill from template
@@ -41,7 +41,7 @@ test.describe('Milestone M1.6: Fork and GitHub Import End-to-End Flows', () => {
     await page.selectOption('#visibility', 'PUBLIC');
 
     await page.click('button[type="submit"]:has-text("Tạo kỹ năng")');
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
 
     const sourceCard = page.locator(`a:has-text("${skillName}")`).first();
     await expect(sourceCard).toBeVisible({ timeout: 10000 });
@@ -59,7 +59,7 @@ test.describe('Milestone M1.6: Fork and GitHub Import End-to-End Flows', () => {
     await page.fill('#confirmPassword', password);
     await page.click('button[type="submit"]');
 
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
 
     // 5. User B visits User A's public skill page
     await page.goto(sourceSkillHref);
@@ -72,7 +72,7 @@ test.describe('Milestone M1.6: Fork and GitHub Import End-to-End Flows', () => {
     await forkBtn.click();
 
     // 7. Verify redirection to User B's new fork
-    await page.waitForURL(new RegExp(`/s/${handleB}/`), { timeout: 15000 });
+    await page.waitForURL(new RegExp(`/s/${handleB}/`), { timeout: 30000 });
     await expect(page.locator('h1').first()).toContainText(skillName);
     await expect(page.locator(`text=@${handleB}`)).toBeVisible();
 

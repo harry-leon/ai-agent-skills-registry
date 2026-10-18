@@ -78,4 +78,3 @@ SkillVault is a secure, multi-user web application to store, organize, search, u
 ## 6. Next Actions
 
 1. Await user command: `APPROVED PHASE 1` before proceeding to Phase 2 (specified in Section 12).
-

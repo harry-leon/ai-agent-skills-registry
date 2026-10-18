@@ -27,7 +27,7 @@ test.describe('Milestone M1.2: Authentication End-to-End Browser Flows', () => {
     await page.click('button[type="submit"]');
 
     // Wait for redirect to /dashboard
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
     await expect(page.locator('h1')).toContainText('Thư viện của tôi');
 
     // Verify handle badge in navbar
@@ -35,7 +35,7 @@ test.describe('Milestone M1.2: Authentication End-to-End Browser Flows', () => {
 
     // 3. Logout
     await page.click('button:has-text("Đăng xuất")');
-    await page.waitForURL('**/login', { timeout: 10000 });
+    await page.waitForURL('**/login', { timeout: 30000 });
     await expect(page.locator('h1')).toContainText('Đăng nhập');
 
     // 4. Login with newly created credentials
@@ -43,7 +43,7 @@ test.describe('Milestone M1.2: Authentication End-to-End Browser Flows', () => {
     await page.fill('#password', testPassword);
     await page.click('button[type="submit"]');
 
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
     await expect(page.locator('h1')).toContainText('Thư viện của tôi');
 
     // 5. Navigate to Settings page

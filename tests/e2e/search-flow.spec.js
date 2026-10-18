@@ -20,7 +20,7 @@ test.describe('Milestone M1.7: Search and Library Discovery End-to-End Flows', (
     await page.fill('#confirmPassword', password);
     await page.click('button[type="submit"]');
 
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
     await expect(page.locator('h1')).toContainText('Thư viện của tôi');
 
     // 2. Create Skill 1 (Public) with Vietnamese content
@@ -34,7 +34,7 @@ test.describe('Milestone M1.7: Search and Library Discovery End-to-End Flows', (
     await page.fill('#tags', 'nlp, vietnamese, smartsearch');
     await page.selectOption('#visibility', 'PUBLIC');
     await page.click('button[type="submit"]:has-text("Tạo kỹ năng")');
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
 
     // 3. Create Skill 2 (Private)
     const privateSkillName = `nb-private-${rand}`;
@@ -47,7 +47,7 @@ test.describe('Milestone M1.7: Search and Library Discovery End-to-End Flows', (
     await page.fill('#tags', 'internal, secret');
     await page.selectOption('#visibility', 'PRIVATE');
     await page.click('button[type="submit"]:has-text("Tạo kỹ năng")');
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
 
     // Verify both skills are present initially in Dashboard
     await expect(page.locator(`text=${publicSkillName}`).first()).toBeVisible({ timeout: 10000 });

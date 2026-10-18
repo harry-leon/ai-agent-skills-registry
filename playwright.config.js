@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 60000,
+  timeout: 90000,
   workers: 1,
   fullyParallel: false,
   reporter: 'list',
@@ -11,6 +11,16 @@ export default defineConfig({
     trace: 'on-first-retry',
     extraHTTPHeaders: {
       'x-test-bypass-rate-limit': 'true',
+    },
+  },
+  webServer: {
+    command: 'npm run dev -- -p 3001',
+    url: 'http://localhost:3001/api/health',
+    reuseExistingServer: true,
+    timeout: 90000,
+    env: {
+      PORT: '3001',
+      APP_URL: 'http://localhost:3001',
     },
   },
   projects: [

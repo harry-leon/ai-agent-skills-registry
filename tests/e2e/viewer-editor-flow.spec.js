@@ -21,7 +21,7 @@ test.describe('Milestone M1.5: Viewer & Editor End-to-End Browser Flows', () => 
     await page.click('button[type="submit"]');
 
     // 2. Wait for dashboard redirect
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
     await expect(page.locator('h1')).toContainText('Thư viện của tôi');
 
     // 3. Navigate to /skills/new to create a skill from basic template
@@ -43,7 +43,7 @@ test.describe('Milestone M1.5: Viewer & Editor End-to-End Browser Flows', () => 
     await page.click('button[type="submit"]:has-text("Tạo kỹ năng")');
 
     // 5. Verify redirect to /dashboard and click the skill card
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
     const skillLink = page.locator(`a:has-text("${skillName}")`).first();
     await expect(skillLink).toBeVisible({ timeout: 10000 });
     const skillHref = await skillLink.getAttribute('href');

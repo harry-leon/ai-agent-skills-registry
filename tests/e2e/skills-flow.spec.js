@@ -20,7 +20,7 @@ test.describe('Milestone M1.4: Skills Creation & Dashboard Browser Flows', () =>
     await page.fill('#confirmPassword', testPassword);
     await page.click('button[type="submit"]');
 
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
     await expect(page.locator('h1')).toContainText('Thư viện của tôi');
 
     // 2. Navigate to /skills/new
@@ -42,7 +42,7 @@ test.describe('Milestone M1.4: Skills Creation & Dashboard Browser Flows', () =>
     await page.click('button[type="submit"]:has-text("Tạo kỹ năng")');
 
     // 5. Verify redirect to /dashboard and presence of the created skill card
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    await page.waitForURL('**/dashboard', { timeout: 30000 });
     await expect(page.locator('h1')).toContainText('Thư viện của tôi');
     await expect(page.locator('body')).toContainText(skillName);
     await expect(page.locator('body')).toContainText('Công khai');

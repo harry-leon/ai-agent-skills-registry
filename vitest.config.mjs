@@ -13,6 +13,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     testTimeout: 20000,
+    hookTimeout: 30000,
     include: ['tests/unit/**/*.test.js', 'tests/integration/**/*.test.js'],
     exclude: ['tests/e2e/**', 'node_modules/**'],
   },

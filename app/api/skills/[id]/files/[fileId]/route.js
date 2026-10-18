@@ -52,12 +52,35 @@ export const GET = apiRoute({
       }
 
       const filename = path.basename(file.path);
-      const disposition = isDownload ? 'attachment' : 'inline';
+      const dotIdx = filename.lastIndexOf('.');
+      const ext = dotIdx !== -1 ? filename.slice(dotIdx + 1).toLowerCase() : '';
+
+      // Rule S8 & Threat 14: SVG, HTML and PDF are download-only.
+      // Inline is allowed ONLY for text files up to 1 MB and raster images.
+      const isDownloadOnly = ext === 'svg' || ext === 'html' || ext === 'pdf';
+      const isRasterImage = ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext);
+      const isInlineAllowed =
+        !isDownloadOnly && ((file.isText && file.size <= 1024 * 1024) || isRasterImage);
+
+      const disposition = isDownload || !isInlineAllowed ? 'attachment' : 'inline';
+
+      let contentType = file.mimeType || 'application/octet-stream';
+      if (file.isText) {
+        contentType = 'text/plain; charset=utf-8';
+      } else if (ext === 'png') {
+        contentType = 'image/png';
+      } else if (ext === 'jpg' || ext === 'jpeg') {
+        contentType = 'image/jpeg';
+      } else if (ext === 'gif') {
+        contentType = 'image/gif';
+      } else if (ext === 'webp') {
+        contentType = 'image/webp';
+      }
 
       return new Response(Readable.toWeb(blobStream), {
         status: 200,
         headers: {
-          'Content-Type': file.mimeType || 'application/octet-stream',
+          'Content-Type': contentType,
           'Content-Disposition': `${disposition}; filename="${encodeURIComponent(filename)}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
           'Content-Length': String(file.size),
           'X-Content-Type-Options': 'nosniff',
