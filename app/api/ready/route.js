@@ -14,7 +14,7 @@ export const GET = route({ access: 'public' }, async () => {
   } catch (error) {
     return errorResponse({
       code: ERROR_CODES.SERVICE_UNAVAILABLE,
-      message: 'Hệ thống chưa sẵn sàng (kết nối cơ sở dữ liệu thất bại).',
+      message: 'System not ready (database connection failed).',
       status: 503,
     });
   }

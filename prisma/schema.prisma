@@ -35,6 +35,7 @@ model User {
   versions      SkillVersion[]
   sessions      Session[]
   accounts      Account[]
+  favorites     FavoriteSkill[]
 
   @@index([status])
 }
@@ -111,10 +112,12 @@ model Skill {
   forks               Skill[]         @relation("SkillForks")
   versions            SkillVersion[]
   currentVersion      SkillVersion?   @relation("CurrentVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+  favorites           FavoriteSkill[]
 
   @@unique([ownerId, slug])
   @@index([ownerId, deletedAt])
   @@index([visibility, deletedAt])
+  @@index([visibility, deletedAt, updatedAt])
   @@index([tags], type: Gin)
 }
 
@@ -186,4 +189,18 @@ model AuditLog {
   @@index([actorId, createdAt])
   @@index([targetType, targetId])
   @@index([createdAt])
+}
+
+model FavoriteSkill {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  skillId   String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
 }

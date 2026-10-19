@@ -7,17 +7,17 @@ import { getClientIp } from '@/lib/rate-limit/index.js';
 
 const importGithubSchema = z
   .object({
-    url: z.string().url('URL không đúng định dạng.'),
+    url: z.string().url('Invalid URL format.'),
     ref: z.string().optional(),
     subpath: z.string().optional(),
     tags: z
       .array(
         z
           .string()
-          .regex(/^[a-z0-9-]+$/, 'Thẻ chỉ được chứa chữ thường, số và dấu gạch ngang.')
-          .max(30, 'Thẻ tối đa 30 ký tự.'),
+          .regex(/^[a-z0-9-]+$/, 'Tags may only contain lowercase letters, numbers, and hyphens.')
+          .max(30, 'Tag must be 30 characters or fewer.'),
       )
-      .max(10, 'Tối đa 10 thẻ.')
+      .max(10, 'Maximum 10 tags allowed.')
       .optional()
       .default([]),
     visibility: z.enum(['PRIVATE', 'UNLISTED', 'PUBLIC']).optional().default('PRIVATE'),

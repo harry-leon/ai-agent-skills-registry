@@ -11,10 +11,14 @@ import {
   FileCode,
   Clock,
   Tag,
-  Filter,
   X,
   Loader2,
+  FolderOpen,
+  Copy,
+  Check,
+  Terminal,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Github } from '@/components/icons/github.js';
 
 export function DashboardClient({ initialSkills = [], initialTotal = 0, initialCursor = null }) {
@@ -30,6 +34,7 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
 
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [copiedSkillId, setCopiedSkillId] = useState(null);
 
   // Available tags in caller's library
   const availableTags = Array.from(
@@ -150,19 +155,59 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
     setLoadingMore(false);
   };
 
+  const handleCopyCli = (e, skill) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const cmd = `npx skillvault add @${skill.owner.handle}/${skill.slug}`;
+    navigator.clipboard.writeText(cmd);
+    setCopiedSkillId(skill.id);
+    toast.success('Copied CLI install command to clipboard');
+    setTimeout(() => {
+      setCopiedSkillId((current) => (current === skill.id ? null : current));
+    }, 2000);
+  };
+
   return (
     <div className="space-y-6">
-      {/* Search and Filters Bar */}
-      <div className="flex flex-col gap-4 bg-card border rounded-xl p-4 shadow-xs">
-        <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1c2536] pb-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-100">My Skills</h1>
+          <p className="text-xs sm:text-sm text-slate-400">
+            Manage, edit, and organize your personal AI agent skills.
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/skills/new"
+            prefetch={false}
+            className="inline-flex min-h-[38px] items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-2xs"
+          >
+            <Plus className="w-4 h-4" />
+            <span>New Skill</span>
+          </Link>
+          <Link
+            href="/import"
+            prefetch={false}
+            className="inline-flex min-h-[38px] items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-md border border-[#1c2536] bg-[#111624] text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+          >
+            <Github className="w-4 h-4" />
+            <span>Import</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Unified Search and Filters Bar */}
+      <div className="flex flex-col gap-3 bg-[#111624] border border-[#1c2536] rounded-lg p-3 sm:p-4">
+        <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-2.5">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
             <input
               type="text"
-              placeholder="Tìm kiếm kỹ năng trong thư viện..."
+              placeholder="Search skills in your library..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-9 py-2 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="w-full pl-9 pr-9 min-h-[40px] rounded-md border border-[#1c2536] bg-[#0b0f17] text-xs sm:text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60 focus-visible:ring-1 focus-visible:ring-blue-500/50 transition-colors"
             />
             {searchQuery && (
               <button
@@ -182,9 +227,10 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
                     }
                   });
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 p-1 cursor-pointer"
+                aria-label="Clear search query"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
@@ -194,56 +240,60 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
             <select
               value={selectedVisibility}
               onChange={(e) => handleVisibilityChange(e.target.value)}
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Filter by visibility"
+              className="min-h-[40px] rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-1.5 text-xs sm:text-sm text-slate-300 focus-visible:outline-none focus-visible:border-blue-500/60 focus-visible:ring-1 focus-visible:ring-blue-500/50 transition-colors cursor-pointer"
             >
-              <option value="">Tất cả phạm vi</option>
-              <option value="PRIVATE">Riêng tư</option>
-              <option value="UNLISTED">Không công khai</option>
-              <option value="PUBLIC">Công khai</option>
+              <option value="">All visibilities</option>
+              <option value="PRIVATE">Private</option>
+              <option value="UNLISTED">Unlisted</option>
+              <option value="PUBLIC">Public</option>
             </select>
 
             {/* Sort selector */}
             <select
               value={sortBy}
               onChange={(e) => handleSortChange(e.target.value)}
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Sort skills"
+              className="min-h-[40px] rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-1.5 text-xs sm:text-sm text-slate-300 focus-visible:outline-none focus-visible:border-blue-500/60 focus-visible:ring-1 focus-visible:ring-blue-500/50 transition-colors cursor-pointer"
             >
-              <option value="updated">Mới cập nhật</option>
-              <option value="name">Tên (A-Z)</option>
+              <option value="updated">Recently updated</option>
+              <option value="name">Name (A-Z)</option>
             </select>
 
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors shadow-xs disabled:opacity-50"
+              className="inline-flex min-h-[40px] items-center justify-center rounded-md bg-blue-600 px-4 py-1.5 text-xs sm:text-sm font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer shadow-2xs active:scale-[0.98]"
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-              <span>Tìm</span>
+              {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : null}
+              <span>Search</span>
             </button>
 
             {/* View mode toggle */}
-            <div className="hidden sm:flex border rounded-md overflow-hidden bg-background">
+            <div className="hidden sm:flex border border-[#1c2536] rounded-md overflow-hidden bg-[#0b0f17]">
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                className={`p-2 transition-colors ${
+                className={`p-2 transition-colors cursor-pointer ${
                   viewMode === 'grid'
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-[#1c2536] text-white font-medium'
+                    : 'text-slate-500 hover:text-slate-300'
                 }`}
-                title="Dạng lưới"
+                title="Grid view"
+                aria-label="Grid view"
               >
                 <Grid className="w-4 h-4" />
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('list')}
-                className={`p-2 transition-colors ${
+                className={`p-2 transition-colors cursor-pointer ${
                   viewMode === 'list'
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-[#1c2536] text-white font-medium'
+                    : 'text-slate-500 hover:text-slate-300'
                 }`}
-                title="Dạng danh sách"
+                title="List view"
+                aria-label="List view"
               >
                 <List className="w-4 h-4" />
               </button>
@@ -253,9 +303,9 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
 
         {/* Tag Filter Pills */}
         {availableTags.length > 0 && (
-          <div className="flex items-center flex-wrap gap-1.5 pt-1 border-t border-border/50">
-            <span className="text-xs text-muted-foreground mr-1 flex items-center">
-              <Tag className="w-3 h-3 mr-1" /> Thẻ:
+          <div className="flex items-center flex-wrap gap-1.5 pt-2 border-t border-[#1c2536]/80">
+            <span className="text-[11px] text-slate-500 mr-1 flex items-center">
+              <Tag className="w-3 h-3 mr-1" /> Tags:
             </span>
             {availableTags.map((tag) => {
               const isSelected = selectedTag === tag;
@@ -264,10 +314,10 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
                   key={tag}
                   type="button"
                   onClick={() => handleTagClick(tag)}
-                  className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer ${
+                  className={`text-[11px] px-2.5 py-0.5 rounded font-mono transition-all duration-150 cursor-pointer ${
                     isSelected
-                      ? 'bg-primary text-primary-foreground shadow-xs'
-                      : 'bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground'
+                      ? 'border border-blue-500/50 bg-blue-500/15 text-blue-400 font-semibold'
+                      : 'border border-[#1c2536] bg-[#0b0f17] text-slate-400 hover:text-slate-200 hover:border-slate-700'
                   }`}
                 >
                   #{tag}
@@ -279,12 +329,12 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
       </div>
 
       {/* Results Header */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+      <div className="flex items-center justify-between text-xs text-slate-400 px-0.5">
         <span>
-          Tổng số <strong>{total}</strong> kỹ năng
+          Total <strong className="text-slate-200 font-semibold">{total}</strong> skills
           {selectedVisibility ? ` [${selectedVisibility}]` : ''}
-          {selectedTag ? ` có thẻ #${selectedTag}` : ''}
-          {searchQuery ? ` phù hợp với "${searchQuery}"` : ''}
+          {selectedTag ? ` with tag #${selectedTag}` : ''}
+          {searchQuery ? ` matching "${searchQuery}"` : ''}
         </span>
       </div>
 
@@ -292,19 +342,32 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-44 rounded-xl border bg-card/60 p-5 animate-pulse space-y-3">
-              <div className="h-5 bg-muted rounded w-2/3" />
-              <div className="h-4 bg-muted/60 rounded w-full" />
-              <div className="h-4 bg-muted/60 rounded w-4/5" />
+            <div
+              key={i}
+              className="h-44 rounded-lg border border-[#1c2536] bg-[#111624] p-4 animate-pulse space-y-3"
+            >
+              <div className="flex justify-between items-center">
+                <div className="h-4 bg-slate-800 rounded w-1/2" />
+                <div className="h-3.5 bg-slate-800 rounded w-12" />
+              </div>
+              <div className="h-3 bg-slate-800/80 rounded w-full" />
+              <div className="h-3 bg-slate-800/80 rounded w-3/4" />
+              <div className="pt-3 border-t border-[#1c2536] flex justify-between">
+                <div className="h-3 bg-slate-800/60 rounded w-16" />
+                <div className="h-3 bg-slate-800/60 rounded w-20" />
+              </div>
             </div>
           ))}
         </div>
       ) : skills.length === 0 ? (
-        <div className="text-center py-16 bg-card border rounded-xl space-y-3">
-          <p className="text-muted-foreground font-medium text-sm">
+        <div className="text-center py-16 bg-[#111624] border border-[#1c2536] rounded-lg space-y-3">
+          <div className="h-10 w-10 rounded-full bg-slate-800/50 text-slate-400 flex items-center justify-center mx-auto border border-[#1c2536]">
+            <FolderOpen className="h-5 w-5" />
+          </div>
+          <p className="text-slate-400 font-medium text-xs sm:text-sm max-w-sm mx-auto">
             {searchQuery || selectedTag || selectedVisibility
-              ? 'Không tìm thấy kỹ năng nào phù hợp với bộ lọc.'
-              : 'Thư viện chưa có kỹ năng nào.'}
+              ? 'No skills found matching the selected filters.'
+              : 'Your library is empty. Create your first skill or import from GitHub.'}
           </p>
           {searchQuery || selectedTag || selectedVisibility ? (
             <button
@@ -321,90 +384,130 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
                   }
                 });
               }}
-              className="text-xs text-primary hover:underline font-medium"
+              className="inline-flex min-h-[38px] items-center text-xs text-blue-400 hover:underline font-semibold cursor-pointer"
             >
-              Xóa bộ lọc
+              Clear filters
             </button>
           ) : (
-            <div className="pt-2">
+            <div className="pt-2 flex flex-wrap justify-center gap-3">
               <Link
                 href="/skills/new"
-                className="inline-flex items-center space-x-1.5 rounded-md bg-primary text-primary-foreground px-4 py-2 text-xs font-medium hover:bg-primary/90 transition-colors"
+                prefetch={false}
+                className="inline-flex min-h-[38px] items-center space-x-1.5 rounded-md bg-blue-600 text-white px-4 py-2 text-xs sm:text-sm font-semibold hover:bg-blue-700 transition-colors shadow-2xs"
               >
                 <Plus className="w-4 h-4" />
-                <span>Thêm kỹ năng đầu tiên</span>
+                <span>Create first skill</span>
               </Link>
             </div>
           )}
         </div>
       ) : viewMode === 'grid' ? (
         /* Grid View */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-5">
           {skills.map((skill) => (
-            <Link
+            <div
               key={skill.id}
-              href={`/s/${skill.owner.handle}/${skill.slug}`}
-              className="group flex flex-col justify-between rounded-xl border bg-card p-5 shadow-xs hover:border-foreground/30 hover:shadow-sm transition-all"
+              className="group relative flex flex-col justify-between rounded-xl border border-[#1e293b]/80 bg-gradient-to-b from-[#131b2c] to-[#0d1320] p-4 sm:p-5 hover:border-blue-500/40 hover:from-[#162035] hover:to-[#0f1728] shadow-md hover:shadow-xl hover:shadow-blue-950/20 transition-all duration-200"
             >
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-base tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                    {skill.name}
-                  </h3>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium shrink-0 ${
-                      skill.visibility === 'PUBLIC'
-                        ? 'bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20'
-                        : skill.visibility === 'UNLISTED'
-                          ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20'
-                          : 'bg-secondary text-secondary-foreground border border-border'
-                    }`}
-                  >
-                    {skill.visibility === 'PUBLIC'
-                      ? 'Công khai'
-                      : skill.visibility === 'UNLISTED'
-                        ? 'Liên kết'
-                        : 'Riêng tư'}
-                  </span>
+              <div className="space-y-3.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0 shadow-inner mt-0.5">
+                      <Terminal className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/s/${skill.owner.handle}/${skill.slug}`}
+                        className="font-bold text-base tracking-tight text-slate-100 hover:text-blue-400 transition-colors line-clamp-1 block group-hover:text-blue-300"
+                      >
+                        {skill.name}
+                      </Link>
+                      <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                        <span className="font-mono text-[11px] text-slate-400">
+                          v{skill.currentVersion?.number || 1}
+                        </span>
+                        <span>•</span>
+                        <span
+                          className={`rounded px-1.5 py-0.2 text-[10px] font-mono font-medium ${
+                            skill.visibility === 'PUBLIC'
+                              ? 'bg-emerald-500/10 text-emerald-400'
+                              : skill.visibility === 'UNLISTED'
+                                ? 'bg-amber-500/10 text-amber-400'
+                                : 'bg-slate-800 text-slate-400'
+                          }`}
+                        >
+                          {skill.visibility}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                  {skill.description || 'Không có mô tả chi tiết.'}
+                <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed min-h-[2.5rem]">
+                  {skill.description || 'No description provided.'}
                 </p>
 
                 {/* Tags */}
                 {skill.tags && skill.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 pt-1">
+                  <div className="flex flex-wrap gap-1.5">
                     {skill.tags.slice(0, 3).map((t) => (
                       <span
                         key={t}
-                        className="bg-muted px-2 py-0.5 rounded text-[11px] text-muted-foreground font-medium"
+                        className="bg-[#0b0f17] border border-[#1c2536] px-2 py-0.5 rounded text-[11px] text-slate-400 font-mono hover:border-blue-500/30 transition-colors"
                       >
                         #{t}
                       </span>
                     ))}
                     {skill.tags.length > 3 && (
-                      <span className="text-[11px] text-muted-foreground self-center">
+                      <span className="text-[10px] font-mono text-slate-500 self-center px-1">
                         +{skill.tags.length - 3}
                       </span>
                     )}
                   </div>
                 )}
 
+                {/* CLI Install Snippet */}
+                <div className="pt-0.5">
+                  <div className="flex items-center justify-between rounded-lg border border-[#1e293b] bg-[#090d15] px-2.5 sm:px-3 py-2 font-mono text-xs text-slate-300 shadow-inner group/cli hover:border-slate-700 transition-colors min-w-0">
+                    <span className="truncate flex items-center gap-2 min-w-0">
+                      <Terminal className="w-3.5 h-3.5 text-blue-400/80 shrink-0" />
+                      <span className="text-slate-500 font-medium shrink-0">
+                        npx skillvault add
+                      </span>
+                      <span className="text-slate-200 font-medium truncate">
+                        @{skill.owner.handle}/{skill.slug}
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => handleCopyCli(e, skill)}
+                      title="Copy install command"
+                      aria-label="Copy install command"
+                      className="ml-2.5 p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
+                    >
+                      {copiedSkillId === skill.id ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
                 {/* Attribution Badges */}
                 {(skill.forkedFromSnapshot || skill.sourceUrl) && (
-                  <div className="flex flex-wrap gap-1 pt-1">
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
                     {skill.forkedFromSnapshot && (
-                      <span className="inline-flex items-center space-x-1 text-[11px] text-muted-foreground bg-muted/60 px-2 py-0.5 rounded border">
-                        <GitFork className="w-3 h-3 shrink-0" />
-                        <span className="truncate max-w-[180px]">
-                          Từ @{skill.forkedFromSnapshot.ownerHandle}/{skill.forkedFromSnapshot.slug}
+                      <span className="inline-flex items-center space-x-1.5 text-[10px] font-mono text-slate-400 bg-[#0b0f17] px-2 py-0.5 rounded border border-[#1c2536]">
+                        <GitFork className="w-3.5 h-3.5 shrink-0 text-slate-500" />
+                        <span className="truncate max-w-[170px]">
+                          @{skill.forkedFromSnapshot.ownerHandle}/{skill.forkedFromSnapshot.slug}
                         </span>
                       </span>
                     )}
                     {skill.sourceUrl && (
-                      <span className="inline-flex items-center space-x-1 text-[11px] text-muted-foreground bg-muted/60 px-2 py-0.5 rounded border">
-                        <Github className="w-3 h-3 shrink-0" />
+                      <span className="inline-flex items-center space-x-1.5 text-[10px] font-mono text-slate-400 bg-[#0b0f17] px-2 py-0.5 rounded border border-[#1c2536]">
+                        <Github className="w-3.5 h-3.5 shrink-0 text-slate-500" />
                         <span>GitHub</span>
                       </span>
                     )}
@@ -413,64 +516,62 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
               </div>
 
               {/* Card Footer */}
-              <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
-                <span className="flex items-center space-x-1">
-                  <FileCode className="w-3 h-3" />
+              <div className="mt-4 pt-3 border-t border-[#1c2536]/80 flex items-center justify-between text-xs text-slate-500">
+                <span className="flex items-center space-x-1.5">
+                  <FileCode className="w-3.5 h-3.5 text-slate-400" />
                   <span>
                     v{skill.currentVersion?.number || 1} ·{' '}
-                    {skill.currentVersion?._count?.files || 0} tệp
+                    {skill.currentVersion?._count?.files || 0} files
                   </span>
                 </span>
-                <span className="flex items-center space-x-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{new Date(skill.updatedAt).toLocaleDateString('vi-VN')}</span>
+                <span className="flex items-center space-x-1.5">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{new Date(skill.updatedAt).toLocaleDateString('en-US')}</span>
                 </span>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       ) : (
         /* List View */
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {skills.map((skill) => (
-            <Link
+            <div
               key={skill.id}
-              href={`/s/${skill.owner.handle}/${skill.slug}`}
-              className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border bg-card p-4 shadow-xs hover:border-foreground/30 hover:shadow-sm transition-all"
+              className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#1c2536] bg-[#111624] p-3.5 hover:border-slate-700 hover:bg-[#131b2c] transition-all duration-150"
             >
               <div className="space-y-1 min-w-0 flex-1">
-                <div className="flex items-center space-x-2">
-                  <h3 className="font-semibold text-sm tracking-tight text-foreground group-hover:text-primary transition-colors truncate">
+                <div className="flex items-center flex-wrap gap-2">
+                  <Link
+                    href={`/s/${skill.owner.handle}/${skill.slug}`}
+                    className="font-semibold text-sm tracking-tight text-slate-100 hover:text-blue-400 transition-colors truncate"
+                  >
                     {skill.name}
-                  </h3>
+                  </Link>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    className={`rounded px-1.5 py-0.5 text-[10px] font-mono border ${
                       skill.visibility === 'PUBLIC'
-                        ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                         : skill.visibility === 'UNLISTED'
-                          ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
-                          : 'bg-secondary text-secondary-foreground'
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                          : 'bg-[#0b0f17] text-slate-400 border-[#1c2536]'
                     }`}
                   >
-                    {skill.visibility === 'PUBLIC'
-                      ? 'Công khai'
-                      : skill.visibility === 'UNLISTED'
-                        ? 'Liên kết'
-                        : 'Riêng tư'}
+                    {skill.visibility}
                   </span>
-                  <span className="text-[11px] font-mono text-muted-foreground">
+                  <span className="text-[11px] font-mono text-slate-500">
                     v{skill.currentVersion?.number || 1}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-1">
-                  {skill.description || 'Không có mô tả chi tiết.'}
+                <p className="text-xs text-slate-400 line-clamp-1">
+                  {skill.description || 'No description provided.'}
                 </p>
                 {skill.tags && skill.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 pt-0.5">
                     {skill.tags.map((t) => (
                       <span
                         key={t}
-                        className="bg-muted px-1.5 py-0.5 rounded text-[10px] text-muted-foreground font-medium"
+                        className="bg-[#0b0f17] border border-[#1c2536] px-1.5 py-0.5 rounded text-[10px] text-slate-400 font-mono"
                       >
                         #{t}
                       </span>
@@ -479,31 +580,31 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
                 )}
               </div>
 
-              <div className="flex items-center gap-4 text-xs text-muted-foreground shrink-0 self-end sm:self-center">
-                <span>{skill.currentVersion?._count?.files || 0} tệp</span>
-                <span>{new Date(skill.updatedAt).toLocaleDateString('vi-VN')}</span>
+              <div className="flex items-center gap-4 text-xs text-slate-500 shrink-0 self-end sm:self-center">
+                <span>{skill.currentVersion?._count?.files || 0} files</span>
+                <span>{new Date(skill.updatedAt).toLocaleDateString('en-US')}</span>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
 
       {/* Pagination - Load More */}
       {cursor && (
-        <div className="flex justify-center pt-4">
+        <div className="flex justify-center pt-2">
           <button
             type="button"
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-input bg-card px-6 py-2 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+            className="inline-flex min-h-[38px] items-center justify-center rounded-md border border-[#1c2536] bg-[#111624] px-5 py-2 text-xs sm:text-sm font-semibold text-slate-200 hover:bg-[#1c2536] transition-colors disabled:opacity-50 cursor-pointer active:scale-[0.98]"
           >
             {loadingMore ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                <span>Đang tải thêm...</span>
+                <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
+                <span>Loading more skills...</span>
               </>
             ) : (
-              <span>Xem thêm kỹ năng</span>
+              <span>Load more skills</span>
             )}
           </button>
         </div>

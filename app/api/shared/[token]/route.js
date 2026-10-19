@@ -18,7 +18,7 @@ export const GET = route(
     if (!skill || !can(null, ACTIONS.SKILL_READ, skill)) {
       return errorResponse({
         code: ERROR_CODES.NOT_FOUND,
-        message: 'Liên kết chia sẻ không tồn tại hoặc đã bị vô hiệu hóa.',
+        message: 'Share link does not exist or has been disabled.',
         traceId,
         status: 404,
       });

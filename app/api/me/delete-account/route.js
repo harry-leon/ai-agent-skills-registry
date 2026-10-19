@@ -12,7 +12,7 @@ export const POST = route(
     schema: {
       body: z
         .object({
-          password: z.string().min(1, 'Vui lòng nhập mật khẩu để xác nhận xóa tài khoản.'),
+          password: z.string().min(1, 'Please enter your password to confirm account deletion.'),
         })
         .strict(),
     },
@@ -33,14 +33,14 @@ export const POST = route(
       if (!verifyRes || verifyRes.error) {
         return errorResponse({
           code: ERROR_CODES.VALIDATION_FAILED,
-          message: 'Mật khẩu xác nhận không chính xác.',
+          message: 'Incorrect confirmation password.',
           status: 400,
         });
       }
     } catch {
       return errorResponse({
         code: ERROR_CODES.VALIDATION_FAILED,
-        message: 'Mật khẩu xác nhận không chính xác.',
+        message: 'Incorrect confirmation password.',
         status: 400,
       });
     }
@@ -50,7 +50,7 @@ export const POST = route(
 
     return jsonResponse({
       success: true,
-      message: 'Tài khoản của bạn đã được xóa vĩnh viễn.',
+      message: 'Your account has been permanently deleted.',
     });
   },
 );

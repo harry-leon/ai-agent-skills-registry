@@ -9,13 +9,14 @@ test.describe('Milestone M1.2: Authentication End-to-End Browser Flows', () => {
     const testName = `User ${testInfo.project.name}`;
     const testPassword = 'SecurePassword123!';
 
-    // 1. Visit landing page
+    // 1. Visit landing page (redirects to /public for guests)
     await page.goto('/');
-    await expect(page.locator('h1')).toContainText('Agent Skills');
+    await page.waitForURL('**/public', { timeout: 30000 });
+    await expect(page.locator('h1')).toContainText('Community Skills');
 
     // 2. Navigate to Register page
     await page.goto('/register');
-    await expect(page.locator('h1')).toContainText('Tạo tài khoản');
+    await expect(page.locator('h1')).toContainText('Create Account');
 
     // Fill registration form
     await page.fill('#name', testName);
@@ -28,15 +29,23 @@ test.describe('Milestone M1.2: Authentication End-to-End Browser Flows', () => {
 
     // Wait for redirect to /dashboard
     await page.waitForURL('**/dashboard', { timeout: 30000 });
-    await expect(page.locator('h1')).toContainText('Thư viện của tôi');
+    await expect(page.locator('h1')).toContainText('My Skills');
 
-    // Verify handle badge in navbar
-    await expect(page.locator('header')).toContainText(`@${testHandle}`);
+    // Verify handle badge in navbar/sidebar
+    await expect(page.locator('body')).toContainText(`@${testHandle}`);
 
     // 3. Logout
-    await page.click('button:has-text("Đăng xuất")');
+    const hamburger = page.locator('button[aria-label="Toggle navigation menu"]');
+    if (await hamburger.isVisible()) {
+      await hamburger.click();
+    }
+    const logoutBtn = page
+      .locator('button[aria-label="Sign Out"]')
+      .filter({ visible: true })
+      .first();
+    await logoutBtn.click();
     await page.waitForURL('**/login', { timeout: 30000 });
-    await expect(page.locator('h1')).toContainText('Đăng nhập');
+    await expect(page.locator('h1')).toContainText('Sign In');
 
     // 4. Login with newly created credentials
     await page.fill('#email', testEmail);
@@ -44,26 +53,26 @@ test.describe('Milestone M1.2: Authentication End-to-End Browser Flows', () => {
     await page.click('button[type="submit"]');
 
     await page.waitForURL('**/dashboard', { timeout: 30000 });
-    await expect(page.locator('h1')).toContainText('Thư viện của tôi');
+    await expect(page.locator('h1')).toContainText('My Skills');
 
     // 5. Navigate to Settings page
     await page.goto('/settings');
-    await expect(page.locator('h1')).toContainText('Cài đặt tài khoản');
+    await expect(page.locator('h1')).toContainText('Account Settings');
     await expect(page.locator('body')).toContainText(`@${testHandle}`);
 
     // 6. Test Forgot-Password flow
     await page.goto('/forgot-password');
-    await expect(page.locator('h1')).toContainText('Khôi phục mật khẩu');
+    await expect(page.locator('h1')).toContainText('Reset Password');
     await page.fill('#email', testEmail);
     await page.click('button[type="submit"]');
 
-    await expect(page.locator('body')).toContainText('Nếu email tồn tại trong hệ thống');
+    await expect(page.locator('body')).toContainText('If that email exists in our system');
   });
 
   test('Guarded layout redirects unauthenticated access', async ({ page, context }) => {
     await context.clearCookies();
     await page.goto('/dashboard');
     await page.waitForURL('**/login', { timeout: 10000 });
-    await expect(page.locator('h1')).toContainText('Đăng nhập');
+    await expect(page.locator('h1')).toContainText('Sign In');
   });
 });

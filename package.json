@@ -1,7 +1,9 @@
 {
-  "name": "skillvault",
+  "name": "skillary",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
+  "author": "HarryLeon <htquochung.dev@gmail.com>",
   "type": "module",
   "scripts": {
     "dev": "next dev",
@@ -13,6 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "db:seed": "node scripts/seed-real-skills.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -46,6 +49,7 @@
     "sonner": "2.0.8",
     "tailwind-merge": "3.7.0",
     "tailwindcss": "4.3.3",
+    "three": "^0.186.1",
     "yaml": "2.9.1",
     "yauzl": "3.4.0",
     "zod": "4.6.5"

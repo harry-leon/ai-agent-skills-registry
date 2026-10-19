@@ -402,8 +402,8 @@ Body
   });
 
   it('23. Adversarial: Oversized file rejected with FILE_TOO_LARGE', async () => {
-    // 11 MB buffer (> 10 MB limit)
-    const largeBuffer = Buffer.alloc(11 * 1024 * 1024, 0x20);
+    // 250 KB buffer (> 200 KB limit)
+    const largeBuffer = Buffer.alloc(250 * 1024, 0x20);
 
     await expect(
       ingestSkill({

@@ -21,7 +21,7 @@ export const GET = route(
     if (!id) {
       return errorResponse({
         code: ERROR_CODES.NOT_FOUND,
-        message: 'Không tìm thấy kỹ năng yêu cầu.',
+        message: 'The requested skill was not found.',
         traceId,
         status: 404,
       });
@@ -31,7 +31,7 @@ export const GET = route(
     if (!skill) {
       return errorResponse({
         code: ERROR_CODES.NOT_FOUND,
-        message: 'Không tìm thấy kỹ năng yêu cầu.',
+        message: 'The requested skill was not found.',
         traceId,
         status: 404,
       });

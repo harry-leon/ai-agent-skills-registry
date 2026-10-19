@@ -15,7 +15,8 @@ describe('lib/env.js validation', () => {
     expect(parsed.NODE_ENV).toBe('test');
     expect(parsed.APP_URL).toBe('http://localhost:3000');
     expect(parsed.STORAGE_DRIVER).toBe('local');
-    expect(parsed.MAX_FILE_BYTES).toBe(10485760);
+    expect(parsed.MAX_FILE_BYTES).toBe(200 * 1024);
+    expect(parsed.MAX_ACCOUNT_TOTAL_BYTES).toBe(10 * 1024 * 1024);
   });
 
   it('fails validation when DATABASE_URL is missing and logs invalid variable name', () => {

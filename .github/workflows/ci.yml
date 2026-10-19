@@ -55,6 +55,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/skillvault_test?schema=public
           BETTER_AUTH_SECRET: skillvault_ci_test_secret_32_chars_minimum_example
           STORAGE_DRIVER: local
+          REQUIRE_EMAIL_VERIFICATION: 'false'
         run: npm run test
 
       - name: Production Build

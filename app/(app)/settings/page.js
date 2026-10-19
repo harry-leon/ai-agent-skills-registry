@@ -3,22 +3,46 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth/client.js';
+import { ThemeToggle } from '@/components/theme-toggle.js';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog.js';
+import {
+  User,
+  KeyRound,
+  Trash2,
+  AlertTriangle,
+  Laptop,
+  Check,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const router = useRouter();
   const session = authClient.useSession();
   const user = session.data?.user;
 
-  // Change Password state
+  // Profile Edit / View state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const [profileHandle, setProfileHandle] = useState('');
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileMessage, setProfileMessage] = useState({ type: '', text: '' });
+
+  // Change Password Collapsible State (collapsed by default)
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [pwLoading, setPwLoading] = useState(false);
   const [pwMessage, setPwMessage] = useState({ type: '', text: '' });
-
-  // Sessions state
-  const [sessions, setSessions] = useState([]);
-  const [sessionsLoading, setSessionsLoading] = useState(false);
 
   // Delete Account state
   const [deletePassword, setDeletePassword] = useState('');
@@ -27,22 +51,55 @@ export default function SettingsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
-    async function loadSessions() {
-      setSessionsLoading(true);
-      try {
-        const res = await authClient.listSessions();
-        if (res?.data) {
-          setSessions(res.data);
-        }
-      } catch {
-        // Ignored
-      } finally {
-        setSessionsLoading(false);
-      }
+    if (user) {
+      setProfileName(user.name || '');
+      setProfileHandle(user.handle || '');
     }
+  }, [user]);
 
-    loadSessions();
-  }, []);
+  function handleCancelEdit() {
+    setIsEditingProfile(false);
+    setProfileName(user?.name || '');
+    setProfileHandle(user?.handle || '');
+    setProfileMessage({ type: '', text: '' });
+  }
+
+  async function handleProfileUpdate(e) {
+    e.preventDefault();
+    setProfileMessage({ type: '', text: '' });
+    setProfileLoading(true);
+
+    try {
+      const res = await fetch('/api/me/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: profileName.trim(),
+          handle: profileHandle.trim().toLowerCase(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorMsg = data.error?.message || 'Failed to update profile.';
+        setProfileMessage({ type: 'error', text: errorMsg });
+        toast.error(errorMsg);
+        setProfileLoading(false);
+        return;
+      }
+
+      setProfileMessage({ type: 'success', text: 'Profile updated successfully!' });
+      toast.success('Profile updated successfully!');
+      setIsEditingProfile(false);
+      router.refresh();
+    } catch {
+      setProfileMessage({ type: 'error', text: 'An unexpected error occurred.' });
+      toast.error('An unexpected error occurred.');
+    } finally {
+      setProfileLoading(false);
+    }
+  }
 
   async function handlePasswordChange(e) {
     e.preventDefault();
@@ -51,13 +108,13 @@ export default function SettingsPage() {
     if (newPassword.length < 10 || newPassword.length > 128) {
       setPwMessage({
         type: 'error',
-        text: 'Mật khẩu mới phải có độ dài từ 10 đến 128 ký tự.',
+        text: 'New password must be between 10 and 128 characters.',
       });
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPwMessage({ type: 'error', text: 'Mật khẩu xác nhận không khớp.' });
+      setPwMessage({ type: 'error', text: 'Confirm password does not match.' });
       return;
     }
 
@@ -67,39 +124,32 @@ export default function SettingsPage() {
       const res = await authClient.changePassword({
         currentPassword,
         newPassword,
-        revokeOtherSessions: true, // Rule S1: Changing password revokes all other sessions
+        revokeOtherSessions: true,
       });
 
       if (res?.error) {
         setPwMessage({
           type: 'error',
           text:
-            res.error.message || 'Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại.',
+            res.error.message || 'Failed to change password. Please check your current password.',
         });
+        toast.error('Failed to change password.');
       } else {
         setPwMessage({
           type: 'success',
-          text: 'Đổi mật khẩu thành công! Tất cả các phiên đăng nhập khác đã được thu hồi.',
+          text: 'Password updated successfully! All other sessions revoked.',
         });
+        toast.success('Password updated successfully!');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
+        setIsPasswordOpen(false);
       }
     } catch {
-      setPwMessage({ type: 'error', text: 'Đã xảy ra lỗi khi đổi mật khẩu.' });
+      setPwMessage({ type: 'error', text: 'An error occurred while changing password.' });
+      toast.error('An error occurred while changing password.');
     } finally {
       setPwLoading(false);
-    }
-  }
-
-  async function handleRevokeSession(sessionIdentifier) {
-    try {
-      await authClient.revokeSession({ token: sessionIdentifier });
-      setSessions((prev) =>
-        prev.filter((s) => s.id !== sessionIdentifier && s.token !== sessionIdentifier),
-      );
-    } catch {
-      alert('Không thể thu hồi phiên đăng nhập.');
     }
   }
 
@@ -118,246 +168,301 @@ export default function SettingsPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setDeleteError(data.error?.message || 'Xóa tài khoản thất bại.');
+        setDeleteError(data.error?.message || 'Failed to delete account.');
         setDeleteLoading(false);
         return;
       }
 
+      toast.success('Your account has been permanently deleted.');
       await authClient.signOut();
-      router.push('/');
+      router.push('/public');
       router.refresh();
     } catch {
-      setDeleteError('Đã xảy ra lỗi khi gửi yêu cầu xóa tài khoản.');
+      setDeleteError('An error occurred while deleting your account.');
       setDeleteLoading(false);
     }
   }
 
   return (
-    <div className="max-w-4xl space-y-8 pb-12">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Cài đặt tài khoản</h1>
-        <p className="text-sm text-muted-foreground">
-          Quản lý bảo mật, phiên làm việc và tùy chọn tài khoản của bạn
+    <div className="max-w-4xl space-y-6 pb-16">
+      {/* Page Header */}
+      <div className="border-b border-[#1c2536] pb-4">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-100 flex items-center gap-2.5">
+          <User className="h-6 w-6 text-blue-400" />
+          <span>Account Settings</span>
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          Manage your developer profile, authentication credentials, and system preferences.
         </p>
       </div>
 
-      {/* Profile Info */}
-      <div className="rounded-xl border bg-card p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold">Thông tin cá nhân</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-muted-foreground block text-xs">Họ và tên</span>
-            <span className="font-medium">{user?.name || '---'}</span>
-          </div>
-          <div>
-            <span className="text-muted-foreground block text-xs">Handle</span>
-            <span className="font-medium text-blue-600">@{user?.handle || '---'}</span>
-          </div>
-          <div className="sm:col-span-2">
-            <span className="text-muted-foreground block text-xs">Email</span>
-            <span className="font-medium">{user?.email || '---'}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Change Password */}
-      <div className="rounded-xl border bg-card p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold">Đổi mật khẩu</h2>
-        <p className="text-xs text-muted-foreground">
-          Mật khẩu tối thiểu 10 ký tự. Khi đổi mật khẩu thành công, tất cả các phiên đăng nhập khác
-          sẽ bị thu hồi.
-        </p>
-
-        {pwMessage.text && (
-          <div
-            role="alert"
-            className={`rounded-lg p-3 text-sm font-medium border ${
-              pwMessage.type === 'success'
-                ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20'
-                : 'bg-destructive/10 text-destructive border-destructive/20'
-            }`}
-          >
-            {pwMessage.text}
-          </div>
-        )}
-
-        <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
-          <div className="space-y-2">
-            <label htmlFor="currentPassword" className="text-sm font-medium">
-              Mật khẩu hiện tại
-            </label>
-            <input
-              id="currentPassword"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
+      {/* 1. Personal Profile Card */}
+      <div className="rounded-xl border border-[#1c2536] bg-[#111624] p-5 sm:p-6 shadow-xs space-y-5">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400 font-bold shrink-0">
+              <User className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-sm sm:text-base font-semibold text-slate-100">
+                Personal Profile
+              </h2>
+              <p className="text-xs text-slate-400">
+                Your public developer handle and display identity.
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="newPassword" className="text-sm font-medium">
-              Mật khẩu mới
-            </label>
-            <input
-              id="newPassword"
-              type="password"
-              autoComplete="new-password"
-              required
-              minLength={10}
-              maxLength={128}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="confirmNewPassword" className="text-sm font-medium">
-              Xác nhận mật khẩu mới
-            </label>
-            <input
-              id="confirmNewPassword"
-              type="password"
-              autoComplete="new-password"
-              required
-              minLength={10}
-              maxLength={128}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={pwLoading}
-            className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700 transition-colors disabled:opacity-50 cursor-pointer"
-          >
-            {pwLoading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
-          </button>
-        </form>
-      </div>
-
-      {/* Active Sessions */}
-      <div className="rounded-xl border bg-card p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold">Các phiên đăng nhập đang hoạt động</h2>
-        <p className="text-xs text-muted-foreground">
-          Danh sách thiết bị và trình duyệt đang duy trì phiên đăng nhập vào tài khoản của bạn.
-        </p>
-
-        {sessionsLoading ? (
-          <p className="text-sm text-muted-foreground">Đang tải danh sách phiên...</p>
-        ) : sessions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Chỉ có phiên hiện tại đang mở.</p>
-        ) : (
-          <div className="divide-y rounded-md border">
-            {sessions.map((s) => (
-              <div key={s.id} className="flex items-center justify-between p-3 text-sm">
-                <div>
-                  <p className="font-medium text-xs">
-                    {s.userAgent || 'Trình duyệt không xác định'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    IP: {s.ipAddress || '127.0.0.1'} · Hết hạn:{' '}
-                    {new Date(s.expiresAt).toLocaleDateString('vi-VN')}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleRevokeSession(s.token || s.id)}
-                  className="rounded-md border border-input bg-background px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                >
-                  Thu hồi
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Danger Zone: Delete Account */}
-      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-destructive">Khu vực nguy hiểm</h2>
-        <p className="text-sm text-muted-foreground">
-          Xóa vĩnh viễn tài khoản của bạn và toàn bộ các Agent Skills, các phiên bản liên quan. Thao
-          tác này không thể hoàn tác.
-        </p>
-
-        <button
-          type="button"
-          onClick={() => setShowDeleteModal(true)}
-          className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground shadow hover:bg-destructive/90 transition-colors cursor-pointer"
-        >
-          Xóa tài khoản
-        </button>
-      </div>
-
-      {/* Delete Account Confirmation Modal */}
-      {showDeleteModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
-        >
-          <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg space-y-4">
-            <h3 className="text-lg font-bold text-destructive">Xác nhận xóa tài khoản</h3>
-            <p className="text-sm text-muted-foreground">
-              Toàn bộ kỹ năng, phiên bản và dữ liệu của bạn sẽ bị xóa hoàn toàn. Vui lòng nhập lại
-              mật khẩu hiện tại để xác nhận.
-            </p>
-
-            {deleteError && (
-              <div
-                role="alert"
-                className="rounded-md bg-destructive/10 p-3 text-sm text-destructive font-medium border border-destructive/20"
+          <div className="flex items-center gap-2">
+            {!isEditingProfile ? (
+              <button
+                type="button"
+                onClick={() => setIsEditingProfile(true)}
+                className="inline-flex min-h-[36px] items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-[#1c2536] bg-[#0b0f17] text-xs font-semibold text-slate-200 hover:text-white hover:border-slate-700 transition-colors cursor-pointer"
               >
-                {deleteError}
-              </div>
+                <span>Edit Profile</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="inline-flex min-h-[36px] items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-[#1c2536] bg-[#0b0f17] text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+              >
+                <span>Cancel</span>
+              </button>
             )}
 
-            <form onSubmit={handleDeleteAccount} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="deletePasswordInput" className="text-sm font-medium">
-                  Mật khẩu hiện tại
+            <button
+              type="button"
+              onClick={() => setIsPasswordOpen((prev) => !prev)}
+              className="inline-flex min-h-[36px] items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 text-xs font-semibold text-blue-400 hover:bg-blue-500/20 transition-colors cursor-pointer shadow-2xs"
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              <span>Change Password</span>
+            </button>
+          </div>
+        </div>
+
+        {profileMessage.text && (
+          <div
+            role="alert"
+            className={`rounded-lg p-3 text-xs font-semibold border ${
+              profileMessage.type === 'success'
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                : 'bg-red-500/10 text-red-400 border-red-500/20'
+            }`}
+          >
+            {profileMessage.text}
+          </div>
+        )}
+
+        {/* Profile Content: Read-only View or Editing Form */}
+        {!isEditingProfile ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+            <div className="p-3.5 rounded-lg border border-[#1c2536] bg-[#0b0f17]">
+              <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                FULL NAME
+              </div>
+              <div className="text-sm font-semibold text-slate-200 mt-1 truncate">
+                {user?.name || 'Not provided'}
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-lg border border-[#1c2536] bg-[#0b0f17]">
+              <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                HANDLE
+              </div>
+              <div className="text-sm font-mono font-semibold text-blue-400 mt-1 truncate">
+                @{user?.handle || '---'}
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-lg border border-[#1c2536] bg-[#0b0f17]">
+              <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                EMAIL ADDRESS
+              </div>
+              <div className="text-sm text-slate-300 mt-1 truncate">{user?.email || '---'}</div>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleProfileUpdate} className="space-y-4 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label htmlFor="profileName" className="text-xs font-medium text-slate-300">
+                  Full Name
                 </label>
                 <input
-                  id="deletePasswordInput"
-                  type="password"
+                  id="profileName"
+                  type="text"
                   required
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                  placeholder="••••••••••"
-                  className="flex min-h-[44px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  placeholder="e.g. Alex Morgan"
+                  className="flex min-h-[40px] w-full rounded-lg border border-[#1c2536] bg-[#0b0f17] px-3.5 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowDeleteModal(false);
-                    setDeleteError('');
-                    setDeletePassword('');
-                  }}
-                  className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent transition-colors cursor-pointer"
-                >
-                  Hủy bỏ
-                </button>
+              <div className="space-y-1.5">
+                <label htmlFor="profileHandle" className="text-xs font-medium text-slate-300">
+                  Handle
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 text-xs font-medium">
+                    @
+                  </span>
+                  <input
+                    id="profileHandle"
+                    type="text"
+                    required
+                    value={profileHandle}
+                    onChange={(e) => setProfileHandle(e.target.value.toLowerCase())}
+                    placeholder="alex-dev"
+                    className="flex min-h-[40px] w-full rounded-lg border border-[#1c2536] bg-[#0b0f17] pl-8 pr-3.5 py-2 text-xs text-slate-100 font-mono placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/80 focus-visible:ring-1 focus-visible:ring-blue-500/40 transition-colors"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="profileEmail" className="text-xs font-medium text-slate-500">
+                Email Address (read-only)
+              </label>
+              <input
+                id="profileEmail"
+                type="email"
+                value={user?.email || ''}
+                disabled
+                className="flex min-h-[40px] w-full rounded-lg border border-[#1c2536] bg-[#0b0f17]/50 px-3.5 py-2 text-xs text-slate-500 cursor-not-allowed opacity-80"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                id="saveProfileBtn"
+                type="submit"
+                disabled={profileLoading}
+                className="inline-flex min-h-[38px] items-center justify-center rounded-lg bg-blue-600 px-5 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-blue-500 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {profileLoading ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="inline-flex min-h-[38px] items-center justify-center rounded-lg border border-[#1c2536] bg-[#0b0f17] px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white hover:border-slate-700 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+
+      {/* 2. Collapsible Change Password Card */}
+      <div className="rounded-xl border border-[#1c2536] bg-[#111624] overflow-hidden shadow-xs transition-all">
+        <button
+          type="button"
+          onClick={() => setIsPasswordOpen((prev) => !prev)}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-[#141b2c] transition-colors cursor-pointer select-none"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 font-bold shrink-0">
+              <KeyRound className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-sm sm:text-base font-semibold text-slate-100">Change Password</h2>
+              <p className="text-xs text-slate-400">
+                Update your login password and terminate other active sessions.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+            <span>{isPasswordOpen ? 'Hide' : 'Expand'}</span>
+            {isPasswordOpen ? (
+              <ChevronUp className="w-4 h-4 text-slate-400" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            )}
+          </div>
+        </button>
+
+        {isPasswordOpen && (
+          <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-[#1c2536] space-y-4 bg-[#0d1320]/60">
+            {pwMessage.text && (
+              <div
+                role="alert"
+                className={`rounded-lg p-3 text-xs font-semibold border ${
+                  pwMessage.type === 'success'
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                    : 'bg-red-500/10 text-red-400 border-red-500/20'
+                }`}
+              >
+                {pwMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handlePasswordChange} className="space-y-3.5 max-w-md">
+              <div className="space-y-1">
+                <label htmlFor="currentPassword" className="text-xs font-medium text-slate-300">
+                  Current Password
+                </label>
+                <input
+                  id="currentPassword"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="flex min-h-[40px] w-full rounded-lg border border-[#1c2536] bg-[#0b0f17] px-3.5 py-2 text-xs text-slate-100 focus-visible:outline-none focus-visible:border-blue-500/80 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="newPassword" className="text-xs font-medium text-slate-300">
+                  New Password (min 10 chars)
+                </label>
+                <input
+                  id="newPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={10}
+                  maxLength={128}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="flex min-h-[40px] w-full rounded-lg border border-[#1c2536] bg-[#0b0f17] px-3.5 py-2 text-xs text-slate-100 focus-visible:outline-none focus-visible:border-blue-500/80 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="confirmNewPassword" className="text-xs font-medium text-slate-300">
+                  Confirm New Password
+                </label>
+                <input
+                  id="confirmNewPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={10}
+                  maxLength={128}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="flex min-h-[40px] w-full rounded-lg border border-[#1c2536] bg-[#0b0f17] px-3.5 py-2 text-xs text-slate-100 focus-visible:outline-none focus-visible:border-blue-500/80 transition-colors"
+                />
+              </div>
+
+              <div className="pt-1">
                 <button
                   type="submit"
-                  disabled={deleteLoading}
-                  className="rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors disabled:opacity-50 cursor-pointer"
+                  disabled={pwLoading}
+                  className="inline-flex min-h-[38px] items-center justify-center rounded-lg bg-blue-600 px-5 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-blue-500 transition-colors disabled:opacity-50 cursor-pointer"
                 >
-                  {deleteLoading ? 'Đang xóa...' : 'Xác nhận xóa vĩnh viễn'}
+                  {pwLoading ? 'Updating password...' : 'Update Password'}
                 </button>
               </div>
             </form>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

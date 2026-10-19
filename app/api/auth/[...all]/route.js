@@ -39,7 +39,7 @@ export async function POST(request) {
     if (!rateResult.allowed) {
       return errorResponse({
         code: ERROR_CODES.RATE_LIMITED,
-        message: 'Bạn đã đăng nhập thất bại quá nhiều lần. Vui lòng chờ 15 phút rồi thử lại.',
+        message: 'Too many failed sign-in attempts. Please wait 15 minutes and try again.',
         traceId,
         retryAfter: rateResult.retryAfter,
         status: 429,
@@ -50,7 +50,7 @@ export async function POST(request) {
     if (!rateResult.allowed) {
       return errorResponse({
         code: ERROR_CODES.RATE_LIMITED,
-        message: 'Bạn đã đăng ký quá nhiều lần từ địa chỉ này. Vui lòng thử lại sau.',
+        message: 'Too many registration attempts from this address. Please try again later.',
         traceId,
         retryAfter: rateResult.retryAfter,
         status: 429,
@@ -61,7 +61,7 @@ export async function POST(request) {
     if (!rateResult.allowed) {
       return errorResponse({
         code: ERROR_CODES.RATE_LIMITED,
-        message: 'Bạn đã yêu cầu đặt lại mật khẩu quá nhiều lần. Vui lòng thử lại sau.',
+        message: 'Too many password reset requests. Please try again later.',
         traceId,
         retryAfter: rateResult.retryAfter,
         status: 429,

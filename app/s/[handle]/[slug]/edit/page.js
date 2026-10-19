@@ -4,6 +4,7 @@ import { getSkillByHandleAndSlug } from '@/lib/dal/skills.js';
 import { getVersionFiles } from '@/lib/dal/files.js';
 import { can, ACTIONS } from '@/lib/auth/policy.js';
 import { storage } from '@/lib/storage/index.js';
+import { AppShell } from '@/components/app-shell.js';
 import { SkillEditorClient } from './editor-client.js';
 
 export const dynamic = 'force-dynamic';
@@ -40,8 +41,8 @@ export default async function SkillEditorPage({ params }) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell user={actor}>
       <SkillEditorClient skill={skill} initialFiles={files} initialContents={initialContents} />
-    </div>
+    </AppShell>
   );
 }
