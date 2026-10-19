@@ -27,10 +27,16 @@ import {
   Code2,
   Package,
 } from 'lucide-react';
+import { GithubIcon } from '@/components/icons/github.js';
+import { AuthModal } from '@/components/auth-modal.js';
+import { ComponentGuideModal } from '@/components/component-guide-modal.js';
+import { HelpCircle } from 'lucide-react';
 
 export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavigate }) {
   const pathname = usePathname();
   const [currentType, setCurrentType] = useState('skills');
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -49,7 +55,7 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
 
   const navSections = [
     {
-      title: 'BROWSE',
+      title: 'COMMUNITY',
       items: [
         {
           href: '/public?type=skills',
@@ -219,8 +225,19 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
           return (
             <div key={section.title} className="space-y-1">
               {!isCollapsed && (
-                <div className="px-3 pb-1.5 text-[11px] font-semibold tracking-wider text-slate-500 uppercase animate-in fade-in duration-150">
-                  {section.title}
+                <div className="px-3 pb-1.5 flex items-center justify-between text-[11px] font-semibold tracking-wider text-slate-500 uppercase animate-in fade-in duration-150">
+                  <span>{section.title}</span>
+                  {section.title === 'COMMUNITY' && (
+                    <button
+                      type="button"
+                      onClick={() => setGuideModalOpen(true)}
+                      title="Xem hướng dẫn phân loại các thành phần"
+                      className="inline-flex items-center gap-1 text-[10px] lowercase tracking-normal text-blue-400 hover:text-blue-300 transition-colors cursor-pointer normal-case"
+                    >
+                      <HelpCircle className="w-3 h-3" />
+                      <span>Guide</span>
+                    </button>
+                  )}
                 </div>
               )}
               <div className="space-y-0.5">
@@ -243,7 +260,17 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
                     <div key={item.href} className="relative group">
                       <Link
                         href={targetHref}
-                        onClick={onNavigate}
+                        onClick={(e) => {
+                          if (item.typeKey) {
+                            setCurrentType(item.typeKey);
+                            if (typeof window !== 'undefined') {
+                              window.dispatchEvent(
+                                new CustomEvent('nav-type-change', { detail: item.typeKey }),
+                              );
+                            }
+                          }
+                          if (onNavigate) onNavigate(e);
+                        }}
                         className={`flex items-center rounded-md transition-colors ${
                           isCollapsed
                             ? 'justify-center p-2.5 mx-auto'
@@ -289,7 +316,9 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
                         <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#162035] border border-[#1f2d48] text-xs font-semibold text-slate-100 shadow-xl whitespace-nowrap z-50 animate-in fade-in duration-150">
                           <span>{item.label}</span>
                           {item.requireAuth && !user && (
-                            <span className="text-[10px] text-amber-400 font-mono">(Login required)</span>
+                            <span className="text-[10px] text-amber-400 font-mono">
+                              (Login required)
+                            </span>
                           )}
                         </div>
                       )}
@@ -303,7 +332,28 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
       </div>
 
       {/* User Section at Bottom */}
-      <div className="p-2 border-t border-[#1c2536] bg-[#0b0f17]">
+      <div className="p-2 border-t border-[#1c2536] bg-[#0b0f17] space-y-1.5">
+        {/* GitHub Repo Button (Placed above Sign In / User Profile) */}
+        <a
+          href="https://github.com/harry-leon/ai-agent-skills-registry"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="GitHub Repository"
+          className={`flex items-center rounded-md border border-[#1c2536] bg-[#111624] text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 hover:border-slate-700 transition-colors ${
+            isCollapsed ? 'justify-center p-2' : 'gap-2.5 w-full py-2 px-3'
+          }`}
+        >
+          <GithubIcon className="h-4 w-4 text-slate-400 group-hover:text-white shrink-0" />
+          {!isCollapsed && (
+            <div className="flex items-center justify-between flex-1 min-w-0">
+              <span className="truncate">GitHub Repo</span>
+              <span className="text-[10px] font-mono text-slate-500 bg-[#0b0f17] px-1.5 py-0.5 rounded border border-[#1c2536]">
+                ★ Star
+              </span>
+            </div>
+          )}
+        </a>
+
         {user ? (
           <div
             className={`flex items-center rounded-md bg-[#111624] border border-[#1c2536] ${
@@ -354,19 +404,45 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
             )}
           </div>
         ) : (
-          <Link
-            href="/login"
-            onClick={onNavigate}
+          <button
+            type="button"
+            onClick={() => {
+              setAuthModalOpen(true);
+              if (onNavigate) onNavigate();
+            }}
             title="Sign In"
-            className={`flex items-center justify-center rounded-md border border-[#1c2536] bg-[#111624] text-xs font-semibold text-slate-200 hover:bg-slate-800/60 hover:text-white transition-colors ${
+            className={`flex items-center justify-center rounded-md border border-blue-500/30 bg-blue-600/10 text-xs font-semibold text-blue-300 hover:bg-blue-600 hover:text-white transition-all cursor-pointer ${
               isCollapsed ? 'p-2' : 'gap-2 w-full py-2 px-3'
             }`}
           >
-            <LogIn className="h-3.5 w-3.5 text-blue-400" />
+            <LogIn className="h-3.5 w-3.5" />
             {!isCollapsed && <span>Sign In</span>}
-          </Link>
+          </button>
         )}
       </div>
+
+      {/* Auth Modal Popup */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode="login"
+        onSuccess={() => {
+          setAuthModalOpen(false);
+          window.location.reload();
+        }}
+      />
+
+      {/* Component Guide Modal */}
+      <ComponentGuideModal
+        isOpen={guideModalOpen}
+        onClose={() => setGuideModalOpen(false)}
+        onSelectType={(typeKey) => {
+          setCurrentType(typeKey);
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('nav-type-change', { detail: typeKey }));
+          }
+        }}
+      />
     </aside>
   );
 }

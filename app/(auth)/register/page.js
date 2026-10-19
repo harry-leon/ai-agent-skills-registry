@@ -71,9 +71,7 @@ export default function RegisterPage() {
           ✓
         </div>
         <h2 className="text-xl font-bold text-slate-100">Account Created Successfully!</h2>
-        <p className="text-sm text-slate-400">
-          Redirecting to your skill library...
-        </p>
+        <p className="text-sm text-slate-400">Redirecting to your skill library...</p>
       </div>
     );
   }

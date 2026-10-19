@@ -79,11 +79,15 @@ test.describe('Milestone M1.6: Fork and GitHub Import End-to-End Flows', () => {
     // 8. Verify attribution badge "Forked from @handleA/slug"
     const attributionBadge = page.locator('main').locator('text=Forked from').first();
     await expect(attributionBadge).toBeVisible();
-    await expect(page.locator('main').locator(`text=@${handleA}/${skillName}`).first()).toBeVisible();
+    await expect(
+      page.locator('main').locator(`text=@${handleA}/${skillName}`).first(),
+    ).toBeVisible();
 
     // 9. Verify fork appears in User B's dashboard with attribution badge
     await page.goto('/dashboard');
-    await expect(page.locator('main').locator(`text=@${handleA}/${skillName}`).first()).toBeVisible();
+    await expect(
+      page.locator('main').locator(`text=@${handleA}/${skillName}`).first(),
+    ).toBeVisible();
 
     // 10. Test GitHub Import UI Page
     await page.goto('/import');

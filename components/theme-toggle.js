@@ -56,11 +56,17 @@ export function ThemeToggle({ className = '', ghost = false }) {
       className={baseButtonClass}
     >
       {theme === 'dark' ? (
-        <Moon className={`${iconClass} text-slate-400 hover:text-blue-400 transition-colors duration-150`} />
+        <Moon
+          className={`${iconClass} text-slate-400 hover:text-blue-400 transition-colors duration-150`}
+        />
       ) : theme === 'light' ? (
-        <Sun className={`${iconClass} text-slate-400 hover:text-amber-400 transition-colors duration-150`} />
+        <Sun
+          className={`${iconClass} text-slate-400 hover:text-amber-400 transition-colors duration-150`}
+        />
       ) : (
-        <Laptop className={`${iconClass} text-slate-400 hover:text-slate-200 transition-colors duration-150`} />
+        <Laptop
+          className={`${iconClass} text-slate-400 hover:text-slate-200 transition-colors duration-150`}
+        />
       )}
     </button>
   );

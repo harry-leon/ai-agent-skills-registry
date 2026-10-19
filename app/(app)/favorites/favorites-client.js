@@ -153,7 +153,8 @@ export function FavoritesClient({
               No favorites saved yet
             </h3>
             <p className="text-xs sm:text-sm text-slate-400">
-              Browse public skills from the community and click the star icon to save them here for fast retrieval.
+              Browse public skills from the community and click the star icon to save them here for
+              fast retrieval.
             </p>
           </div>
           <div className="pt-2">
@@ -234,7 +235,9 @@ export function FavoritesClient({
                   <div className="flex items-center justify-between rounded-lg border border-[#1c2536] bg-[#0b0f17] px-3 py-2 font-mono text-xs text-slate-300 shadow-inner group/cli hover:border-slate-700 transition-colors">
                     <span className="truncate flex items-center gap-2">
                       <Terminal className="w-3.5 h-3.5 text-blue-400/80 shrink-0" />
-                      <span className="text-slate-500 font-medium">npx claude-code-templates@latest --skill</span>
+                      <span className="text-slate-500 font-medium">
+                        npx claude-code-templates@latest --skill
+                      </span>
                       <span className="text-amber-400 font-medium truncate">
                         {skill.owner.handle}/{skill.slug}
                       </span>
@@ -328,9 +331,7 @@ export function FavoritesClient({
                   <span className="text-[11px] font-mono bg-[#0b0f17] text-slate-400 px-1.5 py-0.5 rounded border border-[#1c2536]">
                     v{skill.currentVersion?.number || 1}
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">
-                    @{skill.owner.handle}
-                  </span>
+                  <span className="text-xs text-slate-400 font-medium">@{skill.owner.handle}</span>
                 </div>
                 <p className="text-xs text-slate-400 line-clamp-1">
                   {skill.description || 'No description provided.'}
@@ -374,7 +375,9 @@ export function FavoritesClient({
                   <Download className="w-3.5 h-3.5" />
                 </a>
 
-                <span className="text-[11px]">{new Date(skill.updatedAt).toLocaleDateString('en-US')}</span>
+                <span className="text-[11px]">
+                  {new Date(skill.updatedAt).toLocaleDateString('en-US')}
+                </span>
               </div>
             </div>
           ))}

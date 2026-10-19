@@ -26,9 +26,7 @@ export const COMPONENT_TYPES = [
 ];
 
 async function getExternalComponents(componentType = 'skills') {
-  const validKey = COMPONENT_TYPES.some((c) => c.key === componentType)
-    ? componentType
-    : 'skills';
+  const validKey = COMPONENT_TYPES.some((c) => c.key === componentType) ? componentType : 'skills';
 
   const entry = cacheStore[validKey] || { data: null, fetchedAt: 0 };
   const now = Date.now();
@@ -54,7 +52,12 @@ async function getExternalComponents(componentType = 'skills') {
 
     // Transform sang định dạng chuẩn của Skillary
     const transformed = rawData.map((item) => {
-      const slug = item.path ? item.path.split('/').pop().replace(/\.(md|json|ts)$/, '') : item.name;
+      const slug = item.path
+        ? item.path
+            .split('/')
+            .pop()
+            .replace(/\.(md|json|ts)$/, '')
+        : item.name;
       const category = item.category || 'general';
       const author = item.author || 'claude-code-templates';
       const repoUrl =
@@ -141,7 +144,9 @@ export async function GET(request) {
             ...s,
             isExternal: false,
             isCommunityExternal: false,
-            componentType: s.tags?.find((t) => COMPONENT_TYPES.some((c) => c.key === t.toLowerCase())) || 'skills',
+            componentType:
+              s.tags?.find((t) => COMPONENT_TYPES.some((c) => c.key === t.toLowerCase())) ||
+              'skills',
             source: 'skillary',
             sourceName: 'Skillary Registry Native',
             downloads: s.downloadCount || 0,
@@ -167,8 +172,7 @@ export async function GET(request) {
           s.slug.toLowerCase().includes(q) ||
           s.description.toLowerCase().includes(q);
 
-        const matchTag =
-          !tag || s.tags.some((t) => t.toLowerCase() === tag);
+        const matchTag = !tag || s.tags.some((t) => t.toLowerCase() === tag);
 
         return matchQ && matchTag;
       });
@@ -192,15 +196,15 @@ export async function GET(request) {
     const pagedSkills = combined.slice(startIndex, startIndex + limit);
 
     // Tính toán danh sách category tags phổ biến cho loại này
-    const availableCategories = Array.from(
-      new Set(combined.flatMap((s) => s.tags || [])),
-    )
+    const availableCategories = Array.from(new Set(combined.flatMap((s) => s.tags || [])))
       .filter((t) => t.toLowerCase() !== componentType)
       .slice(0, 20);
 
     // Thu thập tổng số lượng của từng loại
     const typeCounts = {
-      skills: (cacheStore.skills.data?.length || 891) + (componentType === 'skills' ? nativeSkills.length : 0),
+      skills:
+        (cacheStore.skills.data?.length || 891) +
+        (componentType === 'skills' ? nativeSkills.length : 0),
       agents: cacheStore.agents.data?.length || 422,
       commands: cacheStore.commands.data?.length || 288,
       settings: cacheStore.settings.data?.length || 76,

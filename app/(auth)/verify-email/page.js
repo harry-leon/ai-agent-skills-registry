@@ -63,9 +63,7 @@ function VerifyEmailContent() {
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
             ✓
           </div>
-          <h1 className="text-xl font-bold text-emerald-400">
-            Email Verified Successfully!
-          </h1>
+          <h1 className="text-xl font-bold text-emerald-400">Email Verified Successfully!</h1>
           <p className="text-sm text-slate-400">
             Your account is now fully verified. You can now access your skills library.
           </p>

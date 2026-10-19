@@ -204,7 +204,9 @@ export default function SettingsPage() {
               <User className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm sm:text-base font-semibold text-slate-100">Personal Profile</h2>
+              <h2 className="text-sm sm:text-base font-semibold text-slate-100">
+                Personal Profile
+              </h2>
               <p className="text-xs text-slate-400">
                 Your public developer handle and display identity.
               </p>
@@ -279,9 +281,7 @@ export default function SettingsPage() {
               <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                 EMAIL ADDRESS
               </div>
-              <div className="text-sm text-slate-300 mt-1 truncate">
-                {user?.email || '---'}
-              </div>
+              <div className="text-sm text-slate-300 mt-1 truncate">{user?.email || '---'}</div>
             </div>
           </div>
         ) : (
@@ -377,7 +377,11 @@ export default function SettingsPage() {
           </div>
           <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
             <span>{isPasswordOpen ? 'Hide' : 'Expand'}</span>
-            {isPasswordOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+            {isPasswordOpen ? (
+              <ChevronUp className="w-4 h-4 text-slate-400" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            )}
           </div>
         </button>
 

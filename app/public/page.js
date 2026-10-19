@@ -8,7 +8,8 @@ export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Community - Skillary',
-  description: 'Explore, install, and share open-source AI agent skills, commands, agents, and templates.',
+  description:
+    'Explore, install, and share open-source AI agent skills, commands, agents, and templates.',
 };
 
 export default async function PublicPage() {

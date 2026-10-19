@@ -21,7 +21,8 @@ const OFFICIAL_SKILLS = [
   {
     name: 'code-reviewer',
     slug: 'code-reviewer',
-    description: 'Autonomous peer code reviewer assessing architecture, security red flags, performance bottlenecks, and idiomatic maintainability.',
+    description:
+      'Autonomous peer code reviewer assessing architecture, security red flags, performance bottlenecks, and idiomatic maintainability.',
     tags: ['code-review', 'quality', 'architecture', 'best-practices'],
     files: [
       {
@@ -69,7 +70,8 @@ Every review must be structured with:
   {
     name: 'security-auditor',
     slug: 'security-auditor',
-    description: 'Deep security analysis agent auditing codebases against OWASP Top 10 vulnerabilities, secret leakage, and privilege escalation.',
+    description:
+      'Deep security analysis agent auditing codebases against OWASP Top 10 vulnerabilities, secret leakage, and privilege escalation.',
     tags: ['security', 'owasp', 'audit', 'vulnerability', 'devsecops'],
     files: [
       {
@@ -116,7 +118,8 @@ description: "Deep security analysis agent auditing codebases against OWASP Top 
   {
     name: 'pr-describer',
     slug: 'pr-describer',
-    description: 'Generates structured, semantic Pull Request descriptions and release changelogs directly from Git diffs and commit messages.',
+    description:
+      'Generates structured, semantic Pull Request descriptions and release changelogs directly from Git diffs and commit messages.',
     tags: ['git', 'github', 'pull-request', 'documentation', 'productivity'],
     files: [
       {
@@ -166,7 +169,8 @@ When generating PR descriptions:
   {
     name: 'sql-optimizer',
     slug: 'sql-optimizer',
-    description: 'PostgreSQL query optimizer and index design consultant interpreting EXPLAIN ANALYZE plans and diagnosing slow queries.',
+    description:
+      'PostgreSQL query optimizer and index design consultant interpreting EXPLAIN ANALYZE plans and diagnosing slow queries.',
     tags: ['database', 'sql', 'postgresql', 'performance', 'indexing'],
     files: [
       {
@@ -204,7 +208,8 @@ description: "PostgreSQL query optimizer and index design consultant interpretin
   {
     name: 'docker-architect',
     slug: 'docker-architect',
-    description: 'Expert DevOps agent creating production-ready multi-stage Dockerfiles, rootless security configurations, and docker-compose setups.',
+    description:
+      'Expert DevOps agent creating production-ready multi-stage Dockerfiles, rootless security configurations, and docker-compose setups.',
     tags: ['docker', 'devops', 'containers', 'infrastructure', 'security'],
     files: [
       {

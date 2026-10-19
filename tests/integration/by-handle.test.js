@@ -68,9 +68,12 @@ describe('By-Handle Route Caching and Headers', () => {
   });
 
   it('sets public Cache-Control and Vary headers on public skill json manifest', async () => {
-    const req = new Request(`http://localhost:3000/api/skills/by-handle/@${user.handle}/${publicSkill.slug}?format=json`, {
-      method: 'GET',
-    });
+    const req = new Request(
+      `http://localhost:3000/api/skills/by-handle/@${user.handle}/${publicSkill.slug}?format=json`,
+      {
+        method: 'GET',
+      },
+    );
     const res = await byHandleHandler(req, {
       params: Promise.resolve({ handle: `@${user.handle}`, slug: publicSkill.slug }),
     });
@@ -81,9 +84,12 @@ describe('By-Handle Route Caching and Headers', () => {
   });
 
   it('sets public Cache-Control and Vary headers on public skill zip download', async () => {
-    const req = new Request(`http://localhost:3000/api/skills/by-handle/@${user.handle}/${publicSkill.slug}`, {
-      method: 'GET',
-    });
+    const req = new Request(
+      `http://localhost:3000/api/skills/by-handle/@${user.handle}/${publicSkill.slug}`,
+      {
+        method: 'GET',
+      },
+    );
     const res = await byHandleHandler(req, {
       params: Promise.resolve({ handle: `@${user.handle}`, slug: publicSkill.slug }),
     });
@@ -94,9 +100,12 @@ describe('By-Handle Route Caching and Headers', () => {
   });
 
   it('returns 404 for unauthenticated access to private skill', async () => {
-    const req = new Request(`http://localhost:3000/api/skills/by-handle/@${user.handle}/${privateSkill.slug}?format=json`, {
-      method: 'GET',
-    });
+    const req = new Request(
+      `http://localhost:3000/api/skills/by-handle/@${user.handle}/${privateSkill.slug}?format=json`,
+      {
+        method: 'GET',
+      },
+    );
     const res = await byHandleHandler(req, {
       params: Promise.resolve({ handle: `@${user.handle}`, slug: privateSkill.slug }),
     });
@@ -105,12 +114,15 @@ describe('By-Handle Route Caching and Headers', () => {
   });
 
   it('allows authenticated owner to fetch private skill with private Cache-Control headers', async () => {
-    const req = new Request(`http://localhost:3000/api/skills/by-handle/@${user.handle}/${privateSkill.slug}?format=json`, {
-      method: 'GET',
-      headers: {
-        Cookie: sessionCookie,
+    const req = new Request(
+      `http://localhost:3000/api/skills/by-handle/@${user.handle}/${privateSkill.slug}?format=json`,
+      {
+        method: 'GET',
+        headers: {
+          Cookie: sessionCookie,
+        },
       },
-    });
+    );
     const res = await byHandleHandler(req, {
       params: Promise.resolve({ handle: `@${user.handle}`, slug: privateSkill.slug }),
     });

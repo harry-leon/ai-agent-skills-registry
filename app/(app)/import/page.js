@@ -102,7 +102,8 @@ export default function ImportGithubPage() {
             <span>Import Skill from GitHub</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Import an AI agent skill directory directly from any public GitHub repository into your library.
+            Import an AI agent skill directory directly from any public GitHub repository into your
+            library.
           </p>
         </div>
       </div>
@@ -119,7 +120,8 @@ export default function ImportGithubPage() {
             The root directory or specified subpath must contain a valid <code>SKILL.md</code> file.
           </li>
           <li>
-            Branch names containing slashes (<code>/</code>) are not supported (please use Commit SHA or Tag).
+            Branch names containing slashes (<code>/</code>) are not supported (please use Commit
+            SHA or Tag).
           </li>
         </ul>
       </div>
@@ -178,7 +180,8 @@ export default function ImportGithubPage() {
               className="flex min-h-[40px] w-full rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
             />
             <p className="text-xs text-slate-400">
-              Repository root URLs or deep subpath URLs (e.g. <code>/tree/ref/subpath</code>) are supported.
+              Repository root URLs or deep subpath URLs (e.g. <code>/tree/ref/subpath</code>) are
+              supported.
             </p>
           </div>
 
@@ -195,9 +198,7 @@ export default function ImportGithubPage() {
                 onChange={(e) => setRef(e.target.value)}
                 className="flex min-h-[40px] w-full rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
               />
-              <p className="text-xs text-slate-400">
-                Defaults to the default repository branch.
-              </p>
+              <p className="text-xs text-slate-400">Defaults to the default repository branch.</p>
             </div>
 
             <div className="space-y-2">
@@ -212,30 +213,24 @@ export default function ImportGithubPage() {
                 onChange={(e) => setSubpath(e.target.value)}
                 className="flex min-h-[40px] w-full rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
               />
-              <p className="text-xs text-slate-400">
-                Used if SKILL.md is inside a subfolder.
-              </p>
+              <p className="text-xs text-slate-400">Used if SKILL.md is inside a subfolder.</p>
             </div>
           </div>
         </div>
 
         <div className="space-y-4 rounded-xl border border-[#1c2536] bg-[#111624] p-6 shadow-xs">
-          <h2 className="text-base font-semibold text-slate-100">
-            Library Settings
-          </h2>
+          <h2 className="text-base font-semibold text-slate-100">Library Settings</h2>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label htmlFor="visibility" className="text-sm font-medium text-slate-200">
                 Visibility
               </label>
-              <span className="text-xs text-slate-400">Hover (i) icon for permissions breakdown</span>
+              <span className="text-xs text-slate-400">
+                Hover (i) icon for permissions breakdown
+              </span>
             </div>
-            <VisibilitySelector
-              id="visibility"
-              value={visibility}
-              onChange={setVisibility}
-            />
+            <VisibilitySelector id="visibility" value={visibility} onChange={setVisibility} />
           </div>
 
           <div className="space-y-2">

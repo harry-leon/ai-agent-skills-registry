@@ -7,9 +7,12 @@ export default function NotFound() {
       <div className="w-16 h-16 bg-[#111624] border border-[#1c2536] rounded-full flex items-center justify-center mb-4 text-slate-400">
         <Search className="w-8 h-8" />
       </div>
-      <h1 className="text-2xl font-bold tracking-tight mb-2 text-slate-100">404 - Page Not Found</h1>
+      <h1 className="text-2xl font-bold tracking-tight mb-2 text-slate-100">
+        404 - Page Not Found
+      </h1>
       <p className="text-sm text-slate-400 max-w-md mb-6">
-        The resource you are looking for does not exist, has been removed, or is not publicly accessible.
+        The resource you are looking for does not exist, has been removed, or is not publicly
+        accessible.
       </p>
       <div className="flex items-center space-x-3">
         <Link

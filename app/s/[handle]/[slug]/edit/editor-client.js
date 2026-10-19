@@ -346,8 +346,14 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
               <DialogTitle className="text-slate-100">Add New File</DialogTitle>
               <DialogDescription className="text-slate-400">
                 Enter relative path (e.g.{' '}
-                <code className="bg-[#0b0f17] text-slate-300 px-1 py-0.5 rounded font-mono">scripts/run.py</code> or{' '}
-                <code className="bg-[#0b0f17] text-slate-300 px-1 py-0.5 rounded font-mono">docs/api.md</code>):
+                <code className="bg-[#0b0f17] text-slate-300 px-1 py-0.5 rounded font-mono">
+                  scripts/run.py
+                </code>{' '}
+                or{' '}
+                <code className="bg-[#0b0f17] text-slate-300 px-1 py-0.5 rounded font-mono">
+                  docs/api.md
+                </code>
+                ):
               </DialogDescription>
             </DialogHeader>
 

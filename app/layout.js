@@ -7,13 +7,8 @@ export const metadata = {
   description:
     'Store, discover, install, and bundle versioned AI Agent skills, agents, commands, and MCPs securely.',
   icons: {
-    icon: [
-      { url: '/favicon.ico' },
-      { url: '/favicon.png', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/apple-icon.png' },
-    ],
+    icon: [{ url: '/favicon.ico' }, { url: '/favicon.png', type: 'image/png' }],
+    apple: [{ url: '/apple-icon.png' }],
     shortcut: '/favicon.png',
   },
 };

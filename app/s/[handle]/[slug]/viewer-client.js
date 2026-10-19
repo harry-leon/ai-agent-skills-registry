@@ -53,7 +53,11 @@ function extractHeadings(markdown) {
     if (match) {
       const level = match[1].length;
       const text = match[2].trim().replace(/[*_`]/g, '');
-      const id = text.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
+      const id = text
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
       headings.push({ level, text, id });
     }
   }
@@ -274,11 +278,7 @@ export function SkillViewerClient({
 
   const renderContentBody = () => {
     if (!activeFile) {
-      return (
-        <div className="p-8 text-center text-slate-500 text-sm">
-          No file selected.
-        </div>
-      );
+      return <div className="p-8 text-center text-slate-500 text-sm">No file selected.</div>;
     }
 
     if (loadingFile) {
@@ -594,22 +594,21 @@ export function SkillViewerClient({
                 <div className="space-y-1 pt-1 text-slate-300">
                   <div className="text-amber-400 flex items-center gap-2">
                     <span>💡</span>
-                    <span>Installing skill: {skill.owner.handle}/{skill.slug}</span>
+                    <span>
+                      Installing skill: {skill.owner.handle}/{skill.slug}
+                    </span>
                   </div>
                   <div className="text-slate-400">
                     📥 Downloading skill from SkillVault (main branch)...
                   </div>
-                  <div className="text-emerald-400">
-                    ✓ Downloaded: SKILL.md
-                  </div>
-                  <div className="text-emerald-400">
-                    ✓ Downloaded: references/
-                  </div>
+                  <div className="text-emerald-400">✓ Downloaded: SKILL.md</div>
+                  <div className="text-emerald-400">✓ Downloaded: references/</div>
                   <div className="text-emerald-400 font-semibold pt-1">
                     ✅ Skill &ldquo;{skill.slug}&rdquo; installed successfully!
                   </div>
                   <div className="text-slate-400">
-                    📂 Installed to: <span className="text-slate-200">.claude/skills/{skill.slug}/SKILL.md</span>
+                    📂 Installed to:{' '}
+                    <span className="text-slate-200">.claude/skills/{skill.slug}/SKILL.md</span>
                   </div>
                   <div className="text-slate-400">
                     📊 Total files downloaded: {files.length || 2}
@@ -644,12 +643,8 @@ export function SkillViewerClient({
                   <div className="pl-4 text-slate-400">
                     └ Loaded .claude/skills/{skill.slug}/SKILL.md
                   </div>
-                  <div className="pl-4 text-slate-400">
-                    └ Context synced with project workspace
-                  </div>
-                  <div className="text-emerald-400 font-semibold pt-1">
-                    ● Done.
-                  </div>
+                  <div className="pl-4 text-slate-400">└ Context synced with project workspace</div>
+                  <div className="text-emerald-400 font-semibold pt-1">● Done.</div>
                   <div className="flex items-center gap-1 text-slate-200 font-bold animate-pulse">
                     <span>&gt;</span>
                     <span className="inline-block w-2 h-3.5 bg-slate-200" />
@@ -675,9 +670,7 @@ export function SkillViewerClient({
       {/* Main Content Area: Tabs + Left File Explorer / Middle Doc / Right On This Page Outline */}
       <div id="content-viewer" className="space-y-4 pt-6">
         <div className="flex items-center justify-between">
-          <div className="text-xs font-bold tracking-wider text-slate-400 uppercase">
-            CONTENT
-          </div>
+          <div className="text-xs font-bold tracking-wider text-slate-400 uppercase">CONTENT</div>
         </div>
 
         {/* Content Tabs & Search & Copy Bar */}
@@ -754,9 +747,7 @@ export function SkillViewerClient({
                   <Folder className="w-3.5 h-3.5 text-slate-400" />
                   <span>Files</span>
                 </span>
-                <span className="text-[10px] font-mono text-slate-500">
-                  {files.length} items
-                </span>
+                <span className="text-[10px] font-mono text-slate-500">{files.length} items</span>
               </div>
               <div className="p-2">
                 <FileTree
@@ -777,15 +768,15 @@ export function SkillViewerClient({
                 {activeFile?.path || 'SKILL.md'}
               </span>
               {activeFile && (
-                <span className="text-slate-500">
-                  {(activeFile.size / 1024).toFixed(1)} KB
-                </span>
+                <span className="text-slate-500">{(activeFile.size / 1024).toFixed(1)} KB</span>
               )}
             </div>
 
             {/* Document Body */}
             <div className="relative">
-              <div className={`overflow-hidden transition-all ${!showFullDoc ? 'max-h-[600px]' : ''}`}>
+              <div
+                className={`overflow-hidden transition-all ${!showFullDoc ? 'max-h-[600px]' : ''}`}
+              >
                 {renderContentBody()}
               </div>
 
@@ -838,9 +829,7 @@ export function SkillViewerClient({
                   ))}
                 </nav>
               ) : (
-                <p className="text-xs text-slate-500 italic">
-                  No headings found in this document.
-                </p>
+                <p className="text-xs text-slate-500 italic">No headings found in this document.</p>
               )}
             </div>
           </div>
@@ -907,7 +896,9 @@ export function SkillViewerClient({
               <DialogTitle className="text-base text-red-400">Confirm Skill Deletion</DialogTitle>
             </div>
             <DialogDescription className="leading-relaxed text-slate-400 text-xs">
-              Are you sure you want to delete <strong className="text-slate-100">{skill.name}</strong>? The skill will be archived and no longer accessible.
+              Are you sure you want to delete{' '}
+              <strong className="text-slate-100">{skill.name}</strong>? The skill will be archived
+              and no longer accessible.
             </DialogDescription>
           </DialogHeader>
 

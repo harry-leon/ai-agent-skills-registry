@@ -97,14 +97,14 @@ npx skillary add @owner/skill-name --token <share-token>
 
 Skillary is tuned for resource-conscious deployments and cloud free-tier hosting:
 
-| Boundary | Limit | Enforced At |
-| :--- | :--- | :--- |
-| **Max file size** | `200 KB` | File Ingestion Pipeline & API Validation |
-| **Max account storage** | `10 MB` | DAL Transaction Checks (`createSkill`, `createVersion`) |
-| **Max compressed package** | `5 MB` | Upload Form & ZIP Decompressor |
-| **Max uncompressed skill** | `15 MB` | Streaming Zip Reader |
-| **Max files per skill** | `100` | Ingest Pipeline (`MAX_SKILL_FILES`) |
-| **Allowed direct upload formats** | `.zip`, `.skill`, `.md`, `.txt` | API Route Handlers |
+| Boundary                          | Limit                           | Enforced At                                             |
+| :-------------------------------- | :------------------------------ | :------------------------------------------------------ |
+| **Max file size**                 | `200 KB`                        | File Ingestion Pipeline & API Validation                |
+| **Max account storage**           | `10 MB`                         | DAL Transaction Checks (`createSkill`, `createVersion`) |
+| **Max compressed package**        | `5 MB`                          | Upload Form & ZIP Decompressor                          |
+| **Max uncompressed skill**        | `15 MB`                         | Streaming Zip Reader                                    |
+| **Max files per skill**           | `100`                           | Ingest Pipeline (`MAX_SKILL_FILES`)                     |
+| **Allowed direct upload formats** | `.zip`, `.skill`, `.md`, `.txt` | API Route Handlers                                      |
 
 ---
 
@@ -117,6 +117,7 @@ docker compose up --build -d
 ```
 
 This launches:
+
 - `skillary-app`: Next.js production server with automated healthcheck (`/api/health`)
 - `skillary-db`: PostgreSQL with `unaccent` and `pg_trgm`
 - `skillary-minio`: S3-compatible blob storage
@@ -131,18 +132,18 @@ npx prisma migrate deploy
 
 ## Configuration Reference
 
-| Variable | Required | Default | Purpose |
-| :--- | :---: | :---: | :--- |
-| `NODE_ENV` | Yes | `development` | Environment mode (`development`, `production`, `test`) |
-| `APP_URL` | Yes | `http://localhost:3000` | Canonical origin for CSRF and link generation |
-| `DATABASE_URL` | Yes | - | PostgreSQL connection URL |
-| `BETTER_AUTH_SECRET` | Yes | - | Secret key for session encryption (>= 32 chars) |
-| `STORAGE_DRIVER` | Yes | `local` | `local` for disk storage or `s3` for MinIO / AWS S3 / R2 |
-| `MAX_FILE_BYTES` | No | `204800` (200 KB) | Maximum size per ingested file |
-| `MAX_ACCOUNT_TOTAL_BYTES`| No | `10485760` (10 MB) | Total storage quota allocated per user |
-| `S3_BUCKET` | If s3 | - | Bucket name for blob storage |
-| `GITHUB_TOKEN` | No | - | Optional token to increase GitHub API rate limits |
-| `LOG_LEVEL` | No | `info` | Logging verbosity (`debug`, `info`, `warn`, `error`) |
+| Variable                  | Required |         Default         | Purpose                                                  |
+| :------------------------ | :------: | :---------------------: | :------------------------------------------------------- |
+| `NODE_ENV`                |   Yes    |      `development`      | Environment mode (`development`, `production`, `test`)   |
+| `APP_URL`                 |   Yes    | `http://localhost:3000` | Canonical origin for CSRF and link generation            |
+| `DATABASE_URL`            |   Yes    |            -            | PostgreSQL connection URL                                |
+| `BETTER_AUTH_SECRET`      |   Yes    |            -            | Secret key for session encryption (>= 32 chars)          |
+| `STORAGE_DRIVER`          |   Yes    |         `local`         | `local` for disk storage or `s3` for MinIO / AWS S3 / R2 |
+| `MAX_FILE_BYTES`          |    No    |    `204800` (200 KB)    | Maximum size per ingested file                           |
+| `MAX_ACCOUNT_TOTAL_BYTES` |    No    |   `10485760` (10 MB)    | Total storage quota allocated per user                   |
+| `S3_BUCKET`               |  If s3   |            -            | Bucket name for blob storage                             |
+| `GITHUB_TOKEN`            |    No    |            -            | Optional token to increase GitHub API rate limits        |
+| `LOG_LEVEL`               |    No    |         `info`          | Logging verbosity (`debug`, `info`, `warn`, `error`)     |
 
 ---
 

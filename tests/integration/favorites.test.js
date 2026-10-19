@@ -81,7 +81,9 @@ Instructions...
         Cookie: sessionCookieA,
       },
       body: JSON.stringify({
-        files: [{ path: 'SKILL.md', content: VALID_SKILL_MD.replace('sample-agent', 'private-agent') }],
+        files: [
+          { path: 'SKILL.md', content: VALID_SKILL_MD.replace('sample-agent', 'private-agent') },
+        ],
         visibility: 'PRIVATE',
         tags: ['internal'],
         message: 'Initial private v1',
@@ -115,7 +117,9 @@ Instructions...
         Origin: 'http://localhost:3000',
       },
     });
-    const res = await favoriteToggleHandler(req, { params: Promise.resolve({ id: publicSkill.id }) });
+    const res = await favoriteToggleHandler(req, {
+      params: Promise.resolve({ id: publicSkill.id }),
+    });
     expect(res.status).toBe(401);
   });
 
@@ -127,7 +131,9 @@ Instructions...
         Cookie: sessionCookieB,
       },
     });
-    const res = await favoriteToggleHandler(req, { params: Promise.resolve({ id: publicSkill.id }) });
+    const res = await favoriteToggleHandler(req, {
+      params: Promise.resolve({ id: publicSkill.id }),
+    });
     expect(res.status).toBe(200);
 
     const json = await res.json();
@@ -159,7 +165,9 @@ Instructions...
         Cookie: sessionCookieB,
       },
     });
-    const res = await favoriteToggleHandler(req, { params: Promise.resolve({ id: publicSkill.id }) });
+    const res = await favoriteToggleHandler(req, {
+      params: Promise.resolve({ id: publicSkill.id }),
+    });
     expect(res.status).toBe(200);
 
     const json = await res.json();
@@ -175,7 +183,9 @@ Instructions...
         Cookie: sessionCookieB,
       },
     });
-    const res = await favoriteToggleHandler(req, { params: Promise.resolve({ id: privateSkill.id }) });
+    const res = await favoriteToggleHandler(req, {
+      params: Promise.resolve({ id: privateSkill.id }),
+    });
     expect(res.status).toBe(404);
   });
 });

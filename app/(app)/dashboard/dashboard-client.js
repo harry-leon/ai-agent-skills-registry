@@ -172,9 +172,7 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1c2536] pb-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-100">
-            My Skills
-          </h1>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-100">My Skills</h1>
           <p className="text-xs sm:text-sm text-slate-400">
             Manage, edit, and organize your personal AI agent skills.
           </p>

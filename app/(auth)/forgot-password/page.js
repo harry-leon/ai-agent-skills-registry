@@ -41,7 +41,8 @@ export default function ForgotPasswordPage() {
             role="status"
             className="rounded-lg bg-emerald-500/10 p-4 text-sm text-emerald-400 font-medium border border-emerald-500/20"
           >
-            If that email exists in our system, password reset instructions have been sent to your inbox. Please check your email (including spam/junk folder).
+            If that email exists in our system, password reset instructions have been sent to your
+            inbox. Please check your email (including spam/junk folder).
           </div>
           <Link
             href="/login"

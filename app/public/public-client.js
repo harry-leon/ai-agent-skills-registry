@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -27,16 +27,20 @@ import {
   Zap,
   Bot,
   ChevronRight,
+  ChevronLeft,
   SlidersHorizontal,
   Link2,
   CloudDownload,
   Code2,
   ExternalLink,
   Sparkles,
+  HelpCircle,
+  Info,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Github } from '@/components/icons/github.js';
 import { useStack } from '@/components/stack-builder-context.js';
+import { ComponentGuideModal, COMPONENT_GUIDE } from '@/components/component-guide-modal.js';
 
 export function PublicClient({
   initialSkills = [],
@@ -69,6 +73,7 @@ export function PublicClient({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [counts, setCounts] = useState({ all: initialTotal, native: 0, external: 0 });
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -86,6 +91,14 @@ export function PublicClient({
   ).slice(0, 15);
 
   const { addToStack, removeFromStack, isInStack } = useStack();
+  const tagsScrollRef = useRef(null);
+
+  const scrollTags = (direction) => {
+    if (tagsScrollRef.current) {
+      const scrollAmount = direction === 'left' ? -200 : 200;
+      tagsScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   const fetchSkills = async ({
     type = componentType,
@@ -112,25 +125,44 @@ export function PublicClient({
     return null;
   };
 
-  // Initial fetch and sync when URL changes
+  // Initial fetch and sync when URL or navigation changes
   useEffect(() => {
-    let initialType = 'skills';
-    if (typeof window !== 'undefined') {
-      const p = new URLSearchParams(window.location.search);
-      initialType = p.get('type') || 'skills';
-    }
-    setComponentType(initialType);
-    setLoading(true);
-    fetchSkills({ type: initialType, pageNum: 1 }).then((data) => {
-      if (data) {
-        setSkills(data.skills);
-        setTotal(data.total);
-        setTotalPages(data.totalPages);
-        if (data.counts) setCounts(data.counts);
-        if (data.typeCounts) setTypeCounts(data.typeCounts);
+    const handleSyncType = (targetType) => {
+      let typeToLoad = targetType;
+      if (!typeToLoad && typeof window !== 'undefined') {
+        const p = new URLSearchParams(window.location.search);
+        typeToLoad = p.get('type') || 'skills';
       }
-      setLoading(false);
-    });
+      typeToLoad = typeToLoad || 'skills';
+      setComponentType(typeToLoad);
+      setSelectedTag('');
+      setPage(1);
+      setLoading(true);
+      fetchSkills({ type: typeToLoad, pageNum: 1 }).then((data) => {
+        if (data) {
+          setSkills(data.skills);
+          setTotal(data.total);
+          setTotalPages(data.totalPages);
+          if (data.counts) setCounts(data.counts);
+          if (data.typeCounts) setTypeCounts(data.typeCounts);
+        }
+        setLoading(false);
+      });
+    };
+
+    // Initial load
+    handleSyncType();
+
+    const onPopState = () => handleSyncType();
+    const onNavTypeChange = (e) => handleSyncType(e.detail);
+
+    window.addEventListener('popstate', onPopState);
+    window.addEventListener('nav-type-change', onNavTypeChange);
+
+    return () => {
+      window.removeEventListener('popstate', onPopState);
+      window.removeEventListener('nav-type-change', onNavTypeChange);
+    };
   }, []);
 
   const handleToggleStack = (e, skill) => {
@@ -155,7 +187,14 @@ export function PublicClient({
     e?.preventDefault();
     setLoading(true);
     setPage(1);
-    const data = await fetchSkills({ type: componentType, q: searchQuery, tag: selectedTag, source: sourceFilter, sort: sortBy, pageNum: 1 });
+    const data = await fetchSkills({
+      type: componentType,
+      q: searchQuery,
+      tag: selectedTag,
+      source: sourceFilter,
+      sort: sortBy,
+      pageNum: 1,
+    });
     if (data) {
       setSkills(data.skills);
       setTotal(data.total);
@@ -170,7 +209,14 @@ export function PublicClient({
     setSourceFilter(newSource);
     setLoading(true);
     setPage(1);
-    const data = await fetchSkills({ type: componentType, q: searchQuery, tag: selectedTag, source: newSource, sort: sortBy, pageNum: 1 });
+    const data = await fetchSkills({
+      type: componentType,
+      q: searchQuery,
+      tag: selectedTag,
+      source: newSource,
+      sort: sortBy,
+      pageNum: 1,
+    });
     if (data) {
       setSkills(data.skills);
       setTotal(data.total);
@@ -185,7 +231,14 @@ export function PublicClient({
     setSelectedTag(newTag);
     setLoading(true);
     setPage(1);
-    const data = await fetchSkills({ type: componentType, q: searchQuery, tag: newTag, source: sourceFilter, sort: sortBy, pageNum: 1 });
+    const data = await fetchSkills({
+      type: componentType,
+      q: searchQuery,
+      tag: newTag,
+      source: sourceFilter,
+      sort: sortBy,
+      pageNum: 1,
+    });
     if (data) {
       setSkills(data.skills);
       setTotal(data.total);
@@ -199,7 +252,14 @@ export function PublicClient({
     setSortBy(newSort);
     setLoading(true);
     setPage(1);
-    const data = await fetchSkills({ type: componentType, q: searchQuery, tag: selectedTag, source: sourceFilter, sort: newSort, pageNum: 1 });
+    const data = await fetchSkills({
+      type: componentType,
+      q: searchQuery,
+      tag: selectedTag,
+      source: sourceFilter,
+      sort: newSort,
+      pageNum: 1,
+    });
     if (data) {
       setSkills(data.skills);
       setTotal(data.total);
@@ -213,7 +273,14 @@ export function PublicClient({
     if (newPage < 1 || newPage > totalPages || loading) return;
     setLoading(true);
     setPage(newPage);
-    const data = await fetchSkills({ type: componentType, q: searchQuery, tag: selectedTag, source: sourceFilter, sort: sortBy, pageNum: newPage });
+    const data = await fetchSkills({
+      type: componentType,
+      q: searchQuery,
+      tag: selectedTag,
+      source: sourceFilter,
+      sort: sortBy,
+      pageNum: newPage,
+    });
     if (data) {
       setSkills(data.skills);
       setTotal(data.total);
@@ -262,9 +329,7 @@ export function PublicClient({
 
       setSkills((prev) =>
         prev.map((s) =>
-          s.id === skill.id
-            ? { ...s, isFavorited: favorited, favoritesCount: count }
-            : s,
+          s.id === skill.id ? { ...s, isFavorited: favorited, favoritesCount: count } : s,
         ),
       );
 
@@ -294,50 +359,7 @@ export function PublicClient({
   const CurrentIcon = currentTabInfo.icon;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-1 border-b border-[#1c2536] pb-4">
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-100 flex items-center gap-2.5">
-          <CurrentIcon className="h-6 w-6 text-blue-400" />
-          <span>Community {currentTabInfo.label}</span>
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-400">
-          Browse, inspect, install via CLI, or fork open-source AI {currentTabInfo.label.toLowerCase()} curated by the community.
-        </p>
-      </div>
-
-      {/* Component Type Navigation Tabs (Browse bar matching image) */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-[#111624] border border-[#1c2536] rounded-xl overflow-x-auto scrollbar-none shadow-xs">
-        {COMPONENT_TABS.map((tab) => {
-          const isSelected = componentType === tab.key;
-          const TabIcon = tab.icon;
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => handleTypeTabChange(tab.key)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer ${
-                isSelected
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30 font-bold border border-blue-400/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <TabIcon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-400'}`} />
-              <span>{tab.label}</span>
-              <span
-                className={`text-[10px] font-mono px-1.5 py-0.2 rounded border transition-colors ${
-                  isSelected
-                    ? 'bg-black/30 text-white border-white/20'
-                    : 'bg-[#0b0f17] text-slate-400 border-[#1c2536]'
-                }`}
-              >
-                {tab.count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
+    <div className="space-y-4">
       {/* Unified Search and Filters Bar */}
       <div className="flex flex-col gap-3 bg-[#111624] border border-[#1c2536] rounded-lg p-3 sm:p-4">
         {/* Source Filter Tabs */}
@@ -477,29 +499,58 @@ export function PublicClient({
           </div>
         </form>
 
-        {/* Tag Filter Pills */}
+        {/* Tag Filter Pills: 1 dòng duy nhất không xuống dòng, có nút cuộn trái/phải */}
         {availableTags.length > 0 && (
-          <div className="flex items-center flex-wrap gap-1.5 pt-2 border-t border-[#1c2536]/80">
-            <span className="text-[11px] text-slate-500 mr-1 flex items-center">
+          <div className="flex items-center gap-1.5 pt-2 border-t border-[#1c2536]/80 min-w-0">
+            <span className="text-[11px] text-slate-500 flex items-center shrink-0">
               <Tag className="w-3 h-3 mr-1" /> Tags:
             </span>
-            {availableTags.map((tag) => {
-              const isSelected = selectedTag === tag;
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => handleTagClick(tag)}
-                  className={`text-[11px] px-2.5 py-0.5 rounded font-mono transition-all duration-150 cursor-pointer ${
-                    isSelected
-                      ? 'border border-blue-500/50 bg-blue-500/15 text-blue-400 font-semibold'
-                      : 'border border-[#1c2536] bg-[#0b0f17] text-slate-400 hover:text-slate-200 hover:border-slate-700'
-                  }`}
-                >
-                  #{tag}
-                </button>
-              );
-            })}
+
+            {/* Nút cuộn trái */}
+            <button
+              type="button"
+              onClick={() => scrollTags('left')}
+              title="Scroll left"
+              aria-label="Scroll tags left"
+              className="p-1 rounded bg-[#0b0f17] border border-[#1c2536] text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+            >
+              <ChevronLeft className="w-3 h-3" />
+            </button>
+
+            {/* Dải tags cuộn ngang, cấm xuống dòng (whitespace-nowrap) */}
+            <div
+              ref={tagsScrollRef}
+              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none scroll-smooth min-w-0 flex-1 whitespace-nowrap py-0.5"
+            >
+              {availableTags.map((tag) => {
+                const isSelected = selectedTag === tag;
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => handleTagClick(tag)}
+                    className={`text-[11px] px-2.5 py-0.5 rounded font-mono transition-all duration-150 cursor-pointer shrink-0 ${
+                      isSelected
+                        ? 'border border-blue-500/50 bg-blue-500/15 text-blue-400 font-semibold shadow-xs'
+                        : 'border border-[#1c2536] bg-[#0b0f17] text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                    }`}
+                  >
+                    #{tag}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Nút cuộn phải */}
+            <button
+              type="button"
+              onClick={() => scrollTags('right')}
+              title="Scroll right"
+              aria-label="Scroll tags right"
+              className="p-1 rounded bg-[#0b0f17] border border-[#1c2536] text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+            >
+              <ChevronRight className="w-3 h-3" />
+            </button>
           </div>
         )}
       </div>
@@ -605,20 +656,29 @@ export function PublicClient({
                       {/* Title & Source Repo */}
                       <div className="min-w-0 flex-1 pt-0.5">
                         <Link
-                          href={skill.isExternal ? (skill.sourceUrl || `/s/${skill.owner.handle}/${skill.slug}`) : `/s/${skill.owner.handle}/${skill.slug}`}
+                          href={
+                            skill.isExternal
+                              ? skill.sourceUrl || `/s/${skill.owner.handle}/${skill.slug}`
+                              : `/s/${skill.owner.handle}/${skill.slug}`
+                          }
                           target={skill.isExternal ? '_blank' : '_self'}
                           rel={skill.isExternal ? 'noopener noreferrer' : ''}
                           className="text-lg sm:text-xl font-bold tracking-tight text-white hover:text-blue-300 transition-colors line-clamp-1 block"
                         >
                           <span>{firstWord} </span>
-                          <span className="text-blue-400 group-hover:text-blue-300">{remainingWords}</span>
+                          <span className="text-blue-400 group-hover:text-blue-300">
+                            {remainingWords}
+                          </span>
                         </Link>
 
                         {/* GitHub / Author link */}
                         <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-400 font-medium">
                           {skill.isCommunityExternal ? (
                             <a
-                              href={skill.sourceUrl || 'https://github.com/davila7/claude-code-templates'}
+                              href={
+                                skill.sourceUrl ||
+                                'https://github.com/davila7/claude-code-templates'
+                              }
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
@@ -652,7 +712,9 @@ export function PublicClient({
                       <button
                         type="button"
                         onClick={(e) => handleToggleStack(e, skill)}
-                        title={isInStack(skill.id) ? 'Remove from bundle stack' : 'Add to bundle stack'}
+                        title={
+                          isInStack(skill.id) ? 'Remove from bundle stack' : 'Add to bundle stack'
+                        }
                         className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer border ${
                           isInStack(skill.id)
                             ? 'bg-blue-600/25 border-blue-500/60 text-blue-300 shadow-sm'
@@ -668,7 +730,9 @@ export function PublicClient({
                         type="button"
                         onClick={(e) => handleToggleFavorite(e, skill)}
                         disabled={favoritingSkillId === skill.id}
-                        aria-label={skill.isFavorited ? 'Remove from favorites' : 'Save to favorites'}
+                        aria-label={
+                          skill.isFavorited ? 'Remove from favorites' : 'Save to favorites'
+                        }
                         className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer flex items-center justify-center ${
                           skill.isFavorited
                             ? 'border-amber-500/50 bg-amber-500/15 text-amber-400'
@@ -716,7 +780,13 @@ export function PublicClient({
 
                     <span className="flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{new Date(skill.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span>
+                        {new Date(skill.updatedAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </span>
                     </span>
 
                     {skill.isCommunityExternal && (
@@ -734,14 +804,17 @@ export function PublicClient({
 
                   {/* Blue Inspect Pill Button */}
                   <Link
-                    href={skill.isExternal ? (skill.sourceUrl || `/s/${skill.owner.handle}/${skill.slug}`) : `/s/${skill.owner.handle}/${skill.slug}`}
+                    href={
+                      skill.isExternal
+                        ? skill.sourceUrl || `/s/${skill.owner.handle}/${skill.slug}`
+                        : `/s/${skill.owner.handle}/${skill.slug}`
+                    }
                     target={skill.isExternal ? '_blank' : '_self'}
                     rel={skill.isExternal ? 'noopener noreferrer' : ''}
-                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md shadow-blue-900/30 transition-all hover:gap-2 active:scale-95"
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md shadow-blue-900/30 transition-all active:scale-95"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Inspect</span>
-                    <span>&rarr;</span>
                   </Link>
                 </div>
               </div>
@@ -767,9 +840,7 @@ export function PublicClient({
                   <span className="text-[11px] font-mono bg-[#0b0f17] text-slate-400 px-1.5 py-0.5 rounded border border-[#1c2536]">
                     v{skill.currentVersion?.number || 1}
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">
-                    @{skill.owner.handle}
-                  </span>
+                  <span className="text-xs text-slate-400 font-medium">@{skill.owner.handle}</span>
                 </div>
                 <p className="text-xs text-slate-400 line-clamp-1">
                   {skill.description || 'No description provided.'}
@@ -950,6 +1021,15 @@ export function PublicClient({
           </div>
         </div>
       )}
+
+      {/* Component Guide Modal */}
+      <ComponentGuideModal
+        isOpen={guideModalOpen}
+        onClose={() => setGuideModalOpen(false)}
+        onSelectType={(typeKey) => {
+          handleTypeTabChange(typeKey);
+        }}
+      />
     </div>
   );
 }

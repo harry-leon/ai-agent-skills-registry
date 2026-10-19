@@ -15,8 +15,7 @@ import { Github } from '@/components/icons/github.js';
 
 export const metadata = {
   title: 'About SkillVault — AI Agent Skills Registry & Package Manager',
-  description:
-    'Store, organize, search, download, and fork versioned AI Agent skills securely.',
+  description: 'Store, organize, search, download, and fork versioned AI Agent skills securely.',
 };
 
 export default function AboutPage() {
@@ -80,8 +79,9 @@ export default function AboutPage() {
 
             {/* Subheading */}
             <p className="mt-6 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Eliminate scattered prompts, unversioned scripts, and untracked tools. SkillVault provides
-              a secure-by-default registry with instant CLI installation, SHA-256 content hashing, and one-click GitHub imports.
+              Eliminate scattered prompts, unversioned scripts, and untracked tools. SkillVault
+              provides a secure-by-default registry with instant CLI installation, SHA-256 content
+              hashing, and one-click GitHub imports.
             </p>
 
             {/* CTA Buttons */}
@@ -130,7 +130,8 @@ export default function AboutPage() {
                 <div>
                   <span className="text-blue-500 font-semibold">description</span>:{' '}
                   <span className="text-emerald-600 dark:text-emerald-400">
-                    &quot;Automated multi-source data analysis with rigorous schema validation and PDF reporting&quot;
+                    &quot;Automated multi-source data analysis with rigorous schema validation and
+                    PDF reporting&quot;
                   </span>
                 </div>
                 <div>
@@ -146,7 +147,8 @@ export default function AboutPage() {
                 <div className="text-muted-foreground">---</div>
                 <div className="mt-3 text-muted-foreground"># Skill Instructions</div>
                 <div className="mt-1 text-muted-foreground/80">
-                  Comprehensive financial metrics analysis tools and scripts for autonomous AI Agents.
+                  Comprehensive financial metrics analysis tools and scripts for autonomous AI
+                  Agents.
                 </div>
               </div>
             </div>
@@ -172,7 +174,8 @@ export default function AboutPage() {
                 </div>
                 <h3 className="font-semibold text-base">Private by Default</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Every skill is PRIVATE by default. Strict access control with secret unlisted share tokens or public community indexing.
+                  Every skill is PRIVATE by default. Strict access control with secret unlisted
+                  share tokens or public community indexing.
                 </p>
               </div>
 
@@ -182,7 +185,8 @@ export default function AboutPage() {
                 </div>
                 <h3 className="font-semibold text-base">Immutable & Deduplicated</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Cryptographically verified SHA-256 content hashes. Content-addressed storage ensures zero duplicate file storage.
+                  Cryptographically verified SHA-256 content hashes. Content-addressed storage
+                  ensures zero duplicate file storage.
                 </p>
               </div>
 
@@ -192,7 +196,8 @@ export default function AboutPage() {
                 </div>
                 <h3 className="font-semibold text-base">Import from GitHub</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  One-click repository or subfolder imports with multi-stage SSRF protection and strict file size limits.
+                  One-click repository or subfolder imports with multi-stage SSRF protection and
+                  strict file size limits.
                 </p>
               </div>
 
@@ -202,7 +207,8 @@ export default function AboutPage() {
                 </div>
                 <h3 className="font-semibold text-base">Instant CLI Install</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Install any community skill directly into your Claude Code, Cursor, or agent directory with a single terminal command.
+                  Install any community skill directly into your Claude Code, Cursor, or agent
+                  directory with a single terminal command.
                 </p>
               </div>
             </div>

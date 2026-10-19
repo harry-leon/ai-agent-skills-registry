@@ -3,7 +3,9 @@ const prisma = new PrismaClient();
 
 async function main() {
   const total = await prisma.skill.count();
-  const publicCount = await prisma.skill.count({ where: { visibility: 'PUBLIC', deletedAt: null } });
+  const publicCount = await prisma.skill.count({
+    where: { visibility: 'PUBLIC', deletedAt: null },
+  });
   console.log(`Total skills: ${total}, Public skills: ${publicCount}`);
 
   const sample = await prisma.skill.findMany({

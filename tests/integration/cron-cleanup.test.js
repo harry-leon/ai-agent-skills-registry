@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { db } from '@/lib/db.js';
-import { GET as cleanupGetHandler, POST as cleanupPostHandler } from '@/app/api/cron/cleanup/route.js';
+import {
+  GET as cleanupGetHandler,
+  POST as cleanupPostHandler,
+} from '@/app/api/cron/cleanup/route.js';
 
 describe('Cron Cleanup Endpoint', () => {
   it('GET /api/cron/cleanup cleans up expired rate limit buckets', async () => {

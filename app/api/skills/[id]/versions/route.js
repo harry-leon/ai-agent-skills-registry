@@ -67,9 +67,7 @@ export const POST = apiRoute({
     // 2. Parse incoming payload (multipart or JSON)
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
-      message = formData.get('message')
-        ? String(formData.get('message')).trim()
-        : 'Version update';
+      message = formData.get('message') ? String(formData.get('message')).trim() : 'Version update';
 
       const fileField = formData.get('file');
       if (

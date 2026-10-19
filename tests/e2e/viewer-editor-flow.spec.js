@@ -93,7 +93,9 @@ test.describe('Milestone M1.5: Viewer & Editor End-to-End Browser Flows', () => 
     await expect(newFileItem).toBeVisible();
 
     // Fill version message
-    const versionMessageInput = page.locator('input[placeholder*="Version change message"]').first();
+    const versionMessageInput = page
+      .locator('input[placeholder*="Version change message"]')
+      .first();
     await expect(versionMessageInput).toBeVisible();
     await versionMessageInput.fill('Add documentation v2');
 

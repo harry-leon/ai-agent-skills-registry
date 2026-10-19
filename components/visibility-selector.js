@@ -30,11 +30,7 @@ export const VISIBILITY_OPTIONS = [
   },
 ];
 
-export function VisibilitySelector({
-  value = 'PRIVATE',
-  onChange,
-  id = 'visibility',
-}) {
+export function VisibilitySelector({ value = 'PRIVATE', onChange, id = 'visibility' }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
 

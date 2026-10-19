@@ -94,33 +94,36 @@ export function AppShell({ user, children }) {
         <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
           {/* Mobile-only slim top bar for drawer access */}
           <div className="lg:hidden h-12 border-b border-[#1c2536] bg-[#0b0f17] flex items-center justify-between px-4 shrink-0">
-          <button
-            type="button"
-            onClick={() => setMobileSidebarOpen(true)}
-            aria-label="Toggle navigation menu"
-            className="p-1.5 rounded-md border border-[#1c2536] text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors cursor-pointer"
-          >
-            <Menu className="h-4 w-4" />
-          </button>
-          <Link href="/public" className="flex items-center gap-2 font-bold text-sm tracking-tight text-slate-100">
-            <div className="relative h-7 w-7 rounded overflow-hidden border border-blue-500/30 bg-blue-500/10 shrink-0 flex items-center justify-center p-0.5">
-              <Image
-                src="/logo.png"
-                alt="Skillary Logo"
-                width={28}
-                height={28}
-                className="object-contain"
-              />
-            </div>
-            <span>Skill<span className="text-blue-400">ary</span></span>
-          </Link>
-          <div className="w-8" />
-        </div>
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(true)}
+              aria-label="Toggle navigation menu"
+              className="p-1.5 rounded-md border border-[#1c2536] text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors cursor-pointer"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+            <Link
+              href="/public"
+              className="flex items-center gap-2 font-bold text-sm tracking-tight text-slate-100"
+            >
+              <div className="relative h-7 w-7 rounded overflow-hidden border border-blue-500/30 bg-blue-500/10 shrink-0 flex items-center justify-center p-0.5">
+                <Image
+                  src="/logo.png"
+                  alt="Skillary Logo"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
+              </div>
+              <span>
+                Skill<span className="text-blue-400">ary</span>
+              </span>
+            </Link>
+            <div className="w-8" />
+          </div>
 
           <main className="flex-1 overflow-y-auto w-full">
-            <div className="w-full px-6 sm:px-8 lg:px-10 py-6">
-              {children}
-            </div>
+            <div className="w-full px-6 sm:px-8 lg:px-10 py-6">{children}</div>
           </main>
         </div>
         <StackBuilderDrawer />

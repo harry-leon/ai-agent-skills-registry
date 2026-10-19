@@ -44,11 +44,7 @@ export const GET = apiRoute({
     if (isRaw || isDownload) {
       const blobStream = await storage.getBlobStream(file.blobSha256);
       if (!blobStream) {
-        throw new AppError(
-          ERROR_CODES.INTERNAL_ERROR,
-          'File data not found in storage.',
-          500,
-        );
+        throw new AppError(ERROR_CODES.INTERNAL_ERROR, 'File data not found in storage.', 500);
       }
 
       const filename = path.basename(file.path);

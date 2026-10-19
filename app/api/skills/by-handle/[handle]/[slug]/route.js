@@ -104,7 +104,7 @@ export const GET = apiRoute({
             'Cache-Control': isPublic
               ? 'public, max-age=60, s-maxage=300'
               : 'private, no-cache, no-store, must-revalidate',
-            'Vary': 'Cookie, Authorization',
+            Vary: 'Cookie, Authorization',
           },
         },
       );
@@ -154,7 +154,7 @@ export const GET = apiRoute({
         'Cache-Control': isPublic
           ? 'public, max-age=60, s-maxage=300'
           : 'private, no-cache, no-store, must-revalidate',
-        'Vary': 'Cookie, Authorization',
+        Vary: 'Cookie, Authorization',
         'X-SkillVault-Version': String(version.number),
         'X-SkillVault-Handle': cleanHandle,
         'X-SkillVault-Slug': skill.slug,

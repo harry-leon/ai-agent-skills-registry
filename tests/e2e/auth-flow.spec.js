@@ -39,7 +39,10 @@ test.describe('Milestone M1.2: Authentication End-to-End Browser Flows', () => {
     if (await hamburger.isVisible()) {
       await hamburger.click();
     }
-    const logoutBtn = page.locator('button[aria-label="Sign Out"]').filter({ visible: true }).first();
+    const logoutBtn = page
+      .locator('button[aria-label="Sign Out"]')
+      .filter({ visible: true })
+      .first();
     await logoutBtn.click();
     await page.waitForURL('**/login', { timeout: 30000 });
     await expect(page.locator('h1')).toContainText('Sign In');

@@ -11,7 +11,12 @@ export const PATCH = route(
     schema: {
       body: z
         .object({
-          name: z.string().trim().min(1, 'Name cannot be empty.').max(100, 'Name cannot exceed 100 characters.').optional(),
+          name: z
+            .string()
+            .trim()
+            .min(1, 'Name cannot be empty.')
+            .max(100, 'Name cannot exceed 100 characters.')
+            .optional(),
           handle: z.string().trim().optional(),
         })
         .strict(),

@@ -22,7 +22,8 @@ const REAL_SKILLS = [
     ownerHandle: 'skillvault',
     name: 'code-reviewer',
     slug: 'code-reviewer',
-    description: 'Autonomous peer code reviewer assessing architecture, security red flags, performance bottlenecks, and idiomatic maintainability.',
+    description:
+      'Autonomous peer code reviewer assessing architecture, security red flags, performance bottlenecks, and idiomatic maintainability.',
     tags: ['code-review', 'quality', 'architecture', 'best-practices'],
     files: [
       {
@@ -72,7 +73,8 @@ Every review must be structured with:
     ownerHandle: 'skillvault',
     name: 'security-auditor',
     slug: 'security-auditor',
-    description: 'Deep security analysis agent auditing codebases against OWASP Top 10 vulnerabilities, secret leakage, and privilege escalation.',
+    description:
+      'Deep security analysis agent auditing codebases against OWASP Top 10 vulnerabilities, secret leakage, and privilege escalation.',
     tags: ['security', 'owasp', 'audit', 'vulnerability', 'devsecops'],
     files: [
       {
@@ -121,7 +123,8 @@ allowed_tools: [readFile, grepSearch]
     ownerHandle: 'skillvault',
     name: 'sql-optimizer',
     slug: 'sql-optimizer',
-    description: 'PostgreSQL query optimizer and index design consultant interpreting EXPLAIN ANALYZE plans and diagnosing slow queries.',
+    description:
+      'PostgreSQL query optimizer and index design consultant interpreting EXPLAIN ANALYZE plans and diagnosing slow queries.',
     tags: ['database', 'sql', 'postgresql', 'performance', 'indexing'],
     files: [
       {
@@ -161,7 +164,8 @@ allowed_tools: [readFile, runCommand]
     ownerHandle: 'skillvault',
     name: 'docker-architect',
     slug: 'docker-architect',
-    description: 'Expert DevOps agent creating production-ready multi-stage Dockerfiles, rootless security configurations, and docker-compose setups.',
+    description:
+      'Expert DevOps agent creating production-ready multi-stage Dockerfiles, rootless security configurations, and docker-compose setups.',
     tags: ['docker', 'devops', 'containers', 'infrastructure', 'security'],
     files: [
       {
@@ -212,7 +216,8 @@ CMD ["npm", "start"]
     ownerHandle: 'skillvault',
     name: 'pr-describer',
     slug: 'pr-describer',
-    description: 'Generates structured, semantic Pull Request descriptions and release changelogs directly from Git diffs and commit messages.',
+    description:
+      'Generates structured, semantic Pull Request descriptions and release changelogs directly from Git diffs and commit messages.',
     tags: ['git', 'github', 'pull-request', 'documentation', 'productivity'],
     files: [
       {
@@ -264,7 +269,8 @@ When generating PR descriptions:
     ownerHandle: 'skillvault',
     name: 'secure-api-designer',
     slug: 'secure-api-designer',
-    description: 'REST API security architect enforcing Zod input validation, JWT session handling, rate-limiting, and error boundaries.',
+    description:
+      'REST API security architect enforcing Zod input validation, JWT session handling, rate-limiting, and error boundaries.',
     tags: ['api', 'security', 'zod', 'rest', 'backend', 'auth'],
     files: [
       {
@@ -306,7 +312,8 @@ allowed_tools: [readFile, grepSearch]
     ownerHandle: 'skillvault',
     name: 'nextjs-architect',
     slug: 'nextjs-architect',
-    description: 'Next.js 15 App Router specialist guiding Server Components, streaming SSR, parallel routes, Route Handlers, and cache policies.',
+    description:
+      'Next.js 15 App Router specialist guiding Server Components, streaming SSR, parallel routes, Route Handlers, and cache policies.',
     tags: ['nextjs', 'react', 'fullstack', 'typescript', 'frontend'],
     files: [
       {
@@ -347,7 +354,8 @@ allowed_tools: [readFile, runCommand]
     ownerHandle: 'skillvault',
     name: 'playwright-automation',
     slug: 'playwright-automation',
-    description: 'End-to-end browser automation expert designing resilient locators, cross-viewport suites, and authentication state fixtures.',
+    description:
+      'End-to-end browser automation expert designing resilient locators, cross-viewport suites, and authentication state fixtures.',
     tags: ['testing', 'playwright', 'e2e', 'automation', 'qa'],
     files: [
       {
@@ -391,7 +399,8 @@ test.describe('Feature End-to-End Flow', () => {
     ownerHandle: 'skillvault',
     name: 'prisma-database-pro',
     slug: 'prisma-database-pro',
-    description: 'Prisma ORM schema modeling, migrations, pg_trgm full-text indexing, relation cascades, and connection pooling.',
+    description:
+      'Prisma ORM schema modeling, migrations, pg_trgm full-text indexing, relation cascades, and connection pooling.',
     tags: ['database', 'prisma', 'orm', 'postgresql', 'backend'],
     files: [
       {
@@ -433,7 +442,8 @@ allowed_tools: [readFile, runCommand]
     ownerHandle: 'skillvault',
     name: 'tailwind-design-system',
     slug: 'tailwind-design-system',
-    description: 'Design system consultant building accessible tokenized interfaces with Tailwind CSS, subtle dark mode palettes, and Radix primitives.',
+    description:
+      'Design system consultant building accessible tokenized interfaces with Tailwind CSS, subtle dark mode palettes, and Radix primitives.',
     tags: ['tailwind', 'css', 'design-system', 'ui', 'frontend'],
     files: [
       {
@@ -466,7 +476,8 @@ allowed_tools: [readFile]
     ownerHandle: 'skillvault',
     name: 'vitest-unit-tester',
     slug: 'vitest-unit-tester',
-    description: 'Unit and integration test authoring with Vitest, featuring deterministic assertions, mock fixtures, and concurrency optimizations.',
+    description:
+      'Unit and integration test authoring with Vitest, featuring deterministic assertions, mock fixtures, and concurrency optimizations.',
     tags: ['testing', 'vitest', 'unit-test', 'javascript', 'typescript'],
     files: [
       {
@@ -495,7 +506,8 @@ allowed_tools: [readFile, runCommand]
     ownerHandle: 'skillvault',
     name: 'git-workflow-automator',
     slug: 'git-workflow-automator',
-    description: 'Git workflow expert guiding rebase strategies, conventional commit histories, branch protection, and release workflows.',
+    description:
+      'Git workflow expert guiding rebase strategies, conventional commit histories, branch protection, and release workflows.',
     tags: ['git', 'version-control', 'devops', 'workflow'],
     files: [
       {
@@ -521,7 +533,8 @@ allowed_tools: [runCommand]
     ownerHandle: 'demouser',
     name: 'graphql-api-architect',
     slug: 'graphql-api-architect',
-    description: 'Type-safe GraphQL schema design, resolvers, DataLoader N+1 query batching, and schema federation standards.',
+    description:
+      'Type-safe GraphQL schema design, resolvers, DataLoader N+1 query batching, and schema federation standards.',
     tags: ['graphql', 'api', 'backend', 'typescript', 'performance'],
     files: [
       {
@@ -547,7 +560,8 @@ allowed_tools: [readFile]
     ownerHandle: 'demouser',
     name: 'kubernetes-operator',
     slug: 'kubernetes-operator',
-    description: 'Kubernetes manifests, Deployments, StatefulSets, Ingress configs, ConfigMaps, Secrets, and container health probes.',
+    description:
+      'Kubernetes manifests, Deployments, StatefulSets, Ingress configs, ConfigMaps, Secrets, and container health probes.',
     tags: ['kubernetes', 'k8s', 'devops', 'cloud', 'containers'],
     files: [
       {
@@ -573,7 +587,8 @@ allowed_tools: [readFile]
     ownerHandle: 'skillvault',
     name: 'accessibility-auditor',
     slug: 'accessibility-auditor',
-    description: 'WCAG 2.1 AA accessibility auditing: semantic HTML5, ARIA roles, keyboard focus traps, screen-reader announcements, and tap targets.',
+    description:
+      'WCAG 2.1 AA accessibility auditing: semantic HTML5, ARIA roles, keyboard focus traps, screen-reader announcements, and tap targets.',
     tags: ['accessibility', 'a11y', 'wcag', 'frontend', 'html'],
     files: [
       {

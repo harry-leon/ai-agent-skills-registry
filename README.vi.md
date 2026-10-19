@@ -97,14 +97,14 @@ npx skillary add @owner/skill-name --token <share-token>
 
 Skillary được thiết lập tối ưu cho các gói lưu trữ máy chủ giới hạn tài nguyên và cloud free-tier:
 
-| Hạng mục | Giới hạn | Nơi áp dụng |
-| :--- | :--- | :--- |
-| **Dung lượng tối đa mỗi tệp** | `200 KB` | Pipeline nạp tệp & Xác thực API |
-| **Dung lượng tối đa mỗi tài khoản**| `10 MB` | Giao dịch DAL (`createSkill`, `createVersion`) |
-| **Dung lượng tối đa gói nén** | `5 MB` | Form tải lên & Giải nén ZIP |
-| **Tổng dung lượng sau giải nén** | `15 MB` | Trình đọc Stream ZIP |
-| **Số lượng tệp tối đa mỗi skill** | `100` | Ingest Pipeline (`MAX_SKILL_FILES`) |
-| **Định dạng tải lên đơn lẻ hợp lệ**| `.zip`, `.skill`, `.md`, `.txt` | Route Handlers của API |
+| Hạng mục                            | Giới hạn                        | Nơi áp dụng                                    |
+| :---------------------------------- | :------------------------------ | :--------------------------------------------- |
+| **Dung lượng tối đa mỗi tệp**       | `200 KB`                        | Pipeline nạp tệp & Xác thực API                |
+| **Dung lượng tối đa mỗi tài khoản** | `10 MB`                         | Giao dịch DAL (`createSkill`, `createVersion`) |
+| **Dung lượng tối đa gói nén**       | `5 MB`                          | Form tải lên & Giải nén ZIP                    |
+| **Tổng dung lượng sau giải nén**    | `15 MB`                         | Trình đọc Stream ZIP                           |
+| **Số lượng tệp tối đa mỗi skill**   | `100`                           | Ingest Pipeline (`MAX_SKILL_FILES`)            |
+| **Định dạng tải lên đơn lẻ hợp lệ** | `.zip`, `.skill`, `.md`, `.txt` | Route Handlers của API                         |
 
 ---
 
@@ -117,6 +117,7 @@ docker compose up --build -d
 ```
 
 Các dịch vụ bao gồm:
+
 - `skillary-app`: Máy chủ Next.js production tích hợp kiểm tra sức khỏe tự động (`/api/health`)
 - `skillary-db`: PostgreSQL hỗ trợ `unaccent` và `pg_trgm`
 - `skillary-minio`: Hệ thống lưu trữ đối tượng blob chuẩn S3
@@ -131,18 +132,18 @@ npx prisma migrate deploy
 
 ## Danh mục biến môi trường
 
-| Biến | Bắt buộc | Mặc định | Mục đích |
-| :--- | :---: | :---: | :--- |
-| `NODE_ENV` | Có | `development` | Môi trường chạy (`development`, `production`, `test`) |
-| `APP_URL` | Có | `http://localhost:3000` | URL gốc phục vụ CSRF và tạo liên kết |
-| `DATABASE_URL` | Có | - | Chuỗi kết nối PostgreSQL |
-| `BETTER_AUTH_SECRET` | Có | - | Khóa mã hóa session (tối thiểu 32 ký tự) |
-| `STORAGE_DRIVER` | Có | `local` | `local` lưu trữ tại ổ đĩa hoặc `s3` cho MinIO / AWS S3 / R2 |
-| `MAX_FILE_BYTES` | Không | `204800` (200 KB) | Dung lượng tối đa mỗi tệp khi nạp |
-| `MAX_ACCOUNT_TOTAL_BYTES`| Không | `10485760` (10 MB) | Hạn ngạch dung lượng lưu trữ trên mỗi tài khoản |
-| `S3_BUCKET` | Nếu dùng s3 | - | Tên bucket lưu trữ blob |
-| `GITHUB_TOKEN` | Không | - | Token GitHub cá nhân để tăng giới hạn API rate limit |
-| `LOG_LEVEL` | Không | `info` | Mức độ ghi log (`debug`, `info`, `warn`, `error`) |
+| Biến                      |  Bắt buộc   |        Mặc định         | Mục đích                                                    |
+| :------------------------ | :---------: | :---------------------: | :---------------------------------------------------------- |
+| `NODE_ENV`                |     Có      |      `development`      | Môi trường chạy (`development`, `production`, `test`)       |
+| `APP_URL`                 |     Có      | `http://localhost:3000` | URL gốc phục vụ CSRF và tạo liên kết                        |
+| `DATABASE_URL`            |     Có      |            -            | Chuỗi kết nối PostgreSQL                                    |
+| `BETTER_AUTH_SECRET`      |     Có      |            -            | Khóa mã hóa session (tối thiểu 32 ký tự)                    |
+| `STORAGE_DRIVER`          |     Có      |         `local`         | `local` lưu trữ tại ổ đĩa hoặc `s3` cho MinIO / AWS S3 / R2 |
+| `MAX_FILE_BYTES`          |    Không    |    `204800` (200 KB)    | Dung lượng tối đa mỗi tệp khi nạp                           |
+| `MAX_ACCOUNT_TOTAL_BYTES` |    Không    |   `10485760` (10 MB)    | Hạn ngạch dung lượng lưu trữ trên mỗi tài khoản             |
+| `S3_BUCKET`               | Nếu dùng s3 |            -            | Tên bucket lưu trữ blob                                     |
+| `GITHUB_TOKEN`            |    Không    |            -            | Token GitHub cá nhân để tăng giới hạn API rate limit        |
+| `LOG_LEVEL`               |    Không    |         `info`          | Mức độ ghi log (`debug`, `info`, `warn`, `error`)           |
 
 ---
 

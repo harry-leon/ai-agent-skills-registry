@@ -131,7 +131,8 @@ export function StackBuilderDrawer() {
                     <Layers className="h-6 w-6" />
                   </div>
                   <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                    Your stack is empty. Click <strong>&quot;+ Add to Stack&quot;</strong> on any skill card to bundle multiple skills together.
+                    Your stack is empty. Click <strong>&quot;+ Add to Stack&quot;</strong> on any
+                    skill card to bundle multiple skills together.
                   </p>
                 </div>
               ) : (
@@ -217,7 +218,9 @@ export function StackBuilderDrawer() {
                   <button
                     type="button"
                     onClick={() => {
-                      toast.info(`Ready to install ${stack.length} skills into your agent project.`);
+                      toast.info(
+                        `Ready to install ${stack.length} skills into your agent project.`,
+                      );
                     }}
                     className="flex-1 py-2 px-3 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
                   >

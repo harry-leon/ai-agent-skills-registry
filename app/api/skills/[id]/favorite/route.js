@@ -1,7 +1,11 @@
 import { route } from '@/lib/api/route.js';
 import { successResponse, errorResponse } from '@/lib/api/responses.js';
 import { ERROR_CODES } from '@/lib/api/errors.js';
-import { toggleSkillFavorite, isSkillFavorited, getSkillFavoriteCount } from '@/lib/dal/favorites.js';
+import {
+  toggleSkillFavorite,
+  isSkillFavorited,
+  getSkillFavoriteCount,
+} from '@/lib/dal/favorites.js';
 import { getClientIp } from '@/lib/rate-limit/index.js';
 
 export const POST = route(

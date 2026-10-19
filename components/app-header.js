@@ -7,7 +7,9 @@ import { ThemeToggle } from '@/components/theme-toggle.js';
 
 export function AppHeader({ user, onToggleSidebar }) {
   const handleFocusSearch = () => {
-    const input = document.querySelector('input[type="search"], input[placeholder*="Search"], input[placeholder*="search"]');
+    const input = document.querySelector(
+      'input[type="search"], input[placeholder*="Search"], input[placeholder*="search"]',
+    );
     if (input) {
       input.focus();
     }

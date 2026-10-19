@@ -20,7 +20,8 @@ const COMPONENT_TYPES = [
     icon: Layers,
     desc: 'Reusable workflow, guidelines, or instruction set',
     filename: 'SKILL.md',
-    defaultPrompt: '# Skill Instructions\n\nProvide agent workflows, system prompts, or tool instructions here...',
+    defaultPrompt:
+      '# Skill Instructions\n\nProvide agent workflows, system prompts, or tool instructions here...',
   },
   {
     key: 'agents',
@@ -28,7 +29,8 @@ const COMPONENT_TYPES = [
     icon: Bot,
     desc: 'Autonomous role-specific agent persona & prompts',
     filename: 'AGENT.md',
-    defaultPrompt: '# Agent Configuration\n\nRole: Specialized AI Agent\nMission: Describe target domain tasks, system prompt, and reasoning instructions...',
+    defaultPrompt:
+      '# Agent Configuration\n\nRole: Specialized AI Agent\nMission: Describe target domain tasks, system prompt, and reasoning instructions...',
   },
   {
     key: 'commands',
@@ -36,7 +38,8 @@ const COMPONENT_TYPES = [
     icon: ChevronRight,
     desc: 'CLI / Slash command playbook with arguments',
     filename: 'COMMAND.md',
-    defaultPrompt: '# Command Playbook\n\nSyntax: /command-name [args]\nDescription: Steps to execute and expected CLI output...',
+    defaultPrompt:
+      '# Command Playbook\n\nSyntax: /command-name [args]\nDescription: Steps to execute and expected CLI output...',
   },
   {
     key: 'settings',
@@ -44,7 +47,8 @@ const COMPONENT_TYPES = [
     icon: SlidersHorizontal,
     desc: 'Configuration file or model environment setup (JSON)',
     filename: 'setting.json',
-    defaultPrompt: '{\n  "name": "custom-setting",\n  "description": "Environment configuration",\n  "config": {}\n}',
+    defaultPrompt:
+      '{\n  "name": "custom-setting",\n  "description": "Environment configuration",\n  "config": {}\n}',
   },
   {
     key: 'hooks',
@@ -52,7 +56,8 @@ const COMPONENT_TYPES = [
     icon: Link2,
     desc: 'Lifecycle trigger or pre/post execution hook (JSON)',
     filename: 'hook.json',
-    defaultPrompt: '{\n  "hook": "session.start",\n  "description": "Executed automatically on session start",\n  "action": "load-context"\n}',
+    defaultPrompt:
+      '{\n  "hook": "session.start",\n  "description": "Executed automatically on session start",\n  "action": "load-context"\n}',
   },
   {
     key: 'mcps',
@@ -60,7 +65,8 @@ const COMPONENT_TYPES = [
     icon: CloudDownload,
     desc: 'Model Context Protocol integration config (JSON)',
     filename: 'mcp.json',
-    defaultPrompt: '{\n  "mcpServers": {\n    "custom-server": {\n      "command": "npx",\n      "args": ["-y", "@modelcontextprotocol/server-example"]\n    }\n  }\n}',
+    defaultPrompt:
+      '{\n  "mcpServers": {\n    "custom-server": {\n      "command": "npx",\n      "args": ["-y", "@modelcontextprotocol/server-example"]\n    }\n  }\n}',
   },
   {
     key: 'mods',
@@ -68,7 +74,8 @@ const COMPONENT_TYPES = [
     icon: Code2,
     desc: 'System customization, guardrail, or capability policy',
     filename: 'mod.ts',
-    defaultPrompt: '// Mod Script / Guardrail Policy\nexport default function init(api: any) {\n  console.log("Mod loaded");\n}',
+    defaultPrompt:
+      '// Mod Script / Guardrail Policy\nexport default function init(api: any) {\n  console.log("Mod loaded");\n}',
   },
 ];
 
@@ -255,7 +262,8 @@ ${templateBody}
           </span>
         </h1>
         <p className="text-xs sm:text-sm text-slate-400 mt-1">
-          Publish and version your Skills, Agents, Commands, Settings, Hooks, MCPs, or Mods to your library.
+          Publish and version your Skills, Agents, Commands, Settings, Hooks, MCPs, or Mods to your
+          library.
         </p>
       </div>
 
@@ -279,7 +287,9 @@ ${templateBody}
                     : 'border-[#1c2536] bg-[#111624] text-slate-400 hover:text-slate-200 hover:border-slate-700'
                 }`}
               >
-                <Icon className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-blue-400' : 'text-slate-400'}`} />
+                <Icon
+                  className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-blue-400' : 'text-slate-400'}`}
+                />
                 <span className="text-xs font-bold leading-tight">{t.label}</span>
                 <span className="text-[10px] text-slate-500 font-mono mt-0.5 truncate max-w-full">
                   {t.filename}
@@ -364,7 +374,9 @@ ${templateBody}
         {/* Mode: ZIP or Single File */}
         {mode === 'zip' && (
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-200">Package Archive or Markdown File (.zip, .skill, .md, .txt)</label>
+            <label className="text-sm font-medium text-slate-200">
+              Package Archive or Markdown File (.zip, .skill, .md, .txt)
+            </label>
             <div
               onClick={() => fileInputRef.current?.click()}
               className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#1c2536] bg-[#111624] p-6 text-center hover:bg-[#131b2c] transition-colors"
@@ -377,10 +389,13 @@ ${templateBody}
                 className="hidden"
               />
               <p className="font-medium text-sm text-slate-200">
-                {selectedFile ? selectedFile.name : 'Click or drop a ZIP archive or SKILL.md file here'}
+                {selectedFile
+                  ? selectedFile.name
+                  : 'Click or drop a ZIP archive or SKILL.md file here'}
               </p>
               <p className="mt-1 text-xs text-slate-400">
-                Tối đa 200 KB mỗi tệp, tổng dung lượng lưu trữ 10 MB/tài khoản. Chỉ chấp nhận tệp nén (.zip, .skill) hoặc văn bản (.md, .txt).
+                Tối đa 200 KB mỗi tệp, tổng dung lượng lưu trữ 10 MB/tài khoản. Chỉ chấp nhận tệp
+                nén (.zip, .skill) hoặc văn bản (.md, .txt).
               </p>
             </div>
           </div>
@@ -453,7 +468,10 @@ ${templateBody}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="templateBody" className="text-sm font-medium text-slate-200 flex items-center justify-between">
+              <label
+                htmlFor="templateBody"
+                className="text-sm font-medium text-slate-200 flex items-center justify-between"
+              >
                 <span>Content ({activeTypeConfig.filename})</span>
                 <span className="text-xs font-mono text-slate-400">{activeTypeConfig.desc}</span>
               </label>
@@ -477,13 +495,11 @@ ${templateBody}
               <label htmlFor="visibility" className="text-sm font-medium text-slate-200">
                 Visibility
               </label>
-              <span className="text-xs text-slate-400">Hover (i) icon for permissions breakdown</span>
+              <span className="text-xs text-slate-400">
+                Hover (i) icon for permissions breakdown
+              </span>
             </div>
-            <VisibilitySelector
-              id="visibility"
-              value={visibility}
-              onChange={setVisibility}
-            />
+            <VisibilitySelector id="visibility" value={visibility} onChange={setVisibility} />
           </div>
 
           <div className="space-y-2">
