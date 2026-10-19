@@ -101,40 +101,49 @@ export function AppSidebar({ user, onNavigate }) {
       {/* Nav List */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {navSections.map((section) => {
-          const visibleItems = section.items.filter((item) => !item.requireAuth || !!user);
-          if (visibleItems.length === 0) return null;
-
           return (
             <div key={section.title} className="space-y-1">
               <div className="px-3 pb-1.5 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
                 {section.title}
               </div>
               <div className="space-y-0.5">
-                {visibleItems.map((item) => {
+                {section.items.map((item) => {
                   const isActive =
                     pathname === item.href ||
                     (item.href !== '/dashboard' &&
                       item.href !== '/public' &&
                       pathname.startsWith(item.href));
                   const Icon = item.icon;
+                  // If item requires auth and user is guest, link directly to login with callbackUrl
+                  const targetHref =
+                    item.requireAuth && !user
+                      ? `/login?callbackUrl=${encodeURIComponent(item.href)}`
+                      : item.href;
 
                   return (
                     <Link
                       key={item.href}
-                      href={item.href}
+                      href={targetHref}
                       onClick={onNavigate}
-                      className={`flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                      className={`group flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors ${
                         isActive
                           ? 'border-l-2 border-blue-500 bg-blue-500/[0.08] text-slate-100 font-semibold'
                           : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                       }`}
                     >
-                      <Icon
-                        className={`h-4 w-4 shrink-0 ${
-                          isActive ? 'text-blue-400' : 'text-slate-400'
-                        }`}
-                      />
-                      <span>{item.label}</span>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Icon
+                          className={`h-4 w-4 shrink-0 ${
+                            isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-200'
+                          }`}
+                        />
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      {item.requireAuth && !user && (
+                        <span className="text-[10px] text-slate-600 group-hover:text-slate-400 font-mono transition-colors">
+                          Lock
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
