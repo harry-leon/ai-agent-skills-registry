@@ -3,25 +3,94 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { VisibilitySelector } from '@/components/visibility-selector.js';
+import {
+  Layers,
+  Bot,
+  ChevronRight,
+  SlidersHorizontal,
+  Link2,
+  CloudDownload,
+  Code2,
+} from 'lucide-react';
+
+const COMPONENT_TYPES = [
+  {
+    key: 'skills',
+    label: 'Skill',
+    icon: Layers,
+    desc: 'Reusable workflow, guidelines, or instruction set',
+    filename: 'SKILL.md',
+    defaultPrompt: '# Skill Instructions\n\nProvide agent workflows, system prompts, or tool instructions here...',
+  },
+  {
+    key: 'agents',
+    label: 'Agent',
+    icon: Bot,
+    desc: 'Autonomous role-specific agent persona & prompts',
+    filename: 'AGENT.md',
+    defaultPrompt: '# Agent Configuration\n\nRole: Specialized AI Agent\nMission: Describe target domain tasks, system prompt, and reasoning instructions...',
+  },
+  {
+    key: 'commands',
+    label: 'Command',
+    icon: ChevronRight,
+    desc: 'CLI / Slash command playbook with arguments',
+    filename: 'COMMAND.md',
+    defaultPrompt: '# Command Playbook\n\nSyntax: /command-name [args]\nDescription: Steps to execute and expected CLI output...',
+  },
+  {
+    key: 'settings',
+    label: 'Setting',
+    icon: SlidersHorizontal,
+    desc: 'Configuration file or model environment setup (JSON)',
+    filename: 'setting.json',
+    defaultPrompt: '{\n  "name": "custom-setting",\n  "description": "Environment configuration",\n  "config": {}\n}',
+  },
+  {
+    key: 'hooks',
+    label: 'Hook',
+    icon: Link2,
+    desc: 'Lifecycle trigger or pre/post execution hook (JSON)',
+    filename: 'hook.json',
+    defaultPrompt: '{\n  "hook": "session.start",\n  "description": "Executed automatically on session start",\n  "action": "load-context"\n}',
+  },
+  {
+    key: 'mcps',
+    label: 'MCP Server',
+    icon: CloudDownload,
+    desc: 'Model Context Protocol integration config (JSON)',
+    filename: 'mcp.json',
+    defaultPrompt: '{\n  "mcpServers": {\n    "custom-server": {\n      "command": "npx",\n      "args": ["-y", "@modelcontextprotocol/server-example"]\n    }\n  }\n}',
+  },
+  {
+    key: 'mods',
+    label: 'Mod',
+    icon: Code2,
+    desc: 'System customization, guardrail, or capability policy',
+    filename: 'mod.ts',
+    defaultPrompt: '// Mod Script / Guardrail Policy\nexport default function init(api: any) {\n  console.log("Mod loaded");\n}',
+  },
+];
 
 export default function NewSkillPage() {
   const router = useRouter();
   const fileInputRef = useRef(null);
   const dirInputRef = useRef(null);
 
-  const [mode, setMode] = useState('zip'); // 'zip' | 'folder' | 'template'
+  const [componentType, setComponentType] = useState('skills');
+  const [mode, setMode] = useState('template'); // 'template' | 'zip' | 'folder'
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedFolderFiles, setSelectedFolderFiles] = useState([]);
 
   // Template mode fields
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
-  const [templateBody, setTemplateBody] = useState('# Skill Instructions\n\nProvide agent workflows, system prompts, or tool instructions here...');
+  const [templateBody, setTemplateBody] = useState(COMPONENT_TYPES[0].defaultPrompt);
 
   // Metadata
-  const [tagsInput, setTagsInput] = useState('');
+  const [tagsInput, setTagsInput] = useState('skill');
   const [visibility, setVisibility] = useState('PRIVATE');
-  const [versionMessage, setVersionMessage] = useState('Initial skill commit');
+  const [versionMessage, setVersionMessage] = useState('Initial component commit');
 
   // UI state
   const [uploading, setUploading] = useState(false);
@@ -66,20 +135,28 @@ export default function NewSkillPage() {
 
       let response;
 
+      const activeTypeConfig =
+        COMPONENT_TYPES.find((t) => t.key === componentType) || COMPONENT_TYPES[0];
+
       if (mode === 'template') {
-        // Build SKILL.md content from template inputs
+        // Build file content from template inputs
         if (!templateName || !templateDescription) {
-          setErrorMessage('Please fill in both Skill Name and Description.');
+          setErrorMessage(`Please fill in both ${activeTypeConfig.label} Name and Description.`);
           setUploading(false);
           return;
         }
 
-        const skillMdContent = `---
+        let mainContent = templateBody;
+        if (activeTypeConfig.filename.endsWith('.md')) {
+          mainContent = `---
 name: ${templateName.trim().toLowerCase()}
+type: ${componentType.slice(0, -1)}
 description: "${templateDescription.trim().replace(/"/g, '\\"')}"
 ---
 ${templateBody}
 `;
+        }
+
         setProgress(40);
 
         response = await fetch('/api/skills', {
@@ -90,11 +167,11 @@ ${templateBody}
           body: JSON.stringify({
             files: [
               {
-                path: 'SKILL.md',
-                content: skillMdContent,
+                path: activeTypeConfig.filename,
+                content: mainContent,
               },
             ],
-            tags: parsedTags,
+            tags: [componentType, ...parsedTags],
             visibility,
             message: versionMessage,
           }),
@@ -103,7 +180,7 @@ ${templateBody}
         // FormData mode (zip or folder files)
         const formData = new FormData();
         formData.append('visibility', visibility);
-        formData.append('tags', JSON.stringify(parsedTags));
+        formData.append('tags', JSON.stringify([componentType, ...parsedTags]));
         formData.append('message', versionMessage);
 
         if (mode === 'zip') {
@@ -156,50 +233,103 @@ ${templateBody}
     }
   }
 
+  const activeTypeConfig =
+    COMPONENT_TYPES.find((t) => t.key === componentType) || COMPONENT_TYPES[0];
+
+  const handleSelectComponentType = (typeKey) => {
+    setComponentType(typeKey);
+    const cfg = COMPONENT_TYPES.find((t) => t.key === typeKey);
+    if (cfg) {
+      setTemplateBody(cfg.defaultPrompt);
+      setTagsInput(typeKey.slice(0, -1));
+    }
+  };
+
   return (
     <div className="w-full space-y-6 pb-12">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-100">Create New Agent Skill</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-100 flex items-center gap-2">
+          <span>Create New AI Component</span>
+          <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+            {activeTypeConfig.label}
+          </span>
+        </h1>
         <p className="text-xs sm:text-sm text-slate-400 mt-1">
-          Upload a ZIP archive, select a local skill directory, or create from a blank template.
+          Publish and version your Skills, Agents, Commands, Settings, Hooks, MCPs, or Mods to your library.
         </p>
       </div>
 
+      {/* Component Type Selector Cards */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          1. Select Component Type
+        </label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+          {COMPONENT_TYPES.map((t) => {
+            const isSelected = componentType === t.key;
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => handleSelectComponentType(t.key)}
+                className={`flex flex-col items-center text-center p-3 rounded-lg border transition-all cursor-pointer ${
+                  isSelected
+                    ? 'border-blue-500 bg-blue-500/15 text-blue-300 shadow-md ring-1 ring-blue-500/50'
+                    : 'border-[#1c2536] bg-[#111624] text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                }`}
+              >
+                <Icon className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-blue-400' : 'text-slate-400'}`} />
+                <span className="text-xs font-bold leading-tight">{t.label}</span>
+                <span className="text-[10px] text-slate-500 font-mono mt-0.5 truncate max-w-full">
+                  {t.filename}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Mode selection tabs */}
-      <div className="flex border-b border-[#1c2536]">
-        <button
-          type="button"
-          onClick={() => setMode('zip')}
-          className={`flex min-h-[44px] items-center px-4 font-medium text-sm transition-colors border-b-2 -mb-px cursor-pointer ${
-            mode === 'zip'
-              ? 'border-blue-500 text-blue-400 font-semibold'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          ZIP Archive / Text (.md, .txt)
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode('folder')}
-          className={`flex min-h-[44px] items-center px-4 font-medium text-sm transition-colors border-b-2 -mb-px cursor-pointer ${
-            mode === 'folder'
-              ? 'border-blue-500 text-blue-400 font-semibold'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          Folder Upload
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode('template')}
-          className={`flex min-h-[44px] items-center px-4 font-medium text-sm transition-colors border-b-2 -mb-px cursor-pointer ${
-            mode === 'template'
-              ? 'border-blue-500 text-blue-400 font-semibold'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          Blank Template
-        </button>
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          2. Creation Method
+        </label>
+        <div className="flex border-b border-[#1c2536]">
+          <button
+            type="button"
+            onClick={() => setMode('template')}
+            className={`flex min-h-[44px] items-center px-4 font-medium text-sm transition-colors border-b-2 -mb-px cursor-pointer ${
+              mode === 'template'
+                ? 'border-blue-500 text-blue-400 font-semibold'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Interactive Template
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('zip')}
+            className={`flex min-h-[44px] items-center px-4 font-medium text-sm transition-colors border-b-2 -mb-px cursor-pointer ${
+              mode === 'zip'
+                ? 'border-blue-500 text-blue-400 font-semibold'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            ZIP Archive / Text File
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('folder')}
+            className={`flex min-h-[44px] items-center px-4 font-medium text-sm transition-colors border-b-2 -mb-px cursor-pointer ${
+              mode === 'folder'
+                ? 'border-blue-500 text-blue-400 font-semibold'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Folder Upload
+          </button>
+        </div>
       </div>
 
       {/* Error & Warnings Banners */}
@@ -291,31 +421,31 @@ ${templateBody}
           <div className="space-y-4 rounded-xl border border-[#1c2536] bg-[#111624] p-4 sm:p-6 shadow-xs">
             <div className="space-y-2">
               <label htmlFor="templateName" className="text-sm font-medium text-slate-200">
-                Skill Name (name) <span className="text-red-400">*</span>
+                {activeTypeConfig.label} Identifier (name) <span className="text-red-400">*</span>
               </label>
               <input
                 id="templateName"
                 type="text"
                 required
-                placeholder="code-reviewer"
+                placeholder={componentType === 'mcps' ? 'github-mcp-server' : 'code-reviewer'}
                 value={templateName}
                 onChange={(e) => setTemplateName(e.target.value)}
-                className="flex min-h-[40px] w-full rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
+                className="flex min-h-[40px] w-full rounded-md border border-[#1c2536] bg-[#0b0f17] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60 font-mono"
               />
               <p className="text-xs text-slate-400">
-                Lowercase letters, numbers, and hyphens only (e.g., code-reviewer).
+                Lowercase alphanumeric with hyphens (e.g. {componentType.slice(0, -1)}-helper).
               </p>
             </div>
 
             <div className="space-y-2">
               <label htmlFor="templateDescription" className="text-sm font-medium text-slate-200">
-                Description (description) <span className="text-red-400">*</span>
+                Description <span className="text-red-400">*</span>
               </label>
               <textarea
                 id="templateDescription"
                 required
                 rows={2}
-                placeholder="Describe what this AI agent skill does and when to invoke it..."
+                placeholder={`Describe what this ${activeTypeConfig.label.toLowerCase()} does and when to invoke it...`}
                 value={templateDescription}
                 onChange={(e) => setTemplateDescription(e.target.value)}
                 className="flex w-full rounded-md border border-[#1c2536] bg-[#0b0f17] p-3 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
@@ -323,15 +453,16 @@ ${templateBody}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="templateBody" className="text-sm font-medium text-slate-200">
-                Skill Instructions (SKILL.md Markdown Body)
+              <label htmlFor="templateBody" className="text-sm font-medium text-slate-200 flex items-center justify-between">
+                <span>Content ({activeTypeConfig.filename})</span>
+                <span className="text-xs font-mono text-slate-400">{activeTypeConfig.desc}</span>
               </label>
               <textarea
                 id="templateBody"
-                rows={6}
+                rows={8}
                 value={templateBody}
                 onChange={(e) => setTemplateBody(e.target.value)}
-                className="flex w-full font-mono rounded-md border border-[#1c2536] bg-[#0b0f17] p-3 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
+                className="flex w-full font-mono text-xs sm:text-sm rounded-md border border-[#1c2536] bg-[#0b0f17] p-3 text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500/60"
               />
             </div>
           </div>

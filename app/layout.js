@@ -3,9 +3,19 @@ import { ThemeProvider } from '@/components/theme-provider.js';
 import { Toaster } from 'sonner';
 
 export const metadata = {
-  title: 'SkillVault — AI Agent Skills Registry & Package Manager',
+  title: 'Skillary — AI Agent Skills & Templates Registry',
   description:
-    'Store, discover, install, and fork versioned AI Agent skills securely.',
+    'Store, discover, install, and bundle versioned AI Agent skills, agents, commands, and MCPs securely.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png' },
+    ],
+    shortcut: '/favicon.png',
+  },
 };
 
 export const viewport = {

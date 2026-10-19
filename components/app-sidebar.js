@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth/client.js';
 import {
@@ -15,10 +16,29 @@ import {
   Terminal,
   User,
   LogIn,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Layers,
+  Bot,
+  ChevronRight,
+  SlidersHorizontal,
+  Link2,
+  CloudDownload,
+  Code2,
+  Package,
 } from 'lucide-react';
 
-export function AppSidebar({ user, onNavigate }) {
+export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavigate }) {
   const pathname = usePathname();
+  const [currentType, setCurrentType] = useState('skills');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setCurrentType(params.get('type') || 'skills');
+    }
+  }, [pathname]);
+
   const router = useRouter();
 
   async function handleLogout() {
@@ -29,12 +49,62 @@ export function AppSidebar({ user, onNavigate }) {
 
   const navSections = [
     {
-      title: 'EXPLORE',
+      title: 'BROWSE',
       items: [
         {
-          href: '/public',
-          label: 'Community Skills',
-          icon: Compass,
+          href: '/public?type=skills',
+          label: 'Skills',
+          icon: Layers,
+          count: '891',
+          typeKey: 'skills',
+          requireAuth: false,
+        },
+        {
+          href: '/public?type=agents',
+          label: 'Agents',
+          icon: Bot,
+          count: '422',
+          typeKey: 'agents',
+          requireAuth: false,
+        },
+        {
+          href: '/public?type=commands',
+          label: 'Commands',
+          icon: ChevronRight,
+          count: '288',
+          typeKey: 'commands',
+          requireAuth: false,
+        },
+        {
+          href: '/public?type=settings',
+          label: 'Settings',
+          icon: SlidersHorizontal,
+          count: '76',
+          typeKey: 'settings',
+          requireAuth: false,
+        },
+        {
+          href: '/public?type=hooks',
+          label: 'Hooks',
+          icon: Link2,
+          count: '63',
+          typeKey: 'hooks',
+          requireAuth: false,
+        },
+        {
+          href: '/public?type=mcps',
+          label: 'MCPs',
+          icon: CloudDownload,
+          count: '107',
+          typeKey: 'mcps',
+          requireAuth: false,
+        },
+        {
+          href: '/public?type=mods',
+          label: 'Mods',
+          icon: Code2,
+          count: '44',
+          typeKey: 'mods',
           requireAuth: false,
         },
       ],
@@ -61,7 +131,7 @@ export function AppSidebar({ user, onNavigate }) {
       items: [
         {
           href: '/skills/new',
-          label: 'New Skill',
+          label: 'New Skill / Component',
           icon: PlusCircle,
           requireAuth: true,
         },
@@ -76,75 +146,154 @@ export function AppSidebar({ user, onNavigate }) {
   ];
 
   return (
-    <aside className="w-64 flex flex-col h-full bg-[#0b0f17] border-r border-[#1c2536] text-slate-300 select-none">
+    <aside
+      className={`flex flex-col h-full bg-[#0b0f17] border-r border-[#1c2536] text-slate-300 select-none transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-16' : 'w-64'
+      }`}
+    >
       {/* Brand Header */}
-      <div className="h-14 flex items-center px-4 border-b border-[#1c2536] justify-between">
+      <div
+        className={`h-14 flex items-center border-b border-[#1c2536] transition-all px-3.5 ${
+          isCollapsed ? 'justify-center' : 'justify-between'
+        }`}
+      >
         <Link
           href="/public"
           onClick={onNavigate}
           className="flex items-center gap-2.5 min-w-0 hover:opacity-90 transition-opacity"
+          title="Skillary Home"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/25 text-blue-400 shrink-0">
-            <Terminal className="h-4 w-4" />
+          <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-blue-500/30 bg-blue-500/10 shrink-0 flex items-center justify-center p-0.5 shadow-sm">
+            <Image
+              src="/logo.png"
+              alt="Skillary Logo"
+              width={32}
+              height={32}
+              className="object-contain"
+              priority
+            />
           </div>
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="font-semibold text-sm tracking-tight text-slate-100 whitespace-nowrap">
-              Skill<span className="text-blue-400">Vault</span>
-            </span>
-            <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-[#161d2d] text-slate-400 border border-[#1c2536] leading-none">
-              v0.1
-            </span>
-          </div>
+          {!isCollapsed && (
+            <div className="flex items-center gap-2 min-w-0 animate-in fade-in duration-200">
+              <span className="font-bold text-sm tracking-tight text-slate-100 whitespace-nowrap">
+                Skill<span className="text-blue-400">ary</span>
+              </span>
+              <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-[#161d2d] text-blue-300 border border-[#1c2536] leading-none">
+                v1.0
+              </span>
+            </div>
+          )}
         </Link>
+
+        {/* Toggle Collapse Button (Desktop Only) */}
+        {onToggleCollapse && !isCollapsed && (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            title="Collapse sidebar"
+            aria-label="Collapse sidebar"
+            className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800/60 transition-colors"
+          >
+            <PanelLeftClose className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Nav List */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+      <div className="flex-1 overflow-y-auto px-2 py-4 space-y-6">
+        {onToggleCollapse && isCollapsed && (
+          <div className="flex justify-center pb-2">
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              title="Expand sidebar"
+              aria-label="Expand sidebar"
+              className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+            >
+              <PanelLeftOpen className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         {navSections.map((section) => {
           return (
             <div key={section.title} className="space-y-1">
-              <div className="px-3 pb-1.5 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
-                {section.title}
-              </div>
+              {!isCollapsed && (
+                <div className="px-3 pb-1.5 text-[11px] font-semibold tracking-wider text-slate-500 uppercase animate-in fade-in duration-150">
+                  {section.title}
+                </div>
+              )}
               <div className="space-y-0.5">
                 {section.items.map((item) => {
-                  const isActive =
-                    pathname === item.href ||
-                    (item.href !== '/dashboard' &&
-                      item.href !== '/public' &&
-                      pathname.startsWith(item.href));
+                  const isPublic = pathname === '/public';
+                  const isActive = item.typeKey
+                    ? isPublic && currentType === item.typeKey
+                    : pathname === item.href ||
+                      (item.href !== '/dashboard' &&
+                        item.href !== '/public' &&
+                        pathname.startsWith(item.href));
+
                   const Icon = item.icon;
-                  // If item requires auth and user is guest, link directly to login with callbackUrl
                   const targetHref =
                     item.requireAuth && !user
                       ? `/login?callbackUrl=${encodeURIComponent(item.href)}`
                       : item.href;
 
                   return (
-                    <Link
-                      key={item.href}
-                      href={targetHref}
-                      onClick={onNavigate}
-                      className={`group flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors ${
-                        isActive
-                          ? 'border-l-2 border-blue-500 bg-blue-500/[0.08] text-slate-100 font-semibold'
-                          : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon
-                          className={`h-4 w-4 shrink-0 ${
-                            isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-200'
-                          }`}
-                        />
-                        <span className="truncate">{item.label}</span>
-                      </div>
-                      {item.requireAuth && !user && (
-                        <span className="text-[10px] text-slate-600 group-hover:text-slate-400 font-mono transition-colors">
-                          Lock
-                        </span>
+                    <div key={item.href} className="relative group">
+                      <Link
+                        href={targetHref}
+                        onClick={onNavigate}
+                        className={`flex items-center rounded-md transition-colors ${
+                          isCollapsed
+                            ? 'justify-center p-2.5 mx-auto'
+                            : 'justify-between px-3 py-2 text-xs font-medium'
+                        } ${
+                          isActive
+                            ? 'border-l-2 border-blue-500 bg-blue-500/[0.12] text-slate-100 font-semibold'
+                            : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Icon
+                            className={`h-4 w-4 shrink-0 ${
+                              isActive
+                                ? 'text-blue-400'
+                                : 'text-slate-400 group-hover:text-slate-200'
+                            }`}
+                          />
+                          {!isCollapsed && <span className="truncate">{item.label}</span>}
+                        </div>
+
+                        {!isCollapsed && item.count && (
+                          <span
+                            className={`text-[10px] font-mono px-1.5 py-0.5 rounded border transition-colors ${
+                              isActive
+                                ? 'bg-blue-500/20 text-blue-300 border-blue-500/30 font-semibold'
+                                : 'bg-[#111624] text-slate-500 border-[#1c2536] group-hover:text-slate-400'
+                            }`}
+                          >
+                            {item.count}
+                          </span>
+                        )}
+
+                        {!isCollapsed && item.requireAuth && !user && (
+                          <span className="text-[10px] text-slate-600 group-hover:text-slate-400 font-mono transition-colors">
+                            Lock
+                          </span>
+                        )}
+                      </Link>
+
+                      {/* Floating Tooltip when Collapsed */}
+                      {isCollapsed && (
+                        <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#162035] border border-[#1f2d48] text-xs font-semibold text-slate-100 shadow-xl whitespace-nowrap z-50 animate-in fade-in duration-150">
+                          <span>{item.label}</span>
+                          {item.requireAuth && !user && (
+                            <span className="text-[10px] text-amber-400 font-mono">(Login required)</span>
+                          )}
+                        </div>
                       )}
-                    </Link>
+                    </div>
                   );
                 })}
               </div>
@@ -154,54 +303,67 @@ export function AppSidebar({ user, onNavigate }) {
       </div>
 
       {/* User Section at Bottom */}
-      <div className="p-3 border-t border-[#1c2536] bg-[#0b0f17]">
+      <div className="p-2 border-t border-[#1c2536] bg-[#0b0f17]">
         {user ? (
-          <div className="flex items-center justify-between gap-2 p-2 rounded-md bg-[#111624] border border-[#1c2536]">
+          <div
+            className={`flex items-center rounded-md bg-[#111624] border border-[#1c2536] ${
+              isCollapsed ? 'justify-center p-1.5' : 'justify-between gap-2 p-2'
+            }`}
+          >
             <Link
               href="/settings"
               onClick={onNavigate}
+              title={`@${user.handle}`}
               className="flex items-center gap-2.5 min-w-0 flex-1 hover:opacity-90 transition-opacity"
             >
               <div className="h-7 w-7 rounded-md bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-mono text-xs font-semibold shrink-0">
                 {user.handle ? user.handle.slice(0, 2).toUpperCase() : 'U'}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-semibold text-slate-200 truncate flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
-                  <span className="truncate">@{user.handle}</span>
+              {!isCollapsed && (
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-semibold text-slate-200 truncate flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
+                    <span className="truncate">@{user.handle}</span>
+                  </div>
+                  <div className="text-[10px] text-slate-400 truncate">{user.email}</div>
                 </div>
-                <div className="text-[10px] text-slate-400 truncate">{user.email}</div>
-              </div>
+              )}
             </Link>
-            <div className="flex items-center gap-1 shrink-0">
-              <Link
-                href="/settings"
-                onClick={onNavigate}
-                title="Account Settings"
-                aria-label="Account Settings"
-                className="p-1.5 rounded text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors"
-              >
-                <Settings className="h-3.5 w-3.5" />
-              </Link>
-              <button
-                type="button"
-                onClick={handleLogout}
-                title="Sign Out"
-                aria-label="Sign Out"
-                className="p-1.5 rounded text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-              </button>
-            </div>
+
+            {!isCollapsed && (
+              <div className="flex items-center gap-1 shrink-0">
+                <Link
+                  href="/settings"
+                  onClick={onNavigate}
+                  title="Account Settings"
+                  aria-label="Account Settings"
+                  className="p-1.5 rounded text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors"
+                >
+                  <Settings className="h-3.5 w-3.5" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  title="Sign Out"
+                  aria-label="Sign Out"
+                  className="p-1.5 rounded text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <Link
             href="/login"
             onClick={onNavigate}
-            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-md border border-[#1c2536] bg-[#111624] text-xs font-semibold text-slate-200 hover:bg-slate-800/60 hover:text-white transition-colors"
+            title="Sign In"
+            className={`flex items-center justify-center rounded-md border border-[#1c2536] bg-[#111624] text-xs font-semibold text-slate-200 hover:bg-slate-800/60 hover:text-white transition-colors ${
+              isCollapsed ? 'p-2' : 'gap-2 w-full py-2 px-3'
+            }`}
           >
             <LogIn className="h-3.5 w-3.5 text-blue-400" />
-            <span>Sign In</span>
+            {!isCollapsed && <span>Sign In</span>}
           </Link>
         )}
       </div>
