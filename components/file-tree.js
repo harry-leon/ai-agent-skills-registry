@@ -113,6 +113,8 @@ export function FileTree({
   onAddFile,
   onRenameFile,
   onDeleteFile,
+  hideHeader = false,
+  className = '',
 }) {
   const [expandedFolders, setExpandedFolders] = useState(() => {
     // Expand all top-level folders by default
@@ -260,8 +262,26 @@ export function FileTree({
     );
   };
 
+  if (hideHeader) {
+    return (
+      <div
+        role="tree"
+        aria-label="Skill file tree"
+        className={`overflow-y-auto space-y-0.5 pr-1 ${className}`}
+      >
+        {tree.length === 0 ? (
+          <div className="text-xs text-slate-500 p-3 text-center">No files found.</div>
+        ) : (
+          tree.map((node) => renderNode(node, 0))
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="border border-[#1e293b] rounded-xl bg-[#111624] p-3 flex flex-col h-full overflow-hidden shadow-xs">
+    <div
+      className={`border border-[#1e293b] rounded-xl bg-[#111624] p-3 flex flex-col h-full overflow-hidden shadow-xs ${className}`}
+    >
       <div className="flex items-center justify-between px-2 py-2 border-b border-[#1c2536] mb-2">
         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
           Files ({files.length})

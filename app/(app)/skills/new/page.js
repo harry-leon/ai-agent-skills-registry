@@ -394,8 +394,8 @@ ${templateBody}
                   : 'Click or drop a ZIP archive or SKILL.md file here'}
               </p>
               <p className="mt-1 text-xs text-slate-400">
-                Tối đa 200 KB mỗi tệp, tổng dung lượng lưu trữ 10 MB/tài khoản. Chỉ chấp nhận tệp
-                nén (.zip, .skill) hoặc văn bản (.md, .txt).
+                Max 200 KB per file, 10 MB total account storage. Accepts archive (.zip, .skill)
+                or text files (.md, .txt).
               </p>
             </div>
           </div>

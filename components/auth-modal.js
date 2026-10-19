@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth/client.js';
 import { validateHandle } from '@/lib/auth/handle.js';
-import { X, LogIn, UserPlus, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, ChevronRight, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess }) {
@@ -15,13 +15,14 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
   // Login fields
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
 
   // Register fields
-  const [regName, setRegName] = useState('');
+  const [regFirstName, setRegFirstName] = useState('');
+  const [regLastName, setRegLastName] = useState('');
   const [regEmail, setRegEmail] = useState('');
-  const [regHandle, setRegHandle] = useState('');
   const [regPassword, setRegPassword] = useState('');
-  const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [showRegPassword, setShowRegPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -69,21 +70,29 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
     e.preventDefault();
     setError('');
 
-    const handleCheck = validateHandle(regHandle);
-    if (!handleCheck.valid) {
-      setError(handleCheck.error);
-      return;
-    }
-
     if (regPassword.length < 10 || regPassword.length > 128) {
       setError('Password must be between 10 and 128 characters.');
       return;
     }
 
-    if (regPassword !== regConfirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
+    // Auto generate handle from name or email prefix
+    const fullName =
+      `${regFirstName.trim()} ${regLastName.trim()}`.trim() || regEmail.split('@')[0];
+    const candidateHandle =
+      (regFirstName || regEmail.split('@')[0])
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 20) || 'user';
+
+    const safeHandle =
+      candidateHandle.length >= 3
+        ? candidateHandle
+        : `${candidateHandle}-${Math.floor(100 + Math.random() * 900)}`;
+
+    const handleCheck = validateHandle(safeHandle);
+    const finalHandle = handleCheck.valid ? safeHandle : `user-${Date.now().toString().slice(-6)}`;
 
     setLoading(true);
 
@@ -91,8 +100,8 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
       const res = await authClient.signUp.email({
         email: regEmail.trim(),
         password: regPassword,
-        name: regName.trim(),
-        handle: regHandle.trim().toLowerCase(),
+        name: fullName,
+        handle: finalHandle,
       });
 
       if (res?.error) {
@@ -137,44 +146,10 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
           <X className="h-4 w-4" />
         </button>
 
-        {/* Modal Header Tabs */}
-        <div className="flex items-center justify-center gap-1.5 p-1 rounded-xl bg-[#0b0f17] border border-[#1c2536] mb-6">
-          <button
-            type="button"
-            onClick={() => {
-              setMode('login');
-              setError('');
-            }}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              mode === 'login'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>Sign In</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode('register');
-              setError('');
-            }}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              mode === 'register'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>Register</span>
-          </button>
-        </div>
-
         {error && (
           <div
             role="alert"
-            className="mb-4 rounded-xl bg-red-500/10 p-3 text-xs text-red-400 font-medium border border-red-500/20"
+            className="mb-5 rounded-xl bg-red-500/10 p-3 text-xs text-red-400 font-medium border border-red-500/20"
           >
             {error}
           </div>
@@ -188,128 +163,168 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
           </div>
         ) : mode === 'login' ? (
           /* LOGIN FORM */
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
+          <form onSubmit={handleLoginSubmit} className="space-y-4 pt-1">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Email</label>
+              <label className="block text-xs font-semibold text-slate-200 mb-1.5">
+                Email address
+              </label>
               <input
                 type="email"
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="name@example.com"
+                placeholder="Enter your email address"
                 className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-medium text-slate-300">Password</label>
+                <label className="block text-xs font-semibold text-slate-200">Password</label>
                 <Link
                   href="/forgot-password"
                   onClick={handleClose}
                   className="text-[11px] text-blue-400 hover:underline"
                 >
-                  Forgot?
+                  Forgot password?
                 </Link>
               </div>
-              <input
-                type="password"
-                required
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
-              />
+              <div className="relative">
+                <input
+                  type={showLoginPassword ? 'text' : 'password'}
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] pl-3.5 pr-10 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword((prev) => !prev)}
+                  tabIndex={-1}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 hover:text-slate-300 transition-colors"
+                  aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-blue-900/30 transition-all hover:bg-blue-500 disabled:opacity-50 cursor-pointer active:scale-98"
+              className="w-full mt-2 inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#282f3e] hover:bg-[#343e52] text-slate-100 px-4 py-2.5 text-xs font-semibold border border-slate-700/50 shadow-sm transition-all disabled:opacity-50 cursor-pointer active:scale-98"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              <span>{loading ? 'Continuing...' : 'Continue'}</span>
+              <ChevronRight className="w-3.5 h-3.5 fill-current" />
             </button>
+
+            <div className="pt-3 border-t border-[#1c2536] text-center text-xs text-slate-400">
+              Don&apos;t have an account?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('register');
+                  setError('');
+                }}
+                className="font-semibold text-blue-400 hover:underline cursor-pointer"
+              >
+                Sign up
+              </button>
+            </div>
           </form>
         ) : (
           /* REGISTER FORM */
-          <form
-            onSubmit={handleRegisterSubmit}
-            className="space-y-3 max-h-[65vh] overflow-y-auto pr-1"
-          >
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Full Name</label>
-              <input
-                type="text"
-                required
-                value={regName}
-                onChange={(e) => setRegName(e.target.value)}
-                placeholder="Alex Developer"
-                className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] px-3.5 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Handle</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-xs">
-                  @
-                </span>
+          <form onSubmit={handleRegisterSubmit} className="space-y-4 pt-1">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-200">First name</label>
+                  <span className="text-[11px] text-slate-500">Optional</span>
+                </div>
                 <input
                   type="text"
-                  required
-                  value={regHandle}
-                  onChange={(e) => setRegHandle(e.target.value.toLowerCase())}
-                  placeholder="alex-dev"
-                  className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] pl-7 pr-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
+                  value={regFirstName}
+                  onChange={(e) => setRegFirstName(e.target.value)}
+                  placeholder="First name"
+                  className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-200">Last name</label>
+                  <span className="text-[11px] text-slate-500">Optional</span>
+                </div>
+                <input
+                  type="text"
+                  value={regLastName}
+                  onChange={(e) => setRegLastName(e.target.value)}
+                  placeholder="Last name"
+                  className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Email</label>
+              <label className="block text-xs font-semibold text-slate-200 mb-1.5">
+                Email address
+              </label>
               <input
                 type="email"
                 required
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
-                placeholder="alex@example.com"
-                className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] px-3.5 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
+                placeholder="Enter your email address"
+                className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Password</label>
-              <input
-                type="password"
-                required
-                value={regPassword}
-                onChange={(e) => setRegPassword(e.target.value)}
-                placeholder="Min 10 characters"
-                className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] px-3.5 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                required
-                value={regConfirmPassword}
-                onChange={(e) => setRegConfirmPassword(e.target.value)}
-                placeholder="Repeat password"
-                className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] px-3.5 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
-              />
+              <label className="block text-xs font-semibold text-slate-200 mb-1.5">Password</label>
+              <div className="relative">
+                <input
+                  type={showRegPassword ? 'text' : 'password'}
+                  required
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full rounded-xl border border-slate-700/60 bg-[#0b0f17] pl-3.5 pr-10 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRegPassword((prev) => !prev)}
+                  tabIndex={-1}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 hover:text-slate-300 transition-colors"
+                  aria-label={showRegPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-blue-900/30 transition-all hover:bg-blue-500 disabled:opacity-50 cursor-pointer active:scale-98"
+              className="w-full mt-2 inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#282f3e] hover:bg-[#343e52] text-slate-100 px-4 py-2.5 text-xs font-semibold border border-slate-700/50 shadow-sm transition-all disabled:opacity-50 cursor-pointer active:scale-98"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              <span>{loading ? 'Continuing...' : 'Continue'}</span>
+              <ChevronRight className="w-3.5 h-3.5 fill-current" />
             </button>
+
+            <div className="pt-3 border-t border-[#1c2536] text-center text-xs text-slate-400">
+              Already have an account?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('login');
+                  setError('');
+                }}
+                className="font-semibold text-blue-400 hover:underline cursor-pointer"
+              >
+                Sign in
+              </button>
+            </div>
           </form>
         )}
       </div>

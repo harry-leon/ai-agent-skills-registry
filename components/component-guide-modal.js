@@ -229,11 +229,11 @@ export function ComponentGuideModal({ isOpen, onClose, onSelectType }) {
     >
       <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
 
-      <div className="relative w-full max-w-4xl max-h-[88vh] flex flex-col rounded-2xl bg-[#0e1422] border border-[#1c2536] shadow-2xl z-10 overflow-hidden">
+      <div className="relative w-full max-w-4xl max-h-[85dvh] flex flex-col rounded-2xl bg-[#0e1422] border border-[#1c2536] shadow-2xl z-10 overflow-hidden">
         {/* Header */}
         <div className="px-4 sm:px-6 py-3.5 border-b border-[#1c2536] flex items-center justify-between bg-[#0b0f17]/80">
           <div className="flex items-center gap-2.5">
-            <span className="p-1.5 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30">
+            <span className="p-1.5 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 shrink-0">
               <Sparkles className="w-4 h-4" />
             </span>
             <div>
@@ -275,9 +275,9 @@ export function ComponentGuideModal({ isOpen, onClose, onSelectType }) {
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           </div>
         </div>

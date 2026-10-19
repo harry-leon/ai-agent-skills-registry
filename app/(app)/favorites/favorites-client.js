@@ -160,6 +160,7 @@ export function FavoritesClient({
           <div className="pt-2">
             <Link
               href="/public"
+              prefetch={false}
               className="inline-flex min-h-[40px] items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-2xs"
             >
               <Compass className="w-4 h-4" />
@@ -168,11 +169,11 @@ export function FavoritesClient({
           </div>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-5">
           {skills.map((skill) => (
             <div
               key={skill.id}
-              className="group flex flex-col justify-between rounded-xl border border-[#1e293b]/80 bg-gradient-to-b from-[#131b2c] to-[#0d1320] p-5 hover:border-blue-500/40 hover:from-[#162035] hover:to-[#0f1728] shadow-md hover:shadow-xl hover:shadow-blue-950/20 transition-all duration-200"
+              className="group flex flex-col justify-between rounded-xl border border-[#1e293b]/80 bg-gradient-to-b from-[#131b2c] to-[#0d1320] p-4 sm:p-5 hover:border-blue-500/40 hover:from-[#162035] hover:to-[#0f1728] shadow-md hover:shadow-xl hover:shadow-blue-950/20 transition-all duration-200"
             >
               <div className="space-y-3.5">
                 <div className="flex items-start justify-between gap-3">

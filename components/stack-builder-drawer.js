@@ -63,10 +63,11 @@ export function StackBuilderDrawer() {
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-xs shadow-xl shadow-blue-500/25 hover:from-blue-500 hover:to-indigo-500 hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-400/30 cursor-pointer animate-in fade-in slide-in-from-bottom-4"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-xs shadow-xl shadow-blue-500/25 hover:from-blue-500 hover:to-indigo-500 hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-400/30 cursor-pointer animate-in fade-in slide-in-from-bottom-4"
         >
           <Layers className="w-4 h-4" />
-          <span>Stack Builder</span>
+          <span className="hidden xs:inline">Stack</span>
+          <span>Builder</span>
           <span className="flex items-center justify-center h-5 w-5 rounded-full bg-white/20 text-white font-mono text-[11px] font-bold">
             {stack.length}
           </span>
@@ -84,7 +85,7 @@ export function StackBuilderDrawer() {
           />
 
           {/* Drawer Content */}
-          <div className="relative w-full max-w-md bg-[#0e1422] border-l border-[#1c2536] shadow-2xl flex flex-col h-full z-10 animate-in slide-in-from-right duration-200 text-slate-200">
+          <div className="relative w-full max-w-[92vw] sm:max-w-md bg-[#0e1422] border-l border-[#1c2536] shadow-2xl flex flex-col h-full z-10 animate-in slide-in-from-right duration-200 text-slate-200">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#1c2536] bg-[#111728]">
               <div className="flex items-center gap-2.5">

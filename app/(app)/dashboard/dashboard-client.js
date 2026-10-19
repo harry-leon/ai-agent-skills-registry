@@ -180,6 +180,7 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
         <div className="flex items-center gap-2.5">
           <Link
             href="/skills/new"
+            prefetch={false}
             className="inline-flex min-h-[38px] items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-2xs"
           >
             <Plus className="w-4 h-4" />
@@ -187,6 +188,7 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
           </Link>
           <Link
             href="/import"
+            prefetch={false}
             className="inline-flex min-h-[38px] items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-md border border-[#1c2536] bg-[#111624] text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
           >
             <Github className="w-4 h-4" />
@@ -390,6 +392,7 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
             <div className="pt-2 flex flex-wrap justify-center gap-3">
               <Link
                 href="/skills/new"
+                prefetch={false}
                 className="inline-flex min-h-[38px] items-center space-x-1.5 rounded-md bg-blue-600 text-white px-4 py-2 text-xs sm:text-sm font-semibold hover:bg-blue-700 transition-colors shadow-2xs"
               >
                 <Plus className="w-4 h-4" />
@@ -400,11 +403,11 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
         </div>
       ) : viewMode === 'grid' ? (
         /* Grid View */
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-5">
           {skills.map((skill) => (
             <div
               key={skill.id}
-              className="group relative flex flex-col justify-between rounded-xl border border-[#1e293b]/80 bg-gradient-to-b from-[#131b2c] to-[#0d1320] p-5 hover:border-blue-500/40 hover:from-[#162035] hover:to-[#0f1728] shadow-md hover:shadow-xl hover:shadow-blue-950/20 transition-all duration-200"
+              className="group relative flex flex-col justify-between rounded-xl border border-[#1e293b]/80 bg-gradient-to-b from-[#131b2c] to-[#0d1320] p-4 sm:p-5 hover:border-blue-500/40 hover:from-[#162035] hover:to-[#0f1728] shadow-md hover:shadow-xl hover:shadow-blue-950/20 transition-all duration-200"
             >
               <div className="space-y-3.5">
                 <div className="flex items-start justify-between gap-3">
@@ -419,7 +422,7 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
                       >
                         {skill.name}
                       </Link>
-                      <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
+                      <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
                         <span className="font-mono text-[11px] text-slate-400">
                           v{skill.currentVersion?.number || 1}
                         </span>
@@ -465,10 +468,12 @@ export function DashboardClient({ initialSkills = [], initialTotal = 0, initialC
 
                 {/* CLI Install Snippet */}
                 <div className="pt-0.5">
-                  <div className="flex items-center justify-between rounded-lg border border-[#1e293b] bg-[#090d15] px-3 py-2 font-mono text-xs text-slate-300 shadow-inner group/cli hover:border-slate-700 transition-colors">
-                    <span className="truncate flex items-center gap-2">
+                  <div className="flex items-center justify-between rounded-lg border border-[#1e293b] bg-[#090d15] px-2.5 sm:px-3 py-2 font-mono text-xs text-slate-300 shadow-inner group/cli hover:border-slate-700 transition-colors min-w-0">
+                    <span className="truncate flex items-center gap-2 min-w-0">
                       <Terminal className="w-3.5 h-3.5 text-blue-400/80 shrink-0" />
-                      <span className="text-slate-500 font-medium">npx skillvault add</span>
+                      <span className="text-slate-500 font-medium shrink-0">
+                        npx skillvault add
+                      </span>
                       <span className="text-slate-200 font-medium truncate">
                         @{skill.owner.handle}/{skill.slug}
                       </span>

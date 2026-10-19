@@ -26,13 +26,21 @@ import {
   CloudDownload,
   Code2,
   Package,
+  X,
 } from 'lucide-react';
 import { GithubIcon } from '@/components/icons/github.js';
 import { AuthModal } from '@/components/auth-modal.js';
 import { ComponentGuideModal } from '@/components/component-guide-modal.js';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, Info } from 'lucide-react';
 
-export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavigate }) {
+export function AppSidebar({
+  user,
+  isCollapsed = false,
+  onToggleCollapse,
+  onNavigate,
+  onClose,
+  className = '',
+}) {
   const pathname = usePathname();
   const [currentType, setCurrentType] = useState('skills');
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -49,7 +57,7 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
 
   async function handleLogout() {
     await authClient.signOut();
-    router.push('/login');
+    router.push('/public');
     router.refresh();
   }
 
@@ -147,6 +155,12 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
           icon: DownloadCloud,
           requireAuth: true,
         },
+        {
+          href: '/about',
+          label: 'About',
+          icon: Info,
+          requireAuth: false,
+        },
       ],
     },
   ];
@@ -155,7 +169,7 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
     <aside
       className={`flex flex-col h-full bg-[#0b0f17] border-r border-[#1c2536] text-slate-300 select-none transition-all duration-300 ease-in-out ${
         isCollapsed ? 'w-16' : 'w-64'
-      }`}
+      } ${className}`}
     >
       {/* Brand Header */}
       <div
@@ -165,6 +179,7 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
       >
         <Link
           href="/public"
+          prefetch={false}
           onClick={onNavigate}
           className="flex items-center gap-2.5 min-w-0 hover:opacity-90 transition-opacity"
           title="Skillary Home"
@@ -198,9 +213,22 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
             onClick={onToggleCollapse}
             title="Collapse sidebar"
             aria-label="Collapse sidebar"
-            className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-800/60 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-colors cursor-pointer"
           >
             <PanelLeftClose className="h-4 w-4" />
+          </button>
+        )}
+
+        {/* Close Drawer Button (Mobile Only) */}
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            title="Close menu"
+            aria-label="Close menu"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
+          >
+            <X className="h-5 w-5" />
           </button>
         )}
       </div>
@@ -231,7 +259,7 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
                     <button
                       type="button"
                       onClick={() => setGuideModalOpen(true)}
-                      title="Xem hướng dẫn phân loại các thành phần"
+                      title="View components classification guide"
                       className="inline-flex items-center gap-1 text-[10px] lowercase tracking-normal text-blue-400 hover:text-blue-300 transition-colors cursor-pointer normal-case"
                     >
                       <HelpCircle className="w-3 h-3" />
@@ -251,16 +279,21 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
                         pathname.startsWith(item.href));
 
                   const Icon = item.icon;
-                  const targetHref =
-                    item.requireAuth && !user
-                      ? `/login?callbackUrl=${encodeURIComponent(item.href)}`
-                      : item.href;
+                  const isLocked = item.requireAuth && !user;
+                  const targetHref = isLocked ? '#' : item.href;
 
                   return (
                     <div key={item.href} className="relative group">
                       <Link
                         href={targetHref}
+                        prefetch={false}
                         onClick={(e) => {
+                          if (isLocked) {
+                            e.preventDefault();
+                            setAuthModalOpen(true);
+                            if (onNavigate) onNavigate(e);
+                            return;
+                          }
                           if (item.typeKey) {
                             setCurrentType(item.typeKey);
                             if (typeof window !== 'undefined') {
@@ -362,6 +395,7 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
           >
             <Link
               href="/settings"
+              prefetch={false}
               onClick={onNavigate}
               title={`@${user.handle}`}
               className="flex items-center gap-2.5 min-w-0 flex-1 hover:opacity-90 transition-opacity"
@@ -384,6 +418,7 @@ export function AppSidebar({ user, isCollapsed = false, onToggleCollapse, onNavi
               <div className="flex items-center gap-1 shrink-0">
                 <Link
                   href="/settings"
+                  prefetch={false}
                   onClick={onNavigate}
                   title="Account Settings"
                   aria-label="Account Settings"

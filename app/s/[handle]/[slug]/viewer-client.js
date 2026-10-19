@@ -19,7 +19,16 @@ import {
   ChevronDown,
   ChevronUp,
   Folder,
+  FolderTree,
+  ListTree,
+  ArrowUp,
+  FileCode,
   Layers,
+  Bot,
+  SlidersHorizontal,
+  Link2,
+  CloudDownload,
+  Code2,
   FileText,
   RotateCcw,
   Sparkles,
@@ -94,6 +103,8 @@ export function SkillViewerClient({
   const [favoritesCount, setFavoritesCount] = useState(initialFavoritesCount);
   const [favoriting, setFavoriting] = useState(false);
   const [showFullDoc, setShowFullDoc] = useState(true);
+  const [tocOpen, setTocOpen] = useState(false); // Default compact/collapsed per user request
+  const [showAllHeadings, setShowAllHeadings] = useState(false); // Default compact heading list
 
   // Terminal Demo State
   const [terminalReplaying, setTerminalReplaying] = useState(false);
@@ -101,11 +112,12 @@ export function SkillViewerClient({
 
   const activeFile = files.find((f) => f.path === selectedPath) || files[0] || null;
 
-  // Headings outline for SKILL.md
+  // Headings outline for current markdown file
   const headings = useMemo(() => {
-    const content = fileContents['SKILL.md'] || initialContent || '';
+    const content =
+      fileContents[selectedPath] || fileContents['SKILL.md'] || initialContent || '';
     return extractHeadings(content);
-  }, [fileContents, initialContent]);
+  }, [fileContents, selectedPath, initialContent]);
 
   const handleSelectFile = async (path, file) => {
     setSelectedPath(path);
@@ -132,7 +144,10 @@ export function SkillViewerClient({
     }
   };
 
-  const installCommand = `npx claude-code-templates@latest --skill ${skill.owner.handle}/${skill.slug}`;
+  const installPath =
+    skill.installPath ||
+    (skill.category ? `${skill.category}/${skill.slug}` : `${skill.owner.handle}/${skill.slug}`);
+  const installCommand = `npx claude-code-templates@latest --skill ${installPath}`;
 
   const copyInstallCommand = () => {
     navigator.clipboard.writeText(installCommand);
@@ -274,7 +289,9 @@ export function SkillViewerClient({
     }, 1400);
   };
 
-  const downloadZipUrl = `/api/skills/${skill.id}/download${currentShareToken ? `?token=${encodeURIComponent(currentShareToken)}` : ''}`;
+  const downloadZipUrl = skill.isCommunityExternal
+    ? skill.sourceUrl || `https://github.com/davila7/claude-code-templates`
+    : `/api/skills/${skill.id}/download${currentShareToken ? `?token=${encodeURIComponent(currentShareToken)}` : ''}`;
 
   const renderContentBody = () => {
     if (!activeFile) {
@@ -432,9 +449,37 @@ export function SkillViewerClient({
           {/* Main Card */}
           <div className="bg-[#111624] border border-[#1c2536] rounded-xl p-5 sm:p-6 shadow-xs space-y-4 flex-1">
             <div className="flex items-start gap-4">
-              {/* Yellow Square Skill Icon */}
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
-                <Layers className="w-6 h-6" />
+              {/* Type-Specific Rounded Square Skill Icon */}
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-inner ${
+                  skill.componentType === 'agents'
+                    ? 'bg-purple-500/10 border border-purple-500/25 text-purple-400'
+                    : skill.componentType === 'commands'
+                      ? 'bg-cyan-500/10 border border-cyan-500/25 text-cyan-400'
+                      : skill.componentType === 'settings'
+                        ? 'bg-emerald-500/10 border border-emerald-500/25 text-emerald-400'
+                        : skill.componentType === 'hooks'
+                          ? 'bg-rose-500/10 border border-rose-500/25 text-rose-400'
+                          : skill.componentType === 'mcps'
+                            ? 'bg-indigo-500/10 border border-indigo-500/25 text-indigo-400'
+                            : 'bg-amber-500/10 border border-amber-500/25 text-amber-400'
+                }`}
+              >
+                {skill.componentType === 'agents' ? (
+                  <Bot className="w-6 h-6" />
+                ) : skill.componentType === 'commands' ? (
+                  <ChevronRight className="w-6 h-6" />
+                ) : skill.componentType === 'settings' ? (
+                  <SlidersHorizontal className="w-6 h-6" />
+                ) : skill.componentType === 'hooks' ? (
+                  <Link2 className="w-6 h-6" />
+                ) : skill.componentType === 'mcps' ? (
+                  <CloudDownload className="w-6 h-6" />
+                ) : skill.componentType === 'mods' ? (
+                  <Code2 className="w-6 h-6" />
+                ) : (
+                  <Layers className="w-6 h-6" />
+                )}
               </div>
 
               <div className="space-y-2 min-w-0 flex-1">
@@ -445,14 +490,16 @@ export function SkillViewerClient({
                 {/* Pill Badges: Category / Tags / Downloads / Scanner */}
                 <div className="flex items-center flex-wrap gap-2">
                   <span className="text-xs bg-[#0b0f17] text-slate-300 font-medium px-2.5 py-0.5 rounded-md border border-[#1c2536]">
-                    Skills
+                    {skill.componentType
+                      ? skill.componentType.charAt(0).toUpperCase() + skill.componentType.slice(1)
+                      : 'Skills'}
                   </span>
                   <span className="text-xs bg-[#0b0f17] text-slate-400 font-medium px-2.5 py-0.5 rounded-md border border-[#1c2536]">
-                    {skill.tags?.[0] || 'engineering'}
+                    {skill.category || skill.tags?.[1] || skill.tags?.[0] || 'engineering'}
                   </span>
                   <span className="text-xs bg-emerald-500/10 text-emerald-400 font-medium px-2.5 py-0.5 rounded-md border border-emerald-500/20 flex items-center gap-1 font-mono">
                     <Download className="w-3 h-3" />
-                    <span>50,307</span>
+                    <span>{skill.downloads ? skill.downloads.toLocaleString() : '4,432'}</span>
                   </span>
                   <span className="text-xs bg-[#0b0f17] text-slate-400 font-mono px-2 py-0.5 rounded-md border border-[#1c2536]">
                     v{skill.currentVersion?.number || 1}
@@ -464,10 +511,13 @@ export function SkillViewerClient({
 
                 {/* Security / Verification Badge */}
                 <div className="pt-1">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
-                    <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>SkillVault Verified Scanner</span>
+                  <span className="inline-flex items-center gap-1.5 font-mono font-semibold border cursor-help select-none whitespace-nowrap text-[11px] px-2.5 py-0.5 rounded-full text-emerald-400 border-emerald-500/30 bg-emerald-500/10">
+                    <span className="inline-flex items-center gap-[3px]" aria-hidden="true">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-600 opacity-25" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-600 opacity-25" />
+                    </span>
+                    <span>NVIDIA SkillSpector Scanner</span>
                   </span>
                 </div>
               </div>
@@ -586,7 +636,7 @@ export function SkillViewerClient({
               <div>
                 <span className="text-slate-500 font-bold">$ </span>
                 <span className="text-slate-200">
-                  npx claude-code-templates@latest --skill {skill.owner.handle}/{skill.slug}
+                  npx claude-code-templates@latest --skill {installPath}
                 </span>
               </div>
 
@@ -594,12 +644,10 @@ export function SkillViewerClient({
                 <div className="space-y-1 pt-1 text-slate-300">
                   <div className="text-amber-400 flex items-center gap-2">
                     <span>💡</span>
-                    <span>
-                      Installing skill: {skill.owner.handle}/{skill.slug}
-                    </span>
+                    <span>Installing skill: {installPath}</span>
                   </div>
                   <div className="text-slate-400">
-                    📥 Downloading skill from SkillVault (main branch)...
+                    📥 Downloading skill from GitHub (main branch)...
                   </div>
                   <div className="text-emerald-400">✓ Downloaded: SKILL.md</div>
                   <div className="text-emerald-400">✓ Downloaded: references/</div>
@@ -668,59 +716,76 @@ export function SkillViewerClient({
       </div>
 
       {/* Main Content Area: Tabs + Left File Explorer / Middle Doc / Right On This Page Outline */}
-      <div id="content-viewer" className="space-y-4 pt-6">
-        <div className="flex items-center justify-between">
-          <div className="text-xs font-bold tracking-wider text-slate-400 uppercase">CONTENT</div>
-        </div>
-
-        {/* Content Tabs & Search & Copy Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1c2536] pb-3">
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setActiveTab('preview')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                activeTab === 'preview'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-[#111624] text-slate-400 hover:text-slate-200 border border-[#1c2536]'
-              }`}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Preview</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('code')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                activeTab === 'code'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-[#111624] text-slate-400 hover:text-slate-200 border border-[#1c2536]'
-              }`}
-            >
-              <Code className="w-3.5 h-3.5" />
-              <span>Code</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('slides')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                activeTab === 'slides'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-[#111624] text-slate-400 hover:text-slate-200 border border-[#1c2536]'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>Slides</span>
-            </button>
+      <div id="content-viewer" className="space-y-4 pt-8 mt-2 border-t border-[#1c2536]">
+        {/* Content Section Header with Breadcrumbs & Segmented Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#111624] border border-[#1c2536] rounded-xl px-4 py-2.5 shadow-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/25 text-blue-400 shrink-0">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div className="flex items-center gap-1.5 min-w-0 text-xs font-mono">
+              <span className="text-slate-400 font-semibold truncate">{skill.slug}</span>
+              <span className="text-slate-600">/</span>
+              <span className="text-blue-400 font-semibold truncate">
+                {activeFile?.path || 'SKILL.md'}
+              </span>
+              {activeFile && (
+                <span className="hidden md:inline-flex text-[10px] text-slate-500 ml-1.5 px-1.5 py-0.2 rounded bg-[#0b0f17] border border-[#1c2536]">
+                  {(activeFile.size / 1024).toFixed(1)} KB
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Right Controls: Segmented View Switcher & Copy Action */}
+          <div className="flex items-center gap-2.5 self-end sm:self-center">
+            {/* Segmented Control Pill */}
+            <div className="inline-flex items-center p-1 rounded-lg bg-[#0b0f17] border border-[#1c2536] text-xs">
+              <button
+                type="button"
+                onClick={() => setActiveTab('preview')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  activeTab === 'preview'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Preview</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('code')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  activeTab === 'code'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Code className="w-3.5 h-3.5" />
+                <span>Code</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('slides')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  activeTab === 'slides'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Slides</span>
+              </button>
+            </div>
+
+            {/* Copy Button */}
             <button
               type="button"
               onClick={copyDocumentContent}
-              className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-100 font-medium transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1c2536] bg-[#0b0f17] text-xs font-semibold text-slate-300 hover:text-white hover:border-slate-700 transition-colors cursor-pointer shrink-0 shadow-2xs"
             >
               {copiedDoc ? (
                 <>
@@ -737,45 +802,160 @@ export function SkillViewerClient({
           </div>
         </div>
 
-        {/* 3-Column Document Workspace */}
+        {/* 2-Column Document Workspace: Left Explorer & TOC / Right Document */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          {/* Column 1: Files Tree (Left Sidebar) */}
-          <div className="lg:col-span-3 space-y-2">
+          {/* Column 1: Left Pane (FILES + ON THIS PAGE) */}
+          <div className="order-2 lg:order-1 lg:col-span-3 space-y-4">
+            {/* FILES Tree Card */}
             <div className="bg-[#111624] border border-[#1c2536] rounded-xl overflow-hidden shadow-xs">
               <div className="px-3.5 py-2.5 bg-[#0b0f17] border-b border-[#1c2536] flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-200 flex items-center gap-2">
-                  <Folder className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Files</span>
+                  <FolderTree className="w-3.5 h-3.5 text-blue-400" />
+                  <span>FILES</span>
                 </span>
-                <span className="text-[10px] font-mono text-slate-500">{files.length} items</span>
+                <span className="text-[10px] font-mono text-slate-500 px-1.5 py-0.2 rounded bg-[#111624] border border-[#1c2536]">
+                  {files.length === 1 ? '1 file' : `${files.length} files`}
+                </span>
               </div>
-              <div className="p-2">
+              <div className="p-2.5">
                 <FileTree
                   files={files}
                   selectedPath={selectedPath}
                   onSelect={handleSelectFile}
                   isEditable={false}
+                  hideHeader={true}
+                  className="border-0 bg-transparent p-0 shadow-none"
                 />
               </div>
             </div>
+
+            {/* ON THIS PAGE (Under / in the same sidebar column as FILES) */}
+            <div className="bg-[#111624] border border-[#1c2536] rounded-xl overflow-hidden shadow-xs transition-all">
+              <button
+                type="button"
+                onClick={() => setTocOpen((prev) => !prev)}
+                className="w-full px-3.5 py-2.5 bg-[#0b0f17] flex items-center justify-between text-left hover:bg-slate-800/40 transition-colors cursor-pointer select-none"
+                aria-expanded={tocOpen}
+                aria-label="Toggle on this page outline"
+              >
+                <span className="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                  <ListTree className="w-3.5 h-3.5 text-blue-400" />
+                  <span>ON THIS PAGE</span>
+                </span>
+                <div className="flex items-center gap-2">
+                  {headings.length > 0 && (
+                    <span className="text-[10px] font-mono text-slate-400 px-1.5 py-0.2 rounded bg-[#111624] border border-[#1c2536]">
+                      {headings.length}
+                    </span>
+                  )}
+                  <span className="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
+                    <span className="text-[10px] text-slate-500 hidden sm:inline">
+                      {tocOpen ? 'Collapse' : 'Expand'}
+                    </span>
+                    {tocOpen ? (
+                      <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                    )}
+                  </span>
+                </div>
+              </button>
+
+              {tocOpen && (
+                <div className="p-3.5 border-t border-[#1c2536] animate-in fade-in duration-150 space-y-2.5">
+                  {headings.length > 0 ? (
+                    <>
+                      <nav className="space-y-1 border-l border-[#1c2536] pl-2.5 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800">
+                        {(showAllHeadings ? headings : headings.slice(0, 4)).map((h, i) => (
+                          <a
+                            key={`${h.id}-${i}`}
+                            href={`#${h.id}`}
+                            className={`block text-xs text-slate-400 hover:text-blue-400 transition-colors leading-relaxed truncate ${
+                              h.level === 1
+                                ? 'font-semibold text-slate-200 py-0.5'
+                                : h.level === 2
+                                  ? 'pl-2 text-slate-400 hover:text-blue-300 py-0.5'
+                                  : 'pl-4 text-[11px] text-slate-500 hover:text-blue-300 py-0.5'
+                            }`}
+                          >
+                            {h.text}
+                          </a>
+                        ))}
+                      </nav>
+
+                      {headings.length > 4 && (
+                        <div className="pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setShowAllHeadings((prev) => !prev)}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                          >
+                            <span>
+                              {showAllHeadings
+                                ? 'Show less'
+                                : `+${headings.length - 4} more sections...`}
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-xs text-slate-500 italic py-1">
+                      No headings found in this document.
+                    </p>
+                  )}
+
+                  {headings.length > 3 && (
+                    <div className="pt-2.5 mt-2.5 border-t border-[#1c2536]/80 flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const el = document.getElementById('content-viewer');
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="inline-flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-blue-400 transition-colors cursor-pointer"
+                      >
+                        <ArrowUp className="w-3 h-3" />
+                        <span>Back to top</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTocOpen(false)}
+                        className="text-[10px] text-slate-500 hover:text-slate-300 cursor-pointer"
+                      >
+                        Collapse
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Column 2: Document / Markdown Content (Middle) */}
-          <div className="lg:col-span-6 bg-[#111624] border border-[#1c2536] rounded-xl overflow-hidden shadow-xs">
-            {/* Document Header info */}
+          {/* Column 2: Document / Markdown Content (Takes 9 cols on desktop) */}
+          <div className="order-1 lg:order-2 lg:col-span-9 bg-[#111624] border border-[#1c2536] rounded-xl overflow-hidden shadow-xs">
+            {/* Document Header Bar */}
             <div className="px-4 py-2.5 border-b border-[#1c2536] bg-[#0b0f17] flex items-center justify-between text-xs font-mono">
-              <span className="text-slate-200 font-semibold truncate">
-                {activeFile?.path || 'SKILL.md'}
-              </span>
+              <div className="flex items-center gap-2 min-w-0">
+                <FileCode className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="text-slate-200 font-semibold truncate">
+                  {activeFile?.path || 'SKILL.md'}
+                </span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-sans">
+                  {activeFile?.path === 'SKILL.md' ? 'Core Spec' : 'Source'}
+                </span>
+              </div>
               {activeFile && (
-                <span className="text-slate-500">{(activeFile.size / 1024).toFixed(1)} KB</span>
+                <div className="flex items-center gap-2 text-slate-500">
+                  <span>{(activeFile.size / 1024).toFixed(1)} KB</span>
+                </div>
               )}
             </div>
 
             {/* Document Body */}
             <div className="relative">
               <div
-                className={`overflow-hidden transition-all ${!showFullDoc ? 'max-h-[600px]' : ''}`}
+                className={`overflow-hidden transition-all ${!showFullDoc ? 'max-h-[650px]' : ''}`}
               >
                 {renderContentBody()}
               </div>
@@ -785,7 +965,7 @@ export function SkillViewerClient({
                 <button
                   type="button"
                   onClick={() => setShowFullDoc((prev) => !prev)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-100 transition-colors cursor-pointer"
+                  className="inline-flex min-h-[38px] items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-100 transition-colors cursor-pointer"
                 >
                   {showFullDoc ? (
                     <>
@@ -800,37 +980,6 @@ export function SkillViewerClient({
                   )}
                 </button>
               </div>
-            </div>
-          </div>
-
-          {/* Column 3: On This Page Outline (Right Sidebar) */}
-          <div className="lg:col-span-3 sticky top-6 space-y-3">
-            <div className="bg-[#111624] border border-[#1c2536] rounded-xl p-4 shadow-xs space-y-3">
-              <div className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                ON THIS PAGE
-              </div>
-
-              {headings.length > 0 ? (
-                <nav className="space-y-1.5">
-                  {headings.map((h, i) => (
-                    <a
-                      key={`${h.id}-${i}`}
-                      href={`#${h.id}`}
-                      className={`block text-xs text-slate-400 hover:text-blue-400 transition-colors leading-snug truncate ${
-                        h.level === 1
-                          ? 'font-semibold text-slate-200'
-                          : h.level === 2
-                            ? 'pl-2.5 font-medium'
-                            : 'pl-4 text-[11px]'
-                      }`}
-                    >
-                      {h.text}
-                    </a>
-                  ))}
-                </nav>
-              ) : (
-                <p className="text-xs text-slate-500 italic">No headings found in this document.</p>
-              )}
             </div>
           </div>
         </div>

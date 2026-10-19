@@ -49,7 +49,7 @@ export function AppShell({ user, children }) {
 
   return (
     <StackProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-[#0b0f17] text-slate-100">
+      <div className="flex h-[100dvh] w-full overflow-hidden bg-[#0b0f17] text-slate-100">
         {/* Desktop Fixed Sidebar */}
         <div className="hidden lg:flex shrink-0 h-full transition-all duration-300">
           <AppSidebar
@@ -64,27 +64,19 @@ export function AppShell({ user, children }) {
           <div className="fixed inset-0 z-50 lg:hidden flex">
             {/* Backdrop */}
             <div
-              className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
+              className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity"
               onClick={() => setMobileSidebarOpen(false)}
               aria-hidden="true"
             />
 
             {/* Drawer Content */}
-            <div className="relative flex-1 flex flex-col max-w-xs w-full bg-[#0b0f17] z-10 shadow-2xl">
-              <div className="absolute top-3.5 right-3.5">
-                <button
-                  type="button"
-                  onClick={() => setMobileSidebarOpen(false)}
-                  aria-label="Close sidebar"
-                  className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800/60"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
+            <div className="relative z-10 h-full w-64 max-w-[85vw] bg-[#0b0f17] shadow-2xl animate-in slide-in-from-left duration-200">
               <AppSidebar
                 user={user}
                 isCollapsed={false}
                 onNavigate={() => setMobileSidebarOpen(false)}
+                onClose={() => setMobileSidebarOpen(false)}
+                className="w-full border-r border-[#1c2536]"
               />
             </div>
           </div>
@@ -93,18 +85,19 @@ export function AppShell({ user, children }) {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
           {/* Mobile-only slim top bar for drawer access */}
-          <div className="lg:hidden h-12 border-b border-[#1c2536] bg-[#0b0f17] flex items-center justify-between px-4 shrink-0">
+          <div className="lg:hidden h-14 border-b border-[#1c2536] bg-[#0b0f17] flex items-center justify-between px-3 sm:px-4 shrink-0">
             <button
               type="button"
               onClick={() => setMobileSidebarOpen(true)}
               aria-label="Toggle navigation menu"
-              className="p-1.5 rounded-md border border-[#1c2536] text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors cursor-pointer"
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-[#1c2536] text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors cursor-pointer"
             >
-              <Menu className="h-4 w-4" />
+              <Menu className="h-5 w-5" />
             </button>
             <Link
               href="/public"
-              className="flex items-center gap-2 font-bold text-sm tracking-tight text-slate-100"
+              prefetch={false}
+              className="flex items-center gap-2 font-bold text-sm tracking-tight text-slate-100 active:scale-95 transition-transform"
             >
               <div className="relative h-7 w-7 rounded overflow-hidden border border-blue-500/30 bg-blue-500/10 shrink-0 flex items-center justify-center p-0.5">
                 <Image
@@ -119,11 +112,17 @@ export function AppShell({ user, children }) {
                 Skill<span className="text-blue-400">ary</span>
               </span>
             </Link>
-            <div className="w-8" />
+            <div className="w-10 flex justify-end">
+              {user ? (
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/20 text-blue-300 font-mono text-xs font-bold border border-blue-500/30">
+                  {user.handle?.[0]?.toUpperCase() || 'U'}
+                </div>
+              ) : null}
+            </div>
           </div>
 
           <main className="flex-1 overflow-y-auto w-full">
-            <div className="w-full px-6 sm:px-8 lg:px-10 py-6">{children}</div>
+            <div className="w-full px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6">{children}</div>
           </main>
         </div>
         <StackBuilderDrawer />

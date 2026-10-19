@@ -3,6 +3,7 @@ import { getServerSession } from '@/lib/auth/session.js';
 import { getSkillByHandleAndSlug } from '@/lib/dal/skills.js';
 import { getVersionFiles } from '@/lib/dal/files.js';
 import { isSkillFavorited, getSkillFavoriteCount } from '@/lib/dal/favorites.js';
+import { getCommunitySkillBySlug } from '@/lib/dal/community-skills.js';
 import { can, ACTIONS } from '@/lib/auth/policy.js';
 import { storage } from '@/lib/storage/index.js';
 import { AppShell } from '@/components/app-shell.js';
@@ -13,7 +14,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }) {
   const { handle, slug } = await params;
   return {
-    title: `@${handle}/${slug} - SkillVault`,
+    title: `${slug} - Skills for Claude Code | Skillary`,
     description: `Inspect, install, and download @${handle}/${slug} AI agent skill.`,
   };
 }
@@ -23,31 +24,45 @@ export default async function SkillViewerPage({ params }) {
   const session = await getServerSession();
   const actor = session?.id ? session : session?.user || null;
 
-  // 1. Fetch skill by owner handle and slug
-  const skill = await getSkillByHandleAndSlug(actor, handle, slug);
+  // 1. Fetch skill from database first
+  let skill = await getSkillByHandleAndSlug(actor, handle, slug);
+  let files = [];
+  let initialContent = '';
 
-  // 2. IDOR / Visibility Protection (Section S2, Rule R4)
+  // 2. If not found in database and handle is community / templates / external or not in DB, lookup community skills
+  if (!skill) {
+    const communityData = await getCommunitySkillBySlug(slug);
+    if (communityData) {
+      skill = communityData.skill;
+      files = communityData.files;
+      initialContent = communityData.initialContent;
+    }
+  }
+
+  // 3. IDOR / Visibility Protection (Section S2, Rule R4)
   if (!skill || !can(actor, ACTIONS.SKILL_READ, skill)) {
     notFound();
   }
 
-  // 3. Fetch current version files
-  const files = skill.currentVersionId ? await getVersionFiles(skill.currentVersionId) : [];
-
-  // 4. Preload SKILL.md content for immediate SSR render
-  let initialContent = '';
-  const skillMdFile = files.find((f) => f.path === 'SKILL.md');
-  if (skillMdFile) {
-    const buffer = await storage.getBlobBuffer(skillMdFile.blobSha256);
-    if (buffer) {
-      initialContent = buffer.toString('utf-8');
+  // 4. Fetch files and initialContent for database skills
+  if (!skill.isCommunityExternal) {
+    files = skill.currentVersionId ? await getVersionFiles(skill.currentVersionId) : [];
+    const skillMdFile = files.find((f) => f.path === 'SKILL.md');
+    if (skillMdFile) {
+      const buffer = await storage.getBlobBuffer(skillMdFile.blobSha256);
+      if (buffer) {
+        initialContent = buffer.toString('utf-8');
+      }
     }
   }
 
   const canWrite = can(actor, ACTIONS.SKILL_WRITE, skill);
   const canFork = Boolean(actor && can(actor, ACTIONS.SKILL_FORK, skill));
-  const isFavorited = actor ? await isSkillFavorited(actor.id, skill.id) : false;
-  const favoritesCount = await getSkillFavoriteCount(skill.id);
+  const isFavorited =
+    actor && !skill.isCommunityExternal ? await isSkillFavorited(actor.id, skill.id) : false;
+  const favoritesCount = !skill.isCommunityExternal
+    ? await getSkillFavoriteCount(skill.id)
+    : skill.downloads || 0;
 
   return (
     <AppShell user={actor}>

@@ -122,9 +122,9 @@ export async function GET(request) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
     const limit = Math.max(1, Math.min(50, parseInt(searchParams.get('limit') || '21', 10)));
 
-    // 1. Lấy Native Skills từ Database Neon (chỉ khi duyệt loại 'skills' hoặc native có gắn tag tương ứng)
+    // 1. Lấy Native Skills từ Database Neon (chỉ khi duyệt loại 'skills' hoặc người dùng lọc riêng native)
     let nativeSkills = [];
-    if (sourceFilter === 'all' || sourceFilter === 'skillary') {
+    if (componentType === 'skills' && (sourceFilter === 'all' || sourceFilter === 'skillary')) {
       try {
         const dbResult = await searchPublicSkills({
           q,
@@ -134,28 +134,21 @@ export async function GET(request) {
           userId: actor?.id || null,
         });
 
-        nativeSkills = (dbResult.skills || [])
-          .filter((s) => {
-            if (componentType === 'skills') return true;
-            // Nếu người dùng chọn type khác (ví dụ: agents, commands, mcps), kiểm tra xem native skill có tag tương ứng không
-            return s.tags && s.tags.some((t) => t.toLowerCase() === componentType);
-          })
-          .map((s) => ({
-            ...s,
-            isExternal: false,
-            isCommunityExternal: false,
-            componentType:
-              s.tags?.find((t) => COMPONENT_TYPES.some((c) => c.key === t.toLowerCase())) ||
-              'skills',
-            source: 'skillary',
-            sourceName: 'Skillary Registry Native',
-            downloads: s.downloadCount || 0,
-            skillspector: {
-              score: 0,
-              severity: 'LOW',
-              recommendation: 'SAFE',
-            },
-          }));
+        nativeSkills = (dbResult.skills || []).map((s) => ({
+          ...s,
+          isExternal: false,
+          isCommunityExternal: false,
+          componentType:
+            s.tags?.find((t) => COMPONENT_TYPES.some((c) => c.key === t.toLowerCase())) || 'skills',
+          source: 'skillary',
+          sourceName: 'Skillary Registry Native',
+          downloads: s.downloadCount || 0,
+          skillspector: {
+            score: 0,
+            severity: 'LOW',
+            recommendation: 'SAFE',
+          },
+        }));
       } catch (e) {
         console.error('[API] Error loading native skills:', e.message);
       }
@@ -213,23 +206,30 @@ export async function GET(request) {
       mods: cacheStore.mods.data?.length || 44,
     };
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        skills: pagedSkills,
-        total,
-        page,
-        totalPages: Math.ceil(total / limit),
-        categories: availableCategories,
-        componentType,
-        typeCounts,
-        counts: {
-          all: total,
-          native: nativeSkills.length,
-          external: externalItems.length,
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          skills: pagedSkills,
+          total,
+          page,
+          totalPages: Math.ceil(total / limit),
+          categories: availableCategories,
+          componentType,
+          typeCounts,
+          counts: {
+            all: total,
+            native: nativeSkills.length,
+            external: externalItems.length,
+          },
         },
       },
-    });
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
+        },
+      },
+    );
   } catch (err) {
     console.error('[API /api/community/skills] Error:', err);
     return NextResponse.json(

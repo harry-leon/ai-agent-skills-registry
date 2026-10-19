@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Menu, Search, Command } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle.js';
+import { AuthModal } from '@/components/auth-modal.js';
 
 export function AppHeader({ user, onToggleSidebar }) {
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const handleFocusSearch = () => {
     const input = document.querySelector(
       'input[type="search"], input[placeholder*="Search"], input[placeholder*="search"]',
@@ -54,6 +56,7 @@ export function AppHeader({ user, onToggleSidebar }) {
         {user ? (
           <Link
             href="/settings"
+            prefetch={false}
             className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-md border border-[#1c2536] bg-[#111624] hover:bg-slate-800/60 transition-colors"
           >
             <div className="h-6 w-6 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-mono text-[11px] font-semibold">
@@ -64,12 +67,24 @@ export function AppHeader({ user, onToggleSidebar }) {
             </span>
           </Link>
         ) : (
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-2xs"
-          >
-            Sign In
-          </Link>
+          <>
+            <button
+              type="button"
+              onClick={() => setAuthModalOpen(true)}
+              className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-2xs cursor-pointer"
+            >
+              Sign In
+            </button>
+            <AuthModal
+              isOpen={authModalOpen}
+              onClose={() => setAuthModalOpen(false)}
+              initialMode="login"
+              onSuccess={() => {
+                setAuthModalOpen(false);
+                window.location.reload();
+              }}
+            />
+          </>
         )}
       </div>
     </header>

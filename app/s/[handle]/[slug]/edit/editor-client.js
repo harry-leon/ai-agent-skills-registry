@@ -239,20 +239,20 @@ export function SkillEditorClient({ skill, initialFiles = [], initialContents = 
           </div>
 
           {/* Action Bar */}
-          <div className="flex items-center flex-wrap gap-2.5">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Version change message (e.g., Update instructions...)"
-              className="px-3.5 py-2 min-h-[40px] text-xs bg-[#0b0f17] border border-[#1c2536] rounded-lg w-full sm:w-80 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-blue-500/60 transition-colors"
+              className="px-3.5 py-2 min-h-[42px] sm:min-h-[40px] text-xs bg-[#0b0f17] border border-[#1c2536] rounded-lg w-full sm:w-80 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-blue-500/60 transition-colors"
             />
 
             <button
               type="button"
               disabled={saving}
               onClick={handleSaveVersion}
-              className="inline-flex min-h-[40px] items-center space-x-1.5 px-5 py-2 text-xs font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer active:scale-[0.98]"
+              className="inline-flex min-h-[42px] sm:min-h-[40px] items-center justify-center space-x-1.5 px-5 py-2 text-xs font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer active:scale-[0.98] shrink-0"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{saving ? 'Publishing...' : 'Publish Version'}</span>
