@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth/client.js';
 import { ThemeToggle } from '@/components/theme-toggle.js';
@@ -450,7 +451,7 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="pt-1">
+              <div className="pt-1 flex items-center justify-between">
                 <button
                   type="submit"
                   disabled={pwLoading}
@@ -458,6 +459,13 @@ export default function SettingsPage() {
                 >
                   {pwLoading ? 'Updating password...' : 'Update Password'}
                 </button>
+                <Link
+                  href="/change-password"
+                  className="text-xs text-blue-400 hover:text-blue-300 hover:underline inline-flex items-center gap-1"
+                >
+                  <span>Open standalone page</span>
+                  <span>&rarr;</span>
+                </Link>
               </div>
             </form>
           </div>

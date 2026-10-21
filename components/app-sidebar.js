@@ -12,6 +12,7 @@ import {
   PlusCircle,
   DownloadCloud,
   Settings,
+  KeyRound,
   LogOut,
   Terminal,
   User,
@@ -416,6 +417,16 @@ export function AppSidebar({
 
             {!isCollapsed && (
               <div className="flex items-center gap-1 shrink-0">
+                <Link
+                  href="/change-password"
+                  prefetch={false}
+                  onClick={onNavigate}
+                  title="Change Password"
+                  aria-label="Change Password"
+                  className="p-1.5 rounded text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
+                >
+                  <KeyRound className="h-3.5 w-3.5" />
+                </Link>
                 <Link
                   href="/settings"
                   prefetch={false}

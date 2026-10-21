@@ -111,10 +111,10 @@ export function AboutClientView() {
               <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-amber-500 via-sky-500 to-indigo-500 p-[1px] shadow-md shadow-sky-500/20">
                 <div className="w-full h-full bg-[#070b14] rounded-[11px] flex items-center justify-center overflow-hidden">
                   <Image
-                    src="/icons/icon-192.png"
+                    src="/logo.png"
                     alt="Skillary Logo"
-                    width={20}
-                    height={20}
+                    width={22}
+                    height={22}
                     className="object-contain"
                   />
                 </div>
@@ -151,33 +151,24 @@ export function AboutClientView() {
               CLI Tools
             </a>
             <a
-              href="https://github.com/harry-leon/ai-agent-skills-registry"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/50 transition-colors inline-flex items-center gap-1"
+              href="#author"
+              className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/50 transition-colors"
             >
-              <GithubIcon className="w-3.5 h-3.5" />
-              <span>GitHub</span>
+              Author
             </a>
           </nav>
 
           {/* Actions */}
           <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href="/public"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-3 rounded-xl border border-slate-700/60 bg-[#0e1424] hover:bg-slate-800/80 text-xs font-semibold text-slate-200 transition-all active:scale-95"
+            <a
+              href="https://github.com/harry-leon"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-semibold text-white shadow-md shadow-blue-600/30 transition-all cursor-pointer active:scale-95"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Back to</span> Registry
-            </Link>
-
-            <Link
-              href="/public"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white shadow-md shadow-blue-600/30 transition-all cursor-pointer active:scale-95"
-            >
-              <Compass className="w-3.5 h-3.5" />
-              <span>Launch</span>
-            </Link>
+              <GithubIcon className="w-3.5 h-3.5" />
+              <span>GitHub</span>
+            </a>
           </div>
         </div>
       </header>
@@ -472,6 +463,80 @@ export function AboutClientView() {
               <span>Star on GitHub</span>
               <ExternalLink className="w-3 h-3 text-slate-500" />
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 6.5 Author Profile Section */}
+      <section
+        id="author"
+        className={`relative z-10 py-16 px-4 sm:px-8 max-w-7xl mx-auto border-t border-slate-800/80 transition-opacity duration-1000 ${
+          introCompleted ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <div className="p-8 sm:p-10 rounded-3xl border border-slate-800 bg-[#080d1a]/85 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+          {/* Subtle glow backdrop */}
+          <div className="absolute -top-24 -right-24 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+            {/* Avatar with gradient border */}
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl p-1 bg-gradient-to-tr from-amber-500 via-sky-400 to-indigo-500 shadow-xl shadow-sky-500/20">
+                <Image
+                  src="https://avatars.githubusercontent.com/u/203934452?v=4"
+                  alt="Ha Thuc Quoc Hung"
+                  width={112}
+                  height={112}
+                  unoptimized
+                  className="w-full h-full object-cover rounded-xl bg-slate-900"
+                />
+              </div>
+              <div className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-full bg-[#0d1322] border border-slate-700 text-[10px] font-bold text-amber-300 flex items-center gap-1 shadow-md">
+                <span>🤖</span>
+                <span>Creator</span>
+              </div>
+            </div>
+
+            {/* Author details */}
+            <div className="flex-1 text-center md:text-left space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/30 bg-sky-500/10 text-xs font-semibold text-sky-300">
+                <span>Meet the Author</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-100">
+                Ha Thuc Quoc Hung{' '}
+                <span className="text-sm font-mono text-slate-400">(@harry-leon)</span>
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                Tác giả và kiến trúc sư trưởng của <strong>Skillary</strong> — hệ sinh thái mở quản
+                lý, phân phối kỹ năng (Skills), MCPs, Hooks và Mods tối ưu cho các AI Coding Agents
+                hiện đại (Claude Code, Cursor, Windsurf, Copilot).
+              </p>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+              <a
+                href="https://github.com/harry-leon"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md shadow-blue-700/30 transition-all inline-flex items-center justify-center gap-2 active:scale-95"
+              >
+                <GithubIcon className="w-4 h-4 text-white" />
+                <span>GitHub Profile</span>
+                <ExternalLink className="w-3 h-3 text-white/80" />
+              </a>
+
+              <a
+                href="https://github.com/harry-leon/ai-agent-skills-registry"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-700 bg-[#0e1424] hover:bg-slate-800 text-slate-300 hover:text-white font-semibold text-xs transition-colors inline-flex items-center justify-center gap-1.5"
+              >
+                <span>Repository</span>
+                <ExternalLink className="w-3 h-3 text-slate-400" />
+              </a>
+            </div>
           </div>
         </div>
       </section>

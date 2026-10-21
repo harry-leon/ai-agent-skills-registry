@@ -14,10 +14,17 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      await authClient.requestPasswordReset({
-        email: email.trim(),
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
+      if (typeof authClient.forgetPassword === 'function') {
+        await authClient.forgetPassword({
+          email: email.trim(),
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+      } else if (typeof authClient.requestPasswordReset === 'function') {
+        await authClient.requestPasswordReset({
+          email: email.trim(),
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+      }
     } catch {
       // Intentionally swallowed per Rule S1 (prevent account enumeration)
     } finally {

@@ -7,6 +7,7 @@ import { authClient } from '@/lib/auth/client.js';
 import { validateHandle } from '@/lib/auth/handle.js';
 import { X, ChevronRight, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { SocialAuthButtons } from '@/components/social-auth-buttons.js';
 
 export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess }) {
   const router = useRouter();
@@ -219,6 +220,8 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
               <ChevronRight className="w-3.5 h-3.5 fill-current" />
             </button>
 
+            <SocialAuthButtons callbackUrl="/dashboard" onError={setError} />
+
             <div className="pt-3 border-t border-[#1c2536] text-center text-xs text-slate-400">
               Don&apos;t have an account?{' '}
               <button
@@ -311,6 +314,8 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
               <span>{loading ? 'Continuing...' : 'Continue'}</span>
               <ChevronRight className="w-3.5 h-3.5 fill-current" />
             </button>
+
+            <SocialAuthButtons callbackUrl="/dashboard" onError={setError} />
 
             <div className="pt-3 border-t border-[#1c2536] text-center text-xs text-slate-400">
               Already have an account?{' '}

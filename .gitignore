@@ -39,3 +39,11 @@ lerna-debug.log*
 *.log
 
 .vercel
+
+# Secrets and Credentials
+client_secret*.json
+credentials/
+
+# OpenNext / Cloudflare build artifacts
+.open-next/
+.cloudflare/

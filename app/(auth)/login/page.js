@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authClient } from '@/lib/auth/client.js';
+import { SocialAuthButtons } from '@/components/social-auth-buttons.js';
 
 function LoginForm() {
   const router = useRouter();
@@ -113,6 +114,8 @@ function LoginForm() {
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
+
+      <SocialAuthButtons callbackUrl={from} onError={setError} />
 
       <div className="text-center text-sm text-slate-400">
         Don&apos;t have an account?{' '}

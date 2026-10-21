@@ -43,6 +43,6 @@ export default [
     },
   },
   {
-    ignores: ['.next/**', 'node_modules/**', 'prisma/migrations/**', 'storage/**'],
+    ignores: ['.next/**', 'node_modules/**', 'prisma/migrations/**', 'storage/**', '.open-next/**'],
   },
 ];

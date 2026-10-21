@@ -1,8 +1,11 @@
-import { redirect } from 'next/navigation';
-import { getServerSession } from '@/lib/auth/session.js';
+import { AboutClientView } from '@/components/about-client-view.js';
 
-export const dynamic = 'force-dynamic';
+export const metadata = {
+  title: 'Skillary — The 3D AI Agent Skills Registry & Package Manager',
+  description:
+    'Explore the open-source constellation of 1,890+ Skills, Agents, Commands, Hooks, MCPs, and Mods for AI Coding Agents (Claude Code, Cursor, Copilot, Windsurf).',
+};
 
 export default function RootPage() {
-  redirect('/public');
+  return <AboutClientView isRoot={true} />;
 }

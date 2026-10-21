@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth/client.js';
 import { validateHandle } from '@/lib/auth/handle.js';
+import { SocialAuthButtons } from '@/components/social-auth-buttons.js';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -204,6 +205,8 @@ export default function RegisterPage() {
           {loading ? 'Creating account...' : 'Create Account'}
         </button>
       </form>
+
+      <SocialAuthButtons callbackUrl="/dashboard" onError={setError} />
 
       <div className="text-center text-sm text-slate-400">
         Already have an account?{' '}
