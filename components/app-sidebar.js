@@ -40,6 +40,7 @@ export function AppSidebar({
   onToggleCollapse,
   onNavigate,
   onClose,
+  onOpenAuthModal,
   className = '',
 }) {
   const pathname = usePathname();
@@ -453,15 +454,18 @@ export function AppSidebar({
           <button
             type="button"
             onClick={() => {
-              setAuthModalOpen(true);
-              if (onNavigate) onNavigate();
+              if (onOpenAuthModal) {
+                onOpenAuthModal();
+              } else {
+                setAuthModalOpen(true);
+              }
             }}
             title="Sign In"
-            className={`flex items-center justify-center rounded-md border border-blue-500/30 bg-blue-600/10 text-xs font-semibold text-blue-300 hover:bg-blue-600 hover:text-white transition-all cursor-pointer ${
-              isCollapsed ? 'p-2' : 'gap-2 w-full py-2 px-3'
+            className={`flex items-center justify-center min-h-[44px] rounded-xl border border-blue-500/30 bg-blue-600/10 text-xs font-semibold text-blue-300 hover:bg-blue-600 hover:text-white transition-all cursor-pointer ${
+              isCollapsed ? 'p-2' : 'gap-2 w-full py-2.5 px-3'
             }`}
           >
-            <LogIn className="h-3.5 w-3.5" />
+            <LogIn className="h-4 w-4" />
             {!isCollapsed && <span>Sign In</span>}
           </button>
         )}

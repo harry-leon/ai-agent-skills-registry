@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AppSidebar } from '@/components/app-sidebar.js';
+import { AuthModal } from '@/components/auth-modal.js';
 import { StackProvider } from '@/components/stack-builder-context.js';
 import { StackBuilderDrawer } from '@/components/stack-builder-drawer.js';
 import { Menu, X } from 'lucide-react';
@@ -11,6 +12,7 @@ import { Menu, X } from 'lucide-react';
 export function AppShell({ user, children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Load sidebar collapsed preference
   useEffect(() => {
@@ -56,6 +58,7 @@ export function AppShell({ user, children }) {
             user={user}
             isCollapsed={isCollapsed}
             onToggleCollapse={handleToggleCollapse}
+            onOpenAuthModal={() => setAuthModalOpen(true)}
           />
         </div>
 
@@ -76,6 +79,10 @@ export function AppShell({ user, children }) {
                 isCollapsed={false}
                 onNavigate={() => setMobileSidebarOpen(false)}
                 onClose={() => setMobileSidebarOpen(false)}
+                onOpenAuthModal={() => {
+                  setMobileSidebarOpen(false);
+                  setAuthModalOpen(true);
+                }}
                 className="w-full border-r border-[#1c2536]"
               />
             </div>
@@ -112,12 +119,20 @@ export function AppShell({ user, children }) {
                 Skill<span className="text-blue-400">ary</span>
               </span>
             </Link>
-            <div className="w-10 flex justify-end">
+            <div className="flex items-center justify-end">
               {user ? (
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/20 text-blue-300 font-mono text-xs font-bold border border-blue-500/30">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/20 text-blue-300 font-mono text-xs font-bold border border-blue-500/30">
                   {user.handle?.[0]?.toUpperCase() || 'U'}
                 </div>
-              ) : null}
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAuthModalOpen(true)}
+                  className="inline-flex min-h-[36px] items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors cursor-pointer active:scale-95 shadow-sm"
+                >
+                  Sign In
+                </button>
+              )}
             </div>
           </div>
 
@@ -126,6 +141,16 @@ export function AppShell({ user, children }) {
           </main>
         </div>
         <StackBuilderDrawer />
+
+        {/* Global Auth Modal rendered via Portal */}
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          onSuccess={() => {
+            setAuthModalOpen(false);
+            window.location.reload();
+          }}
+        />
       </div>
     </StackProvider>
   );

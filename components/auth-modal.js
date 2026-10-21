@@ -1,6 +1,6 @@
 'use client';
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth/client.js';
@@ -11,7 +11,23 @@ import { SocialAuthButtons } from '@/components/social-auth-buttons.js';
 
 export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess }) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState(initialMode); // 'login' | 'register'
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   // Login fields
   const [loginEmail, setLoginEmail] = useState('');
@@ -29,7 +45,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
   const [error, setError] = useState('');
   const [registeredSuccess, setRegisteredSuccess] = useState(false);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleClose = () => {
     setError('');
@@ -127,22 +143,22 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
     }
   };
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
     >
       {/* Click outside to close */}
       <div className="fixed inset-0" onClick={handleClose} aria-hidden="true" />
 
-      <div className="relative w-full max-w-md rounded-2xl bg-[#0e1422] border border-[#1c2536] p-6 sm:p-7 shadow-2xl z-10 animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl bg-[#0e1422] border border-[#1c2536] p-5 sm:p-7 shadow-2xl z-10 animate-in zoom-in-95 duration-200 overscroll-contain">
         {/* Close Button */}
         <button
           type="button"
           onClick={handleClose}
           aria-label="Close"
-          className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors"
+          className="absolute right-3.5 top-3.5 rounded-lg p-2 text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition-colors cursor-pointer"
         >
           <X className="h-4 w-4" />
         </button>
@@ -333,6 +349,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess })
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
